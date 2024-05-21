@@ -4,6 +4,8 @@ Simplify Apache Age usage within a Rails application.
 
 ## Installation
 
+**NOTE:** you must be using Postgres as your database! Apache Age requires it.
+
 Add this line to your application's Gemfile:
 
 ```ruby
@@ -20,6 +22,72 @@ Or install it yourself as:
 
 ```bash
 $ gem install rails_age
+```
+
+finally (tempoarily you need to copy and run the migration)
+
+```bash
+# db/migrate/20240521062349_configure_apache_age.rb
+class ConfigureApacheAge < ActiveRecord::Migration[7.1]
+  def up
+    # Allow age extension
+    execute('CREATE EXTENSION IF NOT EXISTS age;')
+
+    # Load the age code
+    execute("LOAD 'age';")
+
+    # Load the ag_catalog into the search path
+    execute('SET search_path = ag_catalog, "$user", public;')
+
+    # Create age_schema graph if it doesn't exist
+    execute("SELECT create_graph('age_schema');")
+  end
+
+  def down
+    execute <<-SQL
+      DO $$
+      BEGIN
+        IF EXISTS (
+          SELECT 1
+          FROM pg_constraint
+          WHERE conname = 'fk_graph_oid'
+        ) THEN
+          ALTER TABLE ag_catalog.ag_label
+          DROP CONSTRAINT fk_graph_oid;
+        END IF;
+      END $$;
+    SQL
+
+    execute("SELECT drop_graph('age_schema', true);")
+    execute('DROP SCHEMA IF EXISTS ag_catalog CASCADE;')
+    execute('DROP EXTENSION IF EXISTS age;')
+  end
+end
+```
+
+and fix the TOP of `schema.rb` file to match the following (note: the version number should be the same as the LARGEST version number in your `db/migrations` folder)
+
+```ruby
+# db/schema.rb
+ActiveRecord::Schema[7.1].define(version: 2024_05_21_062349) do
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
+  # Allow age extension
+  execute('CREATE EXTENSION IF NOT EXISTS age;')
+
+  # Load the age code
+  execute("LOAD 'age';")
+
+  # Load the ag_catalog into the search path
+  execute('SET search_path = ag_catalog, "$user", public;')
+
+  # Create age_schema graph if it doesn't exist
+  execute("SELECT create_graph('age_schema');")
+
+  # other migrations
+  # ...
+end
 ```
 
 ## Contributing
