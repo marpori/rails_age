@@ -1,0 +1,10 @@
+<h1>New person</h1>
+
+<!-- # people_path(@person) PUT /people_path => people#update -->
+<%= render "form", person: @person, form_url: people_path(@person) %>
+
+<br>
+
+<div>
+  <%= link_to "Back to people", people_path %>
+</div>

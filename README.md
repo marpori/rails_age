@@ -25,6 +25,7 @@ $ gem install rails_age
 ```
 
 finally (tempoarily you need to copy and run the migration)
+https://github.com/marpori/rails_age/blob/main/db/migrate/20240521062349_configure_apache_age.rb
 
 ```bash
 # db/migrate/20240521062349_configure_apache_age.rb
@@ -66,6 +67,7 @@ end
 ```
 
 and fix the TOP of `schema.rb` file to match the following (note: the version number should be the same as the LARGEST version number in your `db/migrations` folder)
+https://github.com/marpori/rails_age/blob/main/db/schema.rb
 
 ```ruby
 # db/schema.rb
@@ -102,7 +104,7 @@ The gem is available as open source under the terms of the [MIT License](https:/
 
 I suggest you creat a folder within app called `graphs` and under that create a folder called `nodes` and `edges`. This will help you keep your code organized.
 
-A full sample app can be found [here](https://github.com/btihen-dev/rails_graphdb_age_app) the summary usage is described below.
+A full sample app can be found [here](https://github.com/marpori/rails_age_demo_app) the summary usage is described below.
 
 ### Nodes
 

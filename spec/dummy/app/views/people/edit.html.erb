@@ -1,0 +1,11 @@
+<h1>Editing person</h1>
+
+<!-- # person_path(@person)  PATCH /people/:id(.:format)  people#update -->
+<%= render "form", person: @person, form_url: person_path(@person) %>
+
+<br>
+
+<div>
+  <%= link_to "Show this person", person_path(@person) %> |
+  <%= link_to "Back to people", people_path %>
+</div>
