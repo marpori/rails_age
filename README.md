@@ -150,7 +150,7 @@ end
 ```ruby
 # app/graphs/edges/works_at.rb
 module Edges
-  class WorksAt
+  class HasJob
     include ApacheAge::Edge
 
     attribute :employee_role, :string
@@ -168,8 +168,27 @@ fred.to_h
 quarry = Nodes::Company.create(company_name: 'Bedrock Quarry')
 quarry.to_h
 
-job = Edges::WorksAt.create(start_node: fred, end_node: quarry, employee_role: 'Crane Operator')
+job = Edges::HasJob.create(start_node: fred, end_node: quarry, employee_role: 'Crane Operator')
 job.to_h
+```
+
+### Update Routes
+
+```ruby
+Rails.application.routes.draw do
+  # mount is not needed with the engine
+  # mount RailsAge::Engine => "/rails_age"
+
+  # defines the route for the people controller
+  resources :people
+
+  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
+  # Can be used by load balancers and uptime monitors to verify that the app is live.
+  get 'up' => 'rails/health#show', as: :rails_health_check
+
+  # Defines the root path route ("/")
+  root 'people#index'
+end
 ```
 
 ### Controller Usage
@@ -245,4 +264,10 @@ class PeopleController < ApplicationController
     params.require(:nodes_person).permit(:first_name, :last_name, :nick_name, :given_name, :gender)
   end
 end
+```
+
+### Views
+
+```erb
+
 ```

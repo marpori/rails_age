@@ -60,6 +60,10 @@ RSpec.describe ApacheAge::Edge do
       it { expect(subject.since_year).to eq(1963) }
       it { expect(subject.id).to be_present }
       it { expect(subject).to be_persisted }
+      it { expect(subject.end_node.id).to eq(wilma.id) }
+      it { expect(subject.start_node.id).to eq(fred.id) }
+      it { expect(subject.end_class).to eq(Nodes::CavePerson) }
+      it { expect(subject.start_class).to eq(Nodes::CavePerson) }
     end
 
     context '.new' do
@@ -71,6 +75,8 @@ RSpec.describe ApacheAge::Edge do
       it { expect(subject.role).to eq('husband') }
       it { expect(subject.start_node).to eq(fred) }
       it { expect(subject.end_node).to eq(wilma) }
+      it { expect(subject.end_class).to eq(Nodes::CavePerson) }
+      it { expect(subject.start_class).to eq(Nodes::CavePerson) }
     end
   end
 

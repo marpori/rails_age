@@ -2,6 +2,8 @@
 
 ## VERSION 0.2.0 - 2024-xx-xx
 
+- Updated edges to be more usable, including class names (to list the correct list nodes)
+
 ## VERSION 0.1.0 - 2024-05-21
 
 Initial release has the following features:

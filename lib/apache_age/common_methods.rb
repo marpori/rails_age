@@ -1,15 +1,5 @@
 module ApacheAge
   module CommonMethods
-    def initialize(**attributes)
-      super
-      return self unless age_type == 'edge'
-
-      self.end_id ||= end_node.id if end_node
-      self.start_id ||= start_node.id if start_node
-      self.end_node ||= Entity.find(end_id) if end_id
-      self.start_node ||= Entity.find(start_id) if start_id
-    end
-
     # for now we just can just use one schema
     def age_graph = 'age_schema'
     def age_label = self.class.name.gsub('::', '__')

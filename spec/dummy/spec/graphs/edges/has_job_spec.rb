@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Edges::WorksAt do
+RSpec.describe Edges::HasJob do
   describe '.new' do
     subject { described_class.new(**attributes) }
 

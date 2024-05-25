@@ -1,7 +1,6 @@
 module ApacheAge
   module Vertex
     extend ActiveSupport::Concern
-    # include ApacheAge::Entity
 
     included do
       include ActiveModel::Model

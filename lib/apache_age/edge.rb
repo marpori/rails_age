@@ -10,8 +10,8 @@ module ApacheAge
       attribute :id, :integer
       attribute :end_id, :integer
       attribute :start_id, :integer
-      attribute :end_node # :vertex
-      attribute :start_node # :vertex
+      attribute :end_node, :vertex
+      attribute :start_node, :vertex
 
       validates :end_node, :start_node, presence: true
 
@@ -19,16 +19,26 @@ module ApacheAge
       include ApacheAge::CommonMethods
     end
 
-    def age_type = 'edge'
+    def initialize(**attributes)
+      super
+      self.end_id ||= end_node.id if end_node
+      self.start_id ||= start_node.id if start_node
+      self.end_node ||= Entity.find(end_id) if end_id
+      self.start_node ||= Entity.find(start_id) if start_id
+    end
 
-    # AgeSchema::Edges::WorksAt.create(
+    def age_type = 'edge'
+    def end_class = end_node.class
+    def start_class = start_node.class
+
+    # AgeSchema::Edges::HasJob.create(
     #   start_node: fred, end_node: quarry, employee_role: 'Crane Operator'
     # )
     # SELECT *
     # FROM cypher('age_schema', $$
     #     MATCH (start_vertex:Person), (end_vertex:Company)
     #     WHERE id(start_vertex) = 1125899906842634 and id(end_vertex) = 844424930131976
-    #     CREATE (start_vertex)-[edge:WorksAt {employee_role: 'Crane Operator'}]->(end_vertex)
+    #     CREATE (start_vertex)-[edge:HasJob {employee_role: 'Crane Operator'}]->(end_vertex)
     #     RETURN edge
     # $$) as (edge agtype);
     def create_sql
