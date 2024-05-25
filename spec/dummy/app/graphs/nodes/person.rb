@@ -11,6 +11,11 @@ module Nodes
     validates :gender, :first_name, :last_name, :given_name, :nick_name,
               presence: true
 
+    validates_with(
+      ApacheAge::Validators::UniqueVertexValidator,
+      attributes: [:first_name, :last_name, :gender]
+    )
+
     def initialize(**attributes)
       super
       # use unless present? since attributes when empty sets to "" by default

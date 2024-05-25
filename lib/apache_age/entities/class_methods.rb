@@ -2,7 +2,11 @@ module ApacheAge
   module Entities
     module ClassMethods
       # for now we only allow one predertimed graph
-      def create(attributes) = new(**attributes).save
+      def create(attributes)
+        instance = new(**attributes)
+        instance.save
+        instance
+      end
 
       def find_by(attributes)
         where_clause = attributes.map { |k, v| "find.#{k} = '#{v}'" }.join(' AND ')

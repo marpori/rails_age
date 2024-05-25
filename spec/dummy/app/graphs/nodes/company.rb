@@ -4,5 +4,7 @@ module Nodes
 
     attribute :company_name, :string
     validates :company_name, presence: true
+
+    validates_with(ApacheAge::Validators::UniqueVertexValidator, attributes: [:company_name])
   end
 end

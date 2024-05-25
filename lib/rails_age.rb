@@ -11,4 +11,5 @@ module ApacheAge
   require "apache_age/entities/edge"
   require "apache_age/entities/entity"
   require "apache_age/entities/vertex"
+  require "apache_age/validators/unique_vertex_validator"
 end
