@@ -2,11 +2,11 @@
 
 require 'rails_helper'
 
-RSpec.describe ApacheAge::Vertex do
+RSpec.describe ApacheAge::Entities::Vertex do
   context 'without namespacing' do
     before do
       class Pet
-        include ApacheAge::Vertex
+        include ApacheAge::Entities::Vertex
         attribute :species, :string
         attribute :pet_name, :string
         validates :species, :pet_name, presence: true
@@ -32,7 +32,7 @@ RSpec.describe ApacheAge::Vertex do
     before do
       module Nodes
         class Pet
-          include ApacheAge::Vertex
+          include ApacheAge::Entities::Vertex
 
           attribute :species, :string
           attribute :pet_name, :string
@@ -83,7 +83,7 @@ RSpec.describe ApacheAge::Vertex do
       module Flintstones
         module Nodes
           class Pet
-            include ApacheAge::Vertex
+            include ApacheAge::Entities::Vertex
 
             attribute :species, :string
             attribute :pet_name, :string

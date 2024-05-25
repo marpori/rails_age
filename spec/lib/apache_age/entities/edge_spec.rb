@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe ApacheAge::Edge do
+RSpec.describe ApacheAge::Entities::Edge do
   context 'with minimal namespacing' do
     let(:fred) { Nodes::CavePerson.new(name: 'Bamm-Bamm Rubble') }
     let(:wilma) { Nodes::CavePerson.create(name: 'Pebbles Flintstone') }
@@ -10,7 +10,7 @@ RSpec.describe ApacheAge::Edge do
     before do
       module Nodes
         class CavePerson
-          include ApacheAge::Vertex
+          include ApacheAge::Entities::Vertex
           attribute :name, :string
           validates :name, presence: true
         end
@@ -18,7 +18,7 @@ RSpec.describe ApacheAge::Edge do
 
       module Edges
         class MarriedTo
-          include ApacheAge::Edge
+          include ApacheAge::Entities::Edge
           attribute :role, :string
           attribute :since_year, :integer
           validates :role, :since_year, presence: true
@@ -88,7 +88,7 @@ RSpec.describe ApacheAge::Edge do
       module Flintstones
         module Nodes
           class CavePerson
-            include ApacheAge::Vertex
+            include ApacheAge::Entities::Vertex
             attribute :name, :string
             validates :name, presence: true
           end
@@ -96,7 +96,7 @@ RSpec.describe ApacheAge::Edge do
 
         module Edges
           class MarriedTo
-            include ApacheAge::Edge
+            include ApacheAge::Entities::Edge
             attribute :role, :string
             attribute :since_year, :integer
             validates :role, :since_year, presence: true

@@ -1,6 +1,6 @@
 module Edges
   class HasJob
-    include ApacheAge::Edge
+    include ApacheAge::Entities::Edge
 
     attribute :employee_role, :string
     attribute :start_node, :person

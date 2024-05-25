@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe ApacheAge::ClassMethods do
+RSpec.describe ApacheAge::Entities::ClassMethods do
   subject { dino }
 
   let(:dino) { Pet.create(species: 'dinosaur', pet_name: 'Dino') }
@@ -11,7 +11,7 @@ RSpec.describe ApacheAge::ClassMethods do
 
   before do
     class Pet
-      include ApacheAge::Vertex
+      include ApacheAge::Entities::Vertex
       attribute :species, :string
       attribute :pet_name, :string
       validates :species, :pet_name, presence: true

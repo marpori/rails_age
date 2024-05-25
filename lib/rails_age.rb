@@ -6,9 +6,9 @@ module RailsAge
 end
 
 module ApacheAge
-  require "apache_age/class_methods"
-  require "apache_age/common_methods"
-  require "apache_age/edge"
-  require "apache_age/entity"
-  require "apache_age/vertex"
+  require "apache_age/entities/class_methods"
+  require "apache_age/entities/common_methods"
+  require "apache_age/entities/edge"
+  require "apache_age/entities/entity"
+  require "apache_age/entities/vertex"
 end

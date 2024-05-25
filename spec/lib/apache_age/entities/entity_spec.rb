@@ -3,14 +3,14 @@
 require 'rails_helper'
 
 # useful when you do not ye know the type
-RSpec.describe ApacheAge::Entity do
+RSpec.describe ApacheAge::Entities::Entity do
   let(:dino) { Pet.create(species: 'dinosaur', pet_name: 'Dino') }
   let(:juliet) { Pet.create(species: 'dinosaur', pet_name: 'Juliet') }
   let(:puss) { Pet.create(species: 'saber-toothed cat', pet_name: 'Baby Puss') }
 
   before do
     class Pet
-      include ApacheAge::Vertex
+      include ApacheAge::Entities::Vertex
       attribute :species, :string
       attribute :pet_name, :string
       validates :species, :pet_name, presence: true
@@ -25,7 +25,7 @@ RSpec.describe ApacheAge::Entity do
   after { Object.send(:remove_const, :Pet) }
 
   context '.find' do
-    subject { ApacheAge::Entity.find(id) }
+    subject { ApacheAge::Entities::Entity.find(id) }
 
     let(:id) { dino.id }
 
@@ -35,7 +35,7 @@ RSpec.describe ApacheAge::Entity do
   end
 
   context '.find_by' do
-    subject { ApacheAge::Entity.find_by(attributes) }
+    subject { ApacheAge::Entities::Entity.find_by(attributes) }
 
     let(:attributes) { { pet_name: dino.pet_name, species: dino.species } }
 

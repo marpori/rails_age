@@ -1,6 +1,6 @@
 module Nodes
   class Person
-    include ApacheAge::Vertex
+    include ApacheAge::Entities::Vertex
 
     attribute :first_name, :string, default: nil
     attribute :last_name, :string, default: nil

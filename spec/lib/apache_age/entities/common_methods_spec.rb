@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe ApacheAge::CommonMethods do
+RSpec.describe ApacheAge::Entities::CommonMethods do
   context 'with minimal namespacing' do
     subject { married_to }
 
@@ -14,13 +14,13 @@ RSpec.describe ApacheAge::CommonMethods do
 
     before do
       class CavePerson
-        include ApacheAge::Vertex
+        include ApacheAge::Entities::Vertex
         attribute :name, :string
         validates :name, presence: true
       end
 
       class MarriedTo
-        include ApacheAge::Edge
+        include ApacheAge::Entities::Edge
         attribute :role, :string
         attribute :since_year, :integer
         validates :role, :since_year, presence: true
