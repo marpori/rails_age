@@ -112,7 +112,7 @@ A full sample app can be found [here](https://github.com/marpori/rails_age_demo_
 # app/graphs/nodes/company.rb
 module Nodes
   class Company
-    include ApacheAge::Vertex
+    include ApacheAge::Entities::Vertex
 
     attribute :company_name, :string
     validates :company_name, presence: true
@@ -124,7 +124,7 @@ end
 # app/graphs/nodes/person.rb
 module Nodes
   class Person
-    include ApacheAge::Vertex
+    include ApacheAge::Entities::Vertex
 
     attribute :first_name, :string, default: nil
     attribute :last_name, :string, default: nil
@@ -151,9 +151,11 @@ end
 # app/graphs/edges/works_at.rb
 module Edges
   class HasJob
-    include ApacheAge::Edge
+    include ApacheAge::Entities::Edge
 
     attribute :employee_role, :string
+    attribute :start_node, :person # if using optional age types
+    # attribute :end_node, :person # if using optional age types
     validates :employee_role, presence: true
   end
 end
@@ -189,6 +191,26 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   root 'people#index'
 end
+```
+
+### Types (Optional)
+
+```ruby
+# spec/dummy/config/initializers/types.rb
+require 'apache_age/types/age_type_generator'
+
+Rails.application.config.to_prepare do
+  # Ensure the files are loaded
+  # require_dependency 'apache_age/entities/vertex'
+  require_dependency 'nodes/company'
+  require_dependency 'nodes/person'
+
+  # Register the custom types
+  # ActiveModel::Type.register(:vertex, ApacheAge::Types::AgeTypeGenerator.create_type_for(ApacheAge::Entities::Vertex))
+  ActiveModel::Type.register(:company, ApacheAge::Types::AgeTypeGenerator.create_type_for(Nodes::Company))
+  ActiveModel::Type.register(:person, ApacheAge::Types::AgeTypeGenerator.create_type_for(Nodes::Person))
+end
+
 ```
 
 ### Controller Usage

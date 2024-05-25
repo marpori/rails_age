@@ -11,8 +11,9 @@ module ApacheAge
         attribute :id, :integer
         attribute :end_id, :integer
         attribute :start_id, :integer
-        attribute :end_node, :vertex
-        attribute :start_node, :vertex
+        # allow user to optionally specify the class type (or not) thus not adding: `:vertex`
+        attribute :end_node
+        attribute :start_node
 
         validates :end_node, :start_node, presence: true
 
