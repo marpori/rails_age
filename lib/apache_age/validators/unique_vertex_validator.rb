@@ -7,11 +7,16 @@ module ApacheAge
     class UniqueVertexValidator < ActiveModel::Validator
       def validate(record)
         attributes = options[:attributes]
-        return if attributes.blank? || record.persisted?
+        return if attributes.blank?
 
         record_attribs = attributes.map { |attr| [attr, record.send(attr)] }.to_h.symbolize_keys
         query = record.class.find_by(record_attribs)
-        attributes.each { record.errors.add(_1, 'attribute combination not unique') } if query.present?
+
+        # if no match is found or if it finds itself, it's valid
+        return if query.blank?  || (query.id == record.id)
+
+        record.errors.add(:base, 'attribute combination not unique')
+        attributes.each { record.errors.add(_1, 'attribute combination not unique') }
       end
     end
   end

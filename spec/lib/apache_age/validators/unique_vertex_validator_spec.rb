@@ -7,8 +7,8 @@ RSpec.describe ApacheAge::Validators::UniqueVertexValidator do
       include ApacheAge::Entities::Vertex
       attribute :species, :string
       attribute :pet_name, :string
-      validates :species, :pet_name, presence: true
 
+      validates :species, :pet_name, presence: true
       validates_with(ApacheAge::Validators::UniqueVertexValidator, attributes: [:species, :pet_name])
     end
   end
@@ -67,6 +67,71 @@ RSpec.describe ApacheAge::Validators::UniqueVertexValidator do
         expect(subject).not_to be_valid
         expect(subject.errors.messages[:species]).to include 'attribute combination not unique'
         expect(subject.errors.messages[:pet_name]).to include 'attribute combination not unique'
+      end
+    end
+  end
+
+  context '.save' do
+    subject { fido }
+
+    let(:fido) { Pet.create(species: 'dog', pet_name: 'Fido') }
+    let(:rex) { Pet.create(species: 'dog', pet_name: 'Rex') }
+
+    before do
+      fido
+      rex
+    end
+
+    context 'when valid' do
+      it '' do
+        subject.pet_name = 'Nyima'
+        expect(subject).to be_valid
+        expect(subject.save).to be_truthy
+        expect(subject.pet_name).to eq('Nyima')
+        expect(subject.age_type).to eq('vertex')
+      end
+    end
+
+    context 'when invalid' do
+      it 'returns validation errors' do
+        subject.pet_name = 'Rex'
+        expect(subject).to be_invalid
+        expect(subject.save).to be_falsy
+        expect(subject.errors.messages[:species]).to include 'attribute combination not unique'
+        expect(subject.errors.messages[:pet_name]).to include 'attribute combination not unique'
+      end
+    end
+  end
+
+  context '.update' do
+    subject { fido.update(**attributes) }
+
+    let(:fido) { Pet.create(species: 'dog', pet_name: 'Fido') }
+    let(:rex) { Pet.create(species: 'dog', pet_name: 'Rex') }
+
+    let(:good_attribs) { { species: 'dog', pet_name: 'Nyima' } }
+    let(:bad_attribs) { { species: 'dog', pet_name: 'Rex' } }
+
+    before do
+      fido
+      rex
+    end
+
+    context 'when valid' do
+      let(:attributes) { good_attribs }
+
+      it { expect(subject).to be_valid }
+    end
+
+    context 'when invalid' do
+      let(:attributes) { bad_attribs }
+
+      it { expect(subject).to be_falsey }
+
+      it 'returns validation errors' do
+        expect(fido.update(pet_name: 'Rex')).to be_falsy
+        expect(fido.errors.messages[:species]).to include 'attribute combination not unique'
+        expect(fido.errors.messages[:pet_name]).to include 'attribute combination not unique'
       end
     end
   end

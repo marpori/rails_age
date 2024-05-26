@@ -20,6 +20,24 @@ RSpec.describe Nodes::Company do
       end
     end
 
+    context 'when an identical record already exists' do
+      let(:attributes) { { company_name: 'Rockport Querry' } }
+
+      before { described_class.create(**attributes) }
+
+      it { expect(subject).not_to be_valid }
+      it { expect(subject.company_name).to eq attributes[:company_name] }
+      it '#valid?' do
+        expect(subject).to be_invalid
+        expect(subject.errors[:company_name]).to include('attribute combination not unique')
+      end
+
+      it '#save' do
+        expect(subject.save).to be_falsey
+        expect(subject).not_to be_persisted
+      end
+    end
+
     context 'when required attributes are not given' do
       let(:attributes) { {} }
 
@@ -38,6 +56,20 @@ RSpec.describe Nodes::Company do
 
       it { expect(subject.id).to be_present }
       it { expect(subject).to be_persisted }
+    end
+
+    context 'when an identical record already exists' do
+      let(:attributes) { { company_name: 'Rockport Querry' } }
+
+      before { described_class.create(**attributes) }
+
+      it { expect(subject).not_to be_valid }
+      it { expect(subject.company_name).to eq attributes[:company_name] }
+      it '#valid?' do
+        expect(subject).to be_invalid
+        expect(subject).not_to be_persisted
+        expect(subject.errors[:company_name]).to include('attribute combination not unique')
+      end
     end
   end
 end
