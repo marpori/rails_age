@@ -8,13 +8,6 @@ module ApacheAge
       def validate(record)
         attributes = options[:attributes]
 
-        # unless record.end_node.blank? || record.end_node.valid? || record.end_node.persisted?
-        #   record.errors.add(:end_id, 'invalid node')
-        # end
-        # unless record.start_node.blank? || record.start_node.valid? || record.start_node.persisted?
-        #   record.errors.add(:start_id, 'invalid node')
-        # end
-
         end_query = record.end_node ? query_node(record.end_node) : nil
         start_query = record.start_node ? query_node(record.start_node) : nil
         return if attributes.blank? && (end_query.blank? || start_query.blank?)

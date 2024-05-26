@@ -4,8 +4,8 @@ require 'rails_helper'
 
 RSpec.describe ApacheAge::Entities::Edge do
   context 'with minimal namespacing' do
-    let(:fred) { Nodes::CavePerson.new(name: 'Bamm-Bamm Rubble') }
-    let(:wilma) { Nodes::CavePerson.create(name: 'Pebbles Flintstone') }
+    let(:bamm) { Nodes::CavePerson.new(name: 'Bamm-Bamm Rubble') }
+    let(:pebbles) { Nodes::CavePerson.create(name: 'Pebbles Flintstone') }
 
     before do
       module Nodes
@@ -39,7 +39,7 @@ RSpec.describe ApacheAge::Entities::Edge do
     end
 
     context 'with incomplete attributes' do
-      subject { Edges::MarriedTo.new(start_node: fred, since_year: 1963) }
+      subject { Edges::MarriedTo.new(start_node: bamm, since_year: 1963) }
 
       it 'is not valid' do
         expect(subject).not_to be_valid
@@ -49,40 +49,57 @@ RSpec.describe ApacheAge::Entities::Edge do
       end
     end
 
-    context '.create' do
-      subject { Edges::MarriedTo.create(start_node: fred, end_node: wilma, since_year: 1963, role: 'husband') }
+    context 'with invalid nodes' do
+      subject { Edges::MarriedTo.new(start_node: bamm, end_node: pebbles, since_year: 1963, role: 'husband') }
 
-      let(:fred) { Nodes::CavePerson.create(name: 'Bamm-Bamm Rubble') }
-      let(:wilma) { Nodes::CavePerson.create(name: 'Pebbles Flintstone') }
+      let(:bamm) { Nodes::CavePerson.new() }
+      let(:pebbles) {
+        pebbles = Nodes::CavePerson.create(name: 'Pebbles Flintstone')
+        pebbles.name = ''
+        pebbles
+      }
+
+      it 'is not valid' do
+        expect(subject).not_to be_valid
+        expect(subject.errors.messages[:start_node]).to include("invalid")
+        expect(subject.errors.messages[:end_node]).to include("invalid")
+      end
+    end
+
+    context '.create' do
+      subject { Edges::MarriedTo.create(start_node: bamm, end_node: pebbles, since_year: 1963, role: 'husband') }
+
+      let(:bamm) { Nodes::CavePerson.create(name: 'Bamm-Bamm Rubble') }
+      let(:pebbles) { Nodes::CavePerson.create(name: 'Pebbles Flintstone') }
 
       it { expect(subject.age_type).to eq('edge') }
       it { expect(subject.role).to eq('husband') }
       it { expect(subject.since_year).to eq(1963) }
       it { expect(subject.id).to be_present }
       it { expect(subject).to be_persisted }
-      it { expect(subject.end_node.id).to eq(wilma.id) }
-      it { expect(subject.start_node.id).to eq(fred.id) }
+      it { expect(subject.end_node.id).to eq(pebbles.id) }
+      it { expect(subject.start_node.id).to eq(bamm.id) }
       it { expect(subject.end_class).to eq(Nodes::CavePerson) }
       it { expect(subject.start_class).to eq(Nodes::CavePerson) }
     end
 
     context '.new' do
-      subject { Edges::MarriedTo.new(start_node: fred, end_node: wilma, since_year: 1963, role: 'husband') }
+      subject { Edges::MarriedTo.new(start_node: bamm, end_node: pebbles, since_year: 1963, role: 'husband') }
 
       it { expect(subject).to be_valid }
       it { expect(subject.age_type).to eq('edge') }
       it { expect(subject.since_year).to eq(1963) }
       it { expect(subject.role).to eq('husband') }
-      it { expect(subject.start_node).to eq(fred) }
-      it { expect(subject.end_node).to eq(wilma) }
+      it { expect(subject.start_node).to eq(bamm) }
+      it { expect(subject.end_node).to eq(pebbles) }
       it { expect(subject.end_class).to eq(Nodes::CavePerson) }
       it { expect(subject.start_class).to eq(Nodes::CavePerson) }
     end
   end
 
   context 'node definition within a module namespace' do
-    let(:fred) { Flintstones::Nodes::CavePerson.new(name: 'Bamm-Bamm Rubble') }
-    let(:wilma) { Flintstones::Nodes::CavePerson.create(name: 'Pebbles Flintstone') }
+    let(:bamm) { Flintstones::Nodes::CavePerson.new(name: 'Bamm-Bamm Rubble') }
+    let(:pebbles) { Flintstones::Nodes::CavePerson.create(name: 'Pebbles Flintstone') }
 
     before do
       module Flintstones
@@ -120,7 +137,7 @@ RSpec.describe ApacheAge::Entities::Edge do
     end
 
     context 'with incomplete attributes' do
-      subject { Flintstones::Edges::MarriedTo.new(start_node: fred, since_year: 1963) }
+      subject { Flintstones::Edges::MarriedTo.new(start_node: bamm, since_year: 1963) }
 
       it 'is not valid' do
         expect(subject).not_to be_valid
@@ -132,11 +149,11 @@ RSpec.describe ApacheAge::Entities::Edge do
 
     context '.create' do
       subject do
-        Flintstones::Edges::MarriedTo.create(start_node: fred, end_node: wilma, since_year: 1963, role: 'husband')
+        Flintstones::Edges::MarriedTo.create(start_node: bamm, end_node: pebbles, since_year: 1963, role: 'husband')
       end
 
-      let(:fred) { Flintstones::Nodes::CavePerson.create(name: 'Bamm-Bamm Rubble') }
-      let(:wilma) { Flintstones::Nodes::CavePerson.create(name: 'Pebbles Flintstone') }
+      let(:bamm) { Flintstones::Nodes::CavePerson.create(name: 'Bamm-Bamm Rubble') }
+      let(:pebbles) { Flintstones::Nodes::CavePerson.create(name: 'Pebbles Flintstone') }
 
       it { expect(subject.age_type).to eq('edge') }
       it { expect(subject.role).to eq('husband') }
@@ -147,15 +164,15 @@ RSpec.describe ApacheAge::Entities::Edge do
 
     context '.new' do
       subject do
-        Flintstones::Edges::MarriedTo.new(start_node: fred, end_node: wilma, since_year: 1963, role: 'husband')
+        Flintstones::Edges::MarriedTo.new(start_node: bamm, end_node: pebbles, since_year: 1963, role: 'husband')
       end
 
       it { expect(subject).to be_valid }
       it { expect(subject.age_type).to eq('edge') }
       it { expect(subject.since_year).to eq(1963) }
       it { expect(subject.role).to eq('husband') }
-      it { expect(subject.start_node).to eq(fred) }
-      it { expect(subject.end_node).to eq(wilma) }
+      it { expect(subject.start_node).to eq(bamm) }
+      it { expect(subject.end_node).to eq(pebbles) }
     end
   end
 end

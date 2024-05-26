@@ -16,6 +16,7 @@ module ApacheAge
         attribute :start_node
 
         validates :end_node, :start_node, presence: true
+        validate :validate_nodes
 
         extend ApacheAge::Entities::ClassMethods
         include ApacheAge::Entities::CommonMethods
@@ -34,6 +35,14 @@ module ApacheAge
       def start_class = start_node.class
       def end_node_class = end_node.class
       def start_node_class = start_node.class
+
+      # Private methods
+
+      # Custom validation method to validate start_node and end_node
+      def validate_nodes
+        errors.add(:start_node, 'invalid') if start_node && !start_node.valid?
+        errors.add(:end_node, 'invalid') if end_node && !end_node.valid?
+      end
 
       # Discover attribute class
       # name_type = model.class.attribute_types['name']

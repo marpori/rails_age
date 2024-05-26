@@ -14,6 +14,7 @@
 - **Edges**
   * add class methods to find_edge(with {properties, end_id, start_id})
   * add missing methods to use in rails controllers
+  * validate edge start- & end-nodes are valid
   * add unique edge validations
 - **Nodes**
   * add missing methods to use in rails controllers
