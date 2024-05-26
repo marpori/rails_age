@@ -6,13 +6,14 @@ module ApacheAge
   module Validators
     class UniqueEdgeValidator < ActiveModel::Validator
       def validate(record)
+        allowed_keys = record.age_properties.keys
         attributes = options[:attributes] || []
 
         edge_attribs =
           attributes
           .map { |attr| [attr, record.send(attr)] }.to_h
           .symbolize_keys
-          .except(:id, :label, :start_id, :end_id, :start_node, :end_node)
+          .slice(*allowed_keys)
 
         possible_end_keys = [:end_id, 'end_id', :end_node, 'end_node']
         end_query =

@@ -6,6 +6,7 @@ module ApacheAge
   module Validators
     class UniqueVertexValidator < ActiveModel::Validator
       def validate(record)
+        allowed_keys = record.age_properties.keys
         attributes = options[:attributes]
         return if attributes.blank?
 
@@ -13,7 +14,7 @@ module ApacheAge
           attributes
           .map { |attr| [attr, record.send(attr)] }
           .to_h.symbolize_keys
-          .except(:id, :label)
+          .slice(*allowed_keys)
         query = record.class.find_by(record_attribs)
 
         # if no match is found or if it finds itself, it's valid
