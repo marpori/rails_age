@@ -32,7 +32,7 @@ module ApacheAge
           end
         return if attributes.blank? && (end_query.blank? || start_query.blank?)
 
-        query = record.class.find_edge(edge_attribs.compact)
+        query = record.class.find_by(edge_attribs.compact)
         return if query.blank? || (query.id == record.id)
 
         record.errors.add(:base, 'attribute combination not unique')

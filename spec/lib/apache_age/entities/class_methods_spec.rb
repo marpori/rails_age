@@ -114,45 +114,45 @@ RSpec.describe ApacheAge::Entities::ClassMethods do
       Object.send(:remove_const, :HasPet)
     end
 
-    context '.find_edge' do
+    context '.find_by - for edges' do
       context 'with node_ids no attributes' do
-        subject { HasPet.find_edge(start_id: person.id, end_id: fido.id) }
+        subject { HasPet.find_by(start_id: person.id, end_id: fido.id) }
 
         it { expect(subject.id).to eq has_fido.id }
       end
 
       context 'with node_ids no attributes' do
-        subject { HasPet.find_edge(caregiver_role: has_fido.caregiver_role, start_id: person.id, end_id: fido.id) }
+        subject { HasPet.find_by(caregiver_role: has_fido.caregiver_role, start_id: person.id, end_id: fido.id) }
 
         it { expect(subject.id).to eq has_fido.id }
       end
 
       context 'with one node_ids & attributes' do
-        subject { HasPet.find_edge(caregiver_role: has_fido.caregiver_role, end_id: fido.id) }
+        subject { HasPet.find_by(caregiver_role: has_fido.caregiver_role, end_id: fido.id) }
 
         it { expect(subject.id).to eq has_fido.id }
       end
 
       context 'with attributes only' do
-        subject { HasPet.find_edge(caregiver_role: has_fido.caregiver_role) }
+        subject { HasPet.find_by(caregiver_role: has_fido.caregiver_role) }
 
         it { expect(subject.id).to eq has_fido.id }
       end
 
       context 'with node objects' do
-        subject { HasPet.find_edge(start_node: person, end_node: fido) }
+        subject { HasPet.find_by(start_node: person, end_node: fido) }
 
         it { expect(subject.id).to eq has_fido.id }
       end
 
       context 'with node objects no attributes' do
-        subject { HasPet.find_edge(caregiver_role: has_fido.caregiver_role, start_node: person, end_node: fido) }
+        subject { HasPet.find_by(caregiver_role: has_fido.caregiver_role, start_node: person, end_node: fido) }
 
         it { expect(subject.id).to eq has_fido.id }
       end
 
       context 'with one node ids & attributes' do
-        subject { HasPet.find_edge(caregiver_role: has_fido.caregiver_role, end_node: fido) }
+        subject { HasPet.find_by(caregiver_role: has_fido.caregiver_role, end_node: fido) }
 
         it { expect(subject.id).to eq has_fido.id }
       end

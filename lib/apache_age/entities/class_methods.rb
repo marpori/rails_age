@@ -8,29 +8,15 @@ module ApacheAge
         instance
       end
 
-      def find_edge(attributes)
-        where_attribs =
-          attributes
-          .compact
-          .except(:end_id, :start_id, :end_node, :start_node)
-          .map { |k, v| "find.#{k} = '#{v}'" }.join(' AND ')
-        where_attribs = where_attribs.empty? ? nil : where_attribs
-
-        end_id = attributes[:end_id] || attributes[:end_node]&.id
-        start_id = attributes[:start_id] || attributes[:start_node]&.id
-        where_end_id = end_id ? "id(end_node) = #{end_id}" : nil
-        where_start_id = start_id ? "id(start_node) = #{start_id}" : nil
-
-        where_clause = [where_attribs, where_start_id, where_end_id].compact.join(' AND ')
-        return nil if where_clause.empty?
-
-        cypher_sql = find_edge_sql(where_clause)
-        execute_find(cypher_sql)
-      end
-
       def find_by(attributes)
+        return nil if attributes.reject{ |k,v| v.blank? }.empty?
+
+        edge_keys = [:start_id, :start_node, :end_id, :end_node]
+        return find_edge(attributes) if edge_keys.any? { |key| attributes.include?(key) }
+
         where_clause = attributes.map { |k, v| "find.#{k} = '#{v}'" }.join(' AND ')
         cypher_sql = find_sql(where_clause)
+
         execute_find(cypher_sql)
       end
 
@@ -54,6 +40,27 @@ module ApacheAge
       end
 
       # Private stuff
+
+      def find_edge(attributes)
+        where_attribs =
+          attributes
+          .compact
+          .except(:end_id, :start_id, :end_node, :start_node)
+          .map { |k, v| "find.#{k} = '#{v}'" }.join(' AND ')
+        where_attribs = where_attribs.empty? ? nil : where_attribs
+
+        end_id = attributes[:end_id] || attributes[:end_node]&.id
+        start_id = attributes[:start_id] || attributes[:start_node]&.id
+        where_end_id = end_id ? "id(end_node) = #{end_id}" : nil
+        where_start_id = start_id ? "id(start_node) = #{start_id}" : nil
+
+        where_clause = [where_attribs, where_start_id, where_end_id].compact.join(' AND ')
+        return nil if where_clause.empty?
+
+        cypher_sql = find_edge_sql(where_clause)
+
+        execute_find(cypher_sql)
+      end
 
       def age_graph = 'age_schema'
       def age_label = name.gsub('::', '__')
