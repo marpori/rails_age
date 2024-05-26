@@ -9,13 +9,19 @@ module ApacheAge
       end
 
       def find_edge(attributes)
-        end_id = attributes[:end_id]
-        start_id = attributes[:start_id]
-        where_clause =
-          attributes.compact.except(:end_id, :start_id)
+        where_attribs =
+          attributes
+          .compact
+          .except(:end_id, :start_id, :end_node, :start_node)
           .map { |k, v| "find.#{k} = '#{v}'" }.join(' AND ')
-        where_clause += " AND id(end_node) = #{end_id}" if end_id
-        where_clause += " AND id(start_node) = #{start_id}" if start_id
+        where_attribs = where_attribs.empty? ? nil : where_attribs
+
+        end_id = attributes[:end_id] || attributes[:end_node]&.id
+        start_id = attributes[:start_id] || attributes[:start_node]&.id
+        where_end_id = end_id ? "id(end_node) = #{end_id}" : nil
+        where_start_id = start_id ? "id(start_node) = #{start_id}" : nil
+
+        where_clause = [where_attribs, where_start_id, where_end_id].compact.join(' AND ')
         return nil if where_clause.empty?
 
         cypher_sql = find_edge_sql(where_clause)
