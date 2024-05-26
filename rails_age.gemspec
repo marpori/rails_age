@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.email       = ['btihen@gmail.com']
   spec.homepage    = 'https://github.com/marpori/rails_age'
   spec.summary     = 'Apache AGE plugin for Rails 7.x'
-  spec.description = 'This plugin integrates Apache AGE with Rails 7.x, providing tools and helpers for working with graph databases within a Rails application.'
+  spec.description = 'This plugin integrates Apache AGE for PostgreSQL with Rails 7.x, providing tools and helpers for working with graph databases within a Rails application.'
 
   spec.license     = 'MIT'
 
