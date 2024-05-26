@@ -13,8 +13,10 @@ RSpec.describe ApacheAge::Entities::ClassMethods do
     before do
       class Pet
         include ApacheAge::Entities::Vertex
+
         attribute :species, :string
         attribute :pet_name, :string
+
         validates :species, :pet_name, presence: true
       end
 
@@ -78,19 +80,27 @@ RSpec.describe ApacheAge::Entities::ClassMethods do
 
       class Pet
         include ApacheAge::Entities::Vertex
+
         attribute :species, :string
         attribute :pet_name, :string
 
         validates :species, :pet_name, presence: true
-        validates_with(ApacheAge::Validators::UniqueVertexValidator, attributes: [:species, :pet_name])
+        validates_with(
+          ApacheAge::Validators::UniqueVertexValidator,
+          attributes: [:species, :pet_name]
+        )
       end
 
       class HasPet
         include ApacheAge::Entities::Edge
+
         attribute :caregiver_role, :string
 
         validates :caregiver_role, presence: true
-        validates_with(ApacheAge::Validators::UniqueEdgeValidator, attributes: [:caregiver_role])
+        validates_with(
+          ApacheAge::Validators::UniqueEdgeValidator,
+          attributes: [:caregiver_role]
+        )
       end
 
       has_fido

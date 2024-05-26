@@ -15,14 +15,18 @@ RSpec.describe ApacheAge::Entities::CommonMethods do
     before do
       class CavePerson
         include ApacheAge::Entities::Vertex
+
         attribute :name, :string
+
         validates :name, presence: true
       end
 
       class MarriedTo
         include ApacheAge::Entities::Edge
+
         attribute :role, :string
         attribute :since_year, :integer
+
         validates :role, :since_year, presence: true
       end
     end

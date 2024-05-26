@@ -6,15 +6,30 @@ module ApacheAge
   module Validators
     class UniqueEdgeValidator < ActiveModel::Validator
       def validate(record)
-        attributes = options[:attributes]
+        attributes = options[:attributes] || []
 
-        end_query = record.end_node ? query_node(record.end_node) : nil
-        start_query = record.start_node ? query_node(record.start_node) : nil
+        edge_attribs =
+          attributes
+          .map { |attr| [attr, record.send(attr)] }.to_h
+          .symbolize_keys
+          .except(:id, :label, :start_id, :end_id, :start_node, :end_node)
+
+        possible_end_keys = [:end_id, 'end_id', :end_node, 'end_node']
+        end_query =
+          if possible_end_keys.any? { |key| attributes.include?(key) }
+            end_query = query_node(record.end_node)
+            edge_attribs[:end_id] = end_query&.id
+            end_query
+          end
+
+        possible_start_keys = [:start_id, 'start_id', :start_node, 'start_node']
+        start_query =
+          if possible_start_keys.any? { |key| attributes.include?(key) }
+            start_query = query_node(record.start_node)
+            edge_attribs[:start_id] = start_query&.id
+            start_query
+          end
         return if attributes.blank? && (end_query.blank? || start_query.blank?)
-
-        edge_attribs = attributes.map { |attr| [attr, record.send(attr)] }.to_h.symbolize_keys
-        edge_attribs[:end_id] = end_query&.id
-        edge_attribs[:start_id] = start_query&.id
 
         query = record.class.find_edge(edge_attribs.compact)
         return if query.blank? || (query.id == record.id)
@@ -27,7 +42,11 @@ module ApacheAge
 
       private
 
-      def query_node(node) = node.persisted? ? node.class.find(node.id) : node.class.find_by(node.age_properties)
+      def query_node(node)
+        return nil if node.blank?
+
+        node.persisted? ? node.class.find(node.id) : node.class.find_by(node.age_properties)
+      end
     end
   end
 end

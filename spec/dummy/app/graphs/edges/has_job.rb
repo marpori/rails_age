@@ -9,7 +9,7 @@ module Edges
     validates :employee_role, presence: true
     validates_with(
       ApacheAge::Validators::UniqueEdgeValidator,
-      attributes: [:employee_role]
+      attributes: %i[employee_role start_node end_node]
     )
   end
 end

@@ -5,11 +5,15 @@ RSpec.describe ApacheAge::Validators::UniqueVertexValidator do
   before do
     class Pet
       include ApacheAge::Entities::Vertex
+
       attribute :species, :string
       attribute :pet_name, :string
 
       validates :species, :pet_name, presence: true
-      validates_with(ApacheAge::Validators::UniqueVertexValidator, attributes: [:species, :pet_name])
+      validates_with(
+        ApacheAge::Validators::UniqueVertexValidator,
+        attributes: [:species, :pet_name]
+      )
     end
   end
 

@@ -5,28 +5,40 @@ RSpec.describe ApacheAge::Validators::UniqueEdgeValidator do
   before do
     class Person
       include ApacheAge::Entities::Vertex
+
       attribute :first_name, :string
       attribute :last_name, :string
 
       validates :first_name, :last_name, presence: true
-      validates_with(ApacheAge::Validators::UniqueVertexValidator, attributes: [:first_name, :last_name])
+      validates_with(
+        ApacheAge::Validators::UniqueVertexValidator,
+        attributes: %i[first_name last_name]
+      )
     end
 
     class Pet
       include ApacheAge::Entities::Vertex
+
       attribute :species, :string
       attribute :pet_name, :string
 
       validates :species, :pet_name, presence: true
-      validates_with(ApacheAge::Validators::UniqueVertexValidator, attributes: [:species, :pet_name])
+      validates_with(
+        ApacheAge::Validators::UniqueVertexValidator,
+        attributes: %i[species pet_name]
+      )
     end
 
     class HasPet
       include ApacheAge::Entities::Edge
+
       attribute :caregiver_role, :string
 
       validates :caregiver_role, presence: true
-      validates_with(ApacheAge::Validators::UniqueEdgeValidator, attributes: [:caregiver_role])
+      validates_with(
+        ApacheAge::Validators::UniqueEdgeValidator,
+        attributes: %i[caregiver_role start_node end_node]
+      )
     end
   end
 
