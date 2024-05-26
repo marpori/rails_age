@@ -8,6 +8,20 @@ module ApacheAge
         instance
       end
 
+      def find_edge(attributes)
+        end_id = attributes[:end_id]
+        start_id = attributes[:start_id]
+        where_clause =
+          attributes.compact.except(:end_id, :start_id)
+          .map { |k, v| "find.#{k} = '#{v}'" }.join(' AND ')
+        where_clause += " AND id(end_node) = #{end_id}" if end_id
+        where_clause += " AND id(start_node) = #{start_id}" if start_id
+        return nil if where_clause.empty?
+
+        cypher_sql = find_edge_sql(where_clause)
+        execute_find(cypher_sql)
+      end
+
       def find_by(attributes)
         where_clause = attributes.map { |k, v| "find.#{k} = '#{v}'" }.join(' AND ')
         cypher_sql = find_sql(where_clause)
@@ -40,7 +54,7 @@ module ApacheAge
       def age_type = name.constantize.new.age_type
 
       def match_clause
-        age_type == 'vertex' ? "(find:#{age_label})" : "()-[find:#{age_label}]->()"
+        age_type == 'vertex' ? "(find:#{age_label})" : "(start_node)-[find:#{age_label}]->(end_node)"
       end
 
       def execute_find(cypher_sql)
@@ -67,6 +81,17 @@ module ApacheAge
       end
 
       def find_sql(where_clause)
+        <<-SQL
+          SELECT *
+          FROM cypher('#{age_graph}', $$
+              MATCH #{match_clause}
+              WHERE #{where_clause}
+              RETURN find
+          $$) as (#{age_label} agtype);
+        SQL
+      end
+
+      def find_edge_sql(where_clause)
         <<-SQL
           SELECT *
           FROM cypher('#{age_graph}', $$

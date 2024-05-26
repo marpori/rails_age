@@ -1,17 +1,36 @@
 # Change Log
 
-## VERSION 0.2.0 - 2024-xx-xx
+## VERSION 0.3.0 - 2024-xx-xx
 
-- Updated edges to be more usable, including class names (to list the correct list nodes)
-- Unique validation for nodes
+- **cypher**
+  * query support
+  * paths support
+  * select attributes support
+- **Paths**
+  * ?
+
+## VERSION 0.2.0 - 2024-05-26
+
+- **Edges**
+  * add class methods to find_edge(with {properties, end_id, start_id})
+  * add missing methods to use in rails controllers
+  * add unique edge validations
+- **Nodes**
+  * add missing methods to use in rails controllers
+  * add unique node validations
 
 ## VERSION 0.1.0 - 2024-05-21
 
 Initial release has the following features:
 
-- **Nodes:** Create, Read, Update, Delete & find (by id), find_by(age_property), all
-- **Edges:** Create, Read, Update, Delete & find (by id), find_by(age_property), all
-- **Entities:** find (by id), find_by(age_property), all; when class/label and/or edge/node is unknown)
+- **Nodes:**
+  * Create, Read, Update, Delete & .find(by id), .find_by(age_property), .all
+  * verified with usage in a controller and views
+- **Edges:**
+  * Create, Read, Update, Delete & .find(by id), .find_by(age_property), .all
+  * verified with usage in a controller and views
+- **Entities:**
+  * find (by id), find_by(age_property), all; when class/label and/or edge/node is unknown)
 
 These can be used within Rails applications using a Rails APIs including within controllers and views.
 See the [README](README.md) for more information.
