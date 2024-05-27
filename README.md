@@ -115,7 +115,12 @@ module Nodes
     include ApacheAge::Entities::Vertex
 
     attribute :company_name, :string
+
     validates :company_name, presence: true
+    validates_with(
+      ApacheAge::Validators::UniqueVertexValidator,
+      attributes: [:company_name]
+    )
   end
 end
 ```
@@ -148,15 +153,30 @@ end
 ### Edges
 
 ```ruby
-# app/graphs/edges/works_at.rb
+# app/graphs/edges/has_job.rb
 module Edges
   class HasJob
     include ApacheAge::Entities::Edge
 
     attribute :employee_role, :string
-    attribute :start_node, :person # if using optional age types
-    # attribute :end_node, :person # if using optional age types
+    attribute :start_node, :person
+    attribute :end_node, :company
+
     validates :employee_role, presence: true
+    validate :validate_unique
+    # or with a one-liner
+    # validates_with(
+    #   ApacheAge::Validators::UniqueEdgeValidator,
+    #   attributes: %i[employee_role start_node end_node]
+    # )
+
+    private
+
+    def validate_unique
+      ApacheAge::Validators::UniqueEdgeValidator
+        .new(attributes: %i[employee_role start_node end_node])
+        .validate(self)
+    end
   end
 end
 ```

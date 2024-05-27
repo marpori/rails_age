@@ -1,4 +1,4 @@
-class ConfigureApacheAge < ActiveRecord::Migration[7.1]
+class AddApacheAge < ActiveRecord::Migration[7.1]
   def up
     # Allow age extension
     execute('CREATE EXTENSION IF NOT EXISTS age;')
