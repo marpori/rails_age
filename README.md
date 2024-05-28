@@ -12,24 +12,26 @@ Add this line to your application's Gemfile:
 gem "rails_age"
 ```
 
-And then execute:
+### Quick Install
 
 ```bash
 $ bundle
+$ bin/rails apache_age:install
+$ git add .
+$ git commit -m "Add Apache Age to Rails"
 ```
 
-Or install it yourself as:
+NOTE: it is important to add the db/schema.rb to your git repository because `rails db:migrate` will inappropriately modify the schema file.  However, you can run `bin/rails apache_age:install` at any time to repair the schema file if needed.
 
+### Manual Install
+
+create a migration to add the Apache Age extension to your database
 ```bash
-$ gem install rails_age
+$ bin/rails g migration AddApacheAge
 ```
-
-finally (tempoarily you need to copy and run the migration)
-https://github.com/marpori/rails_age/blob/main/db/migrate/20240521062349_configure_apache_age.rb
-
-```bash
-# db/migrate/20240521062349_configure_apache_age.rb
-class ConfigureApacheAge < ActiveRecord::Migration[7.1]
+copy the contents of https://github.com/marpori/rails_age/blob/main/db/migrate/20240521062349_add_apache_age.rb
+```ruby
+class AddApacheAge < ActiveRecord::Migration[7.1]
   def up
     # Allow age extension
     execute('CREATE EXTENSION IF NOT EXISTS age;')
@@ -65,13 +67,42 @@ class ConfigureApacheAge < ActiveRecord::Migration[7.1]
   end
 end
 ```
+into your new migration file
 
-and fix the TOP of `schema.rb` file to match the following (note: the version number should be the same as the LARGEST version number in your `db/migrations` folder)
-https://github.com/marpori/rails_age/blob/main/db/schema.rb
+then run the migration
+```bash
+$ bin/rails db:migrate
+```
 
+Rails migrate will mangle the schema `db/schema.rb` file.  You need to remove the lines that look like:
 ```ruby
-# db/schema.rb
-ActiveRecord::Schema[7.1].define(version: 2024_05_21_062349) do
+  create_schema "ag_catalog"
+  create_schema "age_schema"
+
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "age"
+  enable_extension "plpgsql"
+
+  # Could not dump table "_ag_label_edge" because of following StandardError
+  #   Unknown type 'graphid' for column 'id'
+
+  # Could not dump table "_ag_label_vertex" because of following StandardError
+  #   Unknown type 'graphid' for column 'id'
+
+  # Could not dump table "ag_graph" because of following StandardError
+  #   Unknown type 'regnamespace' for column 'namespace'
+
+  # Could not dump table "ag_label" because of following StandardError
+  #   Unknown type 'regclass' for column 'relation'
+
+  add_foreign_key "ag_label", "ag_graph", column: "graph", primary_key: "graphid", name: "fk_graph_oid"
+
+  # other migrations
+  # ...
+```
+
+and replace them with the following lines:
+```ruby
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -89,8 +120,10 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_21_062349) do
 
   # other migrations
   # ...
-end
 ```
+
+NOTE: I like to add the schema.rb to git so that it is easy to revert the unwanted changes and keep the desired changes.
+ALSO note that running: `bin/rails apache_age:install` will check and non-destructively repair any config files at any time (however a git commit before hand as a backup is a good idea incase something goes wrong!)
 
 ## Contributing
 

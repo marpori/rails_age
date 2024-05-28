@@ -1,7 +1,7 @@
 # lib/tasks/install.rake
-# Usage: `rake rails_age:install`
+# Usage: `rake apache_age:install`
 #
-namespace :rails_age do
+namespace :apache_age do
   desc "Copy migrations from rails_age to application and update schema"
   task :install => :environment do
     source_schema = File.expand_path('../../../db/schema.rb', __FILE__)
@@ -28,6 +28,8 @@ namespace :rails_age do
       puts "updating existing schema..."
       update_existing_schema(last_migration_version, destination_schema, source_schema)
     end
+
+    update_database_yml
   end
 
   def copy_migrations
@@ -130,6 +132,7 @@ namespace :rails_age do
       destination_content.gsub!(%r{^.*?#   Unknown type 'regnamespace' for column 'namespace'.*?\n}, '')
       destination_content.gsub!(%r{^.*?# Could not dump table "ag_label" because of following StandardError.*?\n}, '')
       destination_content.gsub!(%r{^.*?#   Unknown type 'regclass' for column 'relation'.*?\n}, '')
+      destination_content.gsub!(%r{^.*?#   Unknown type 'graphid' for column 'id'.*?\n}, '')
       destination_content.gsub!(
         %r{^.*?# Could not dump table "_ag_label_edge" because of following StandardError.*?\n}, ''
       )
@@ -164,47 +167,44 @@ namespace :rails_age do
     end
   end
 
-  # # Update the schema.rb file
-  # def update_schema
-  #   schema_file = File.expand_path("#{Rails.root}/db/schema.rb", __FILE__)
-  #   if File.exist?(schema_file)
-  #     content = File.read(schema_file)
-  #     # Add the necessary extensions and configurations at the top of the schema
-  #     insert_statements = <<-RUBY
+  def update_database_yml
+    db_config_file = File.expand_path("#{Rails.root}/config/database.yml", __FILE__)
 
-  # # These are extensions that must be enabled in order to support this database
-  # enable_extension 'plpgsql'
+    # Read the file
+    lines = File.readlines(db_config_file)
 
-  # # Allow age extension
-  # execute('CREATE EXTENSION IF NOT EXISTS age;')
+    # any uncommented "schema_search_path:" lines?
+    path_index = lines.find_index { |line| !line.include?('#') && line.include?('schema_search_path:') }
+    default_start_index = lines.index { |line| line.strip.start_with?('default:') }
 
-  # # Load the age code
-  # execute("LOAD 'age';")
+    # when it finds an existing schema_search_path, it updates it
+    if path_index && lines[path_index].include?('ag_catalog,age_schema')
+      puts "schema_search_path already set to ag_catalog,age_schema nothing to do."
+      return
+    elsif path_index
+      key, val = lines[path_index].split(': ')
+      # remove any unwanted characters
+      val = val.gsub(/[ "\s\"\"'\n]/, '')
+      lines[path_index] = "#{key}: ag_catalog,age_schema,#{val}\n"
+      puts "add ag_catalog,age_schema to schema_search_path"
+    elsif default_start_index
+      puts "add ag_catalog,age_schema,public to schema_search_path in the default section of database.yml"
+      sections_index = lines.map.with_index { |line, index| index if !line.start_with?(' ') }.compact.sort
 
-  # # Load the ag_catalog into the search path
-  # execute('SET search_path = ag_catalog, "$user", public;')
+      # find the start of the default section
+      next_section_in_list = sections_index.index(default_start_index) + 1
 
-  # # Create age_schema graph if it doesn't exist
-  # execute("SELECT create_graph('age_schema');")
+      # find the end of the default section (before the next section starts)
+      path_insert_index = sections_index[next_section_in_list]
 
-  #     RUBY
-  #     unless content.include?(insert_statements.strip)
-  #       content.sub!(/^# These are extensions that must be enabled in order to support this database.*?\n\n/m, insert_statements)
-  #     end
-  #     # Remove unwanted schema statements
-  #     content.gsub!(/^.*?create_schema "ag_catalog".*?\n\n/m, '')
-  #     content.gsub!(/^.*?create_schema "age_schema".*?\n\n/m, '')
-  #     content.gsub!(/^.*?enable_extension "age".*?\n\n/m, '')
-  #     content.gsub!(/^.*?# Could not dump table "_ag_label_edge" because of following StandardError.*?\n\n/m, '')
-  #     content.gsub!(/^.*?# Could not dump table "_ag_label_vertex" because of following StandardError.*?\n\n/m, '')
-  #     content.gsub!(/^.*?# Could not dump table "ag_graph" because of following StandardError.*?\n\n/m, '')
-  #     content.gsub!(/^.*?# Could not dump table "ag_label" because of following StandardError.*?\n\n/m, '')
-  #     content.gsub!(/^.*?add_foreign_key "ag_label", "ag_graph".*?\n\n/m, '')
+      lines.insert(path_insert_index, "  schema_search_path: ag_catalog,age_schema,public\n")
+    else
+      puts "didn't find a default section in database.yml, please add the following line:"
+      puts "  schema_search_path: ag_catalog,age_schema,public"
+      puts "to the apprpriate section of your database.yml"
+    end
 
-  #     File.write(schema_file, content)
-  #     puts "Updated #{schema_file} with necessary extensions and configurations."
-  #   else
-  #     puts "schema.rb file not found. Please ensure migrations have been run."
-  #   end
-  # end
+    # Write the modified lines back to the file
+    File.open(db_config_file, 'w') { |file| file.write(lines.join) }
+  end
 end
