@@ -2,8 +2,6 @@
 
 ## VERSION 0.4.0 - 2024-xx-xx
 
-- **Edges**
-  * `find_edge` is deprecated - use `find_by` with :start_node, :end_node to find an edge with specific nodes
 - **cypher**
   * query support
   * paths support
@@ -13,14 +11,19 @@
 
 ## VERSION 0.3.1 - 2024-xx-xx
 
-- **Genetator**
+- **Generators**
   * add `rails generate apache_age:node` to create a node model (with its type in initializer)
   * add `rails generate apache_age:edge` to create an edge model (with its type in initializer)
 - **Installer**
-  * refactored into multiple independent tasks?
+  * refactor into multiple independent tasks with tests
+- **Documentation**
+  * updated README with additional information
+  * added `db/structure.sql` config to README
 
 ## VERSION 0.3.0 - 2024-05-28
 
+- **Edges**
+  * `find_by(start_node:, :end_node:, properties:)` to find an edge with specific nodes & properties (deprecated `find_edge`)
 - **Installer** (`rails generate apache_age:install`)
   * copy Age PG Extenstion migration to `db/migrate`
   * run the AGE PG Migration

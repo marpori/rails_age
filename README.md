@@ -14,6 +14,8 @@ gem "rails_age"
 
 ### Quick Install
 
+using the installer, creates the migration to install age, runs the migration, and adjusts the schema file, and updates the `config/database.yml` file.
+
 ```bash
 $ bundle
 $ bin/rails apache_age:install
@@ -21,7 +23,9 @@ $ git add .
 $ git commit -m "Add Apache Age to Rails"
 ```
 
-NOTE: it is important to add the db/schema.rb to your git repository because `rails db:migrate` will inappropriately modify the schema file.  However, you can run `bin/rails apache_age:install` at any time to repair the schema file if needed.
+NOTE: it is important to commit the `db/schema.rb` to git because `rails db:migrate` inappropriately modifies the schema file (I haven't yet tested `db/structure.sql`).  **You can run `bin/rails apache_age:install` at any time to repair the schema file as needed.**
+
+For now, if you are using `db/structure.sql` you will need to manually configure Apache Age (RailsAge) as described below.
 
 ### Manual Install
 
@@ -76,6 +80,7 @@ $ bin/rails db:migrate
 
 Rails migrate will mangle the schema `db/schema.rb` file.  You need to remove the lines that look like:
 ```ruby
+ActiveRecord::Schema[7.1].define(version: 2024_05_21_062349) do
   create_schema "ag_catalog"
   create_schema "age_schema"
 
@@ -99,12 +104,14 @@ Rails migrate will mangle the schema `db/schema.rb` file.  You need to remove th
 
   # other migrations
   # ...
+end
 ```
 
 and replace them with the following lines:
 ```ruby
+ActiveRecord::Schema[7.1].define(version: 2024_05_21_062349) do
   # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
+  enable_extension 'plpgsql'
 
   # Allow age extension
   execute('CREATE EXTENSION IF NOT EXISTS age;')
@@ -120,14 +127,38 @@ and replace them with the following lines:
 
   # other migrations
   # ...
+end
 ```
 
-NOTE: I like to add the schema.rb to git so that it is easy to revert the unwanted changes and keep the desired changes.
-ALSO note that running: `bin/rails apache_age:install` will check and non-destructively repair any config files at any time (however a git commit before hand as a backup is a good idea incase something goes wrong!)
+NOTE: if using `db/structure.sql` use:
+```sql
+-- These are extensions that must be enabled in order to support this database
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA public;
+
+-- Allow age extension (if not already enabled), this builds the age_catalog schema
+CREATE EXTENSION IF NOT EXISTS age;
+
+-- Load the age module
+LOAD 'age';
+
+-- Load the ag_catalog into the search path
+SET search_path = ag_catalog, "$user", public;
+
+-- Create age_schema graph if it doesn't exist
+SELECT create_graph('age_schema');
+
+# other migrations
+# ...
+
+INSERT INTO "schema_migrations" (version) VALUES
+('20110315075839'),
+--- ...
+('20240521062349');
+```
 
 ## Contributing
 
-Create an MR and tests and I will review it.
+Create an merge request (with tests) and I will review it/merge it when ready.
 
 ## License
 
@@ -135,9 +166,12 @@ The gem is available as open source under the terms of the [MIT License](https:/
 
 ## Usage
 
+I suggest you creat a folder create a folder called `app/nodes` and `app/edges` to keep the code organized.
+I frequently use the `app/graphs` folder to keep all the graph related code together in a Module (as is done in the [rails age demo app](https://github.com/marpori/rails_age_demo_app))
+
 I suggest you creat a folder within app called `graphs` and under that create a folder called `nodes` and `edges`. This will help you keep your code organized.
 
-A full sample app can be found [here](https://github.com/marpori/rails_age_demo_app) the summary usage is described below.
+A trival, but fully functional [rails age demo app](https://github.com/marpori/rails_age_demo_app), based on the Flintstones Commic, is available for reference.
 
 ### Nodes
 
