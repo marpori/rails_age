@@ -9,16 +9,19 @@
 - **Paths**
   * ?
 
-## VERSION 0.3.1 - 2024-xx-xx
+  ## VERSION 0.3.2 - 2024-xx-xx
 
-- **Generators**
-  * add `rails generate apache_age:node` to create a node model (with its type in initializer)
-  * add `rails generate apache_age:edge` to create an edge model (with its type in initializer)
-- **Installer**
-  * refactor into multiple independent tasks with tests
-- **Documentation**
-  * updated README with additional information
-  * added `db/structure.sql` config to README
+  - **Generators**
+    * add `rails generate apache_age:node` to create a node model (with its type in initializer)
+    * add `rails generate apache_age:edge` to create an edge model (with its type in initializer)
+
+    ## VERSION 0.3.1 - 2024-06-02
+
+    - **Installer**
+      * refactor into multiple independent tasks with tests
+    - **Documentation**
+      * updated README with additional information
+      * added `db/structure.sql` config to README
 
 ## VERSION 0.3.0 - 2024-05-28
 
