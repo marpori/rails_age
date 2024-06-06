@@ -1,0 +1,14 @@
+<%= indented_namespace %>
+<%= '  ' * class_path.length %>class <%= class_name %>
+<%= '  ' * class_path.length %>  include ApacheAge::Entities::Vertex
+
+<%- attributes_list.each do |attribute| -%>
+<%= '  ' * class_path.length %>  attribute :<%= attribute[:name] %>, :<%= attribute[:type] %>
+<%- end -%>
+
+<%= '  ' * class_path.length %>  validates_with(
+<%= '  ' * class_path.length %>    ApacheAge::Validators::UniqueVertexValidator,
+<%= '  ' * class_path.length %>    attributes: <%= unique_attributes.inspect %>
+<%= '  ' * class_path.length %>  )
+<%= '  ' * class_path.length %>end
+<%= indented_end_namespace %>
