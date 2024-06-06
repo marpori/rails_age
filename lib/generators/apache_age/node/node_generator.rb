@@ -7,11 +7,20 @@ module ApacheAge
       source_root File.expand_path('templates', __dir__)
       argument :attributes, type: :array, default: [], banner: "field:type field:type"
 
+      def perform_task
+        behavior == :invoke ? create_node_file : destroy_node_file
+      end
+
+      private
+
       def create_node_file
         template "node.rb.tt", File.join("app/nodes", class_path, "#{file_name}.rb")
       end
 
-      private
+      def destroy_node_file
+        file_path = File.join("app/nodes", class_path, "#{file_name}.rb")
+        File.delete(file_path) if File.exist?(file_path)
+      end
 
       def attributes_list
         attributes.map { |attr| { name: attr.name, type: attr.type } }

@@ -1,10 +1,12 @@
 # TODO
 
 - [x] Figure out / test how to add unique constraints and validations to nodes and edges
+- [x] Simplify setup with a `lib/tasks/install.rake` task (Add a `rails_age:install` generator)
 - [ ] Figure out how to restrict/validate the node types for edges
-- [ ] Simplify setup with a `lib/tasks/install.rake` task (Add a `rails_age:install` generator)
-- [ ] create a generator for edges and nodes (models)?
-- [ ] create a generator for controllers (edges and nodes)
+- [x] create a generator for nodes
+- [ ] create a generator for nodes_scaffold
+- [ ] create a generator for edges
+- [ ] create a generator for edge_scaffold
 - [ ] Enforce Private and Protected methods
 - [ ] Implement paths and associated parts (nodes and edges)
 - [ ] Add additional data-types to be stored in the age properties (Arrays, Hashes, etc.)

@@ -1,14 +1,17 @@
-<%= indented_namespace %>
-<%= '  ' * class_path.length %>class <%= class_name %>
-<%= '  ' * class_path.length %>  include ApacheAge::Entities::Vertex
+class <%= class_name %>
+  include ApacheAge::Entities::Vertex
 
 <%- attributes_list.each do |attribute| -%>
-<%= '  ' * class_path.length %>  attribute :<%= attribute[:name] %>, :<%= attribute[:type] %>
+  attribute :<%= attribute[:name] %>, :<%= attribute[:type] %>
 <%- end -%>
 
-<%= '  ' * class_path.length %>  validates_with(
-<%= '  ' * class_path.length %>    ApacheAge::Validators::UniqueVertexValidator,
-<%= '  ' * class_path.length %>    attributes: <%= unique_attributes.inspect %>
-<%= '  ' * class_path.length %>  )
-<%= '  ' * class_path.length %>end
-<%= indented_end_namespace %>
+<%- attributes_list.each do |attribute| -%>
+  validates :<%= attribute[:name] %>, presence: true
+<%- end -%>
+
+  # unique node validator (remove any attributes that are not important to uniqueness)
+  validates_with(
+    ApacheAge::Validators::UniqueVertexValidator,
+    attributes: <%= unique_attributes.inspect %>
+  )
+end

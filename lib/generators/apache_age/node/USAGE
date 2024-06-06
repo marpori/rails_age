@@ -1,0 +1,51 @@
+Description:
+    This creates Apache AGE nodes that work seamlessly with Rails.
+    A node can be created with or without a namespace.
+    See the below examples.
+
+Example:
+    `bin/rails g apache_age:node Cat name age:integer`
+
+    This creates:
+        `app/nodes/cat.rb`
+
+        with the contents:
+        ```
+        class Cat
+          include ApacheAge::Entities::Vertex
+
+          attribute :name, :string
+          attribute :age, :integer
+
+          validates :name, presence: true
+          validates :age, presence: true
+
+          # unique node validator (remove any attributes that are not important to uniqueness)
+          validates_with(
+            ApacheAge::Validators::UniqueVertexValidator,
+            attributes: [:name, :age]
+          )
+        end
+        ```
+
+    A namespace can also be used:
+        `bin/rails g apache_age:node Animal/Cat name age:integer`
+
+        this creates:
+        ```
+        class Animal::Cat
+          include ApacheAge::Entities::Vertex
+
+          attribute :name, :string
+          attribute :age, :integer
+
+          validates :name, presence: true
+          validates :age, presence: true
+
+          # unique node validator (remove any attributes that are not important to uniqueness)
+          validates_with(
+            ApacheAge::Validators::UniqueVertexValidator,
+            attributes: [:name, :age]
+          )
+        end
+        ```
