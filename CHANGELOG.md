@@ -9,19 +9,33 @@
 - **Paths**
   * ?
 
-  ## VERSION 0.3.2 - 2024-xx-xx
+## VERSION 0.3.4 - 2024-xx-xx
 
-  - **Generators**
-    * add `rails generate apache_age:node` to create a node model (with its type in initializer)
-    * add `rails generate apache_age:edge` to create an edge model (with its type in initializer)
+- **Type Generators**
+  * add `rails generate apache_age:type`
+  * add `rails generate apache_age:node_type`
+  * add `rails generate apache_age:edge_type`
 
-    ## VERSION 0.3.1 - 2024-06-02
+## VERSION 0.3.3 - 2024-xx-xx
 
-    - **Installer**
-      * refactor into multiple independent tasks with tests
-    - **Documentation**
-      * updated README with additional information
-      * added `db/structure.sql` config to README
+- **Edge Generator**
+  * add `rails generate apache_age:edge` to create an edge model
+
+
+## VERSION 0.3.2 - 2024-06-08
+
+- **Node Generator**
+  * add `rails generate apache_age:node Pets/Cat name age:integer` creates a node with a namespace and attributes at: `app/nodes/pets/cat.rb`
+  * add `rails generate apache_age:node Cat name age:integer` creates a node with attributes at:  `app/nodes/cat.rb`
+  * add `rails destroy apache_age:node Cat` deletes an existing node at: `app/nodes/cat.rb`
+
+## VERSION 0.3.1 - 2024-06-02
+
+- **Installer**
+  * refactor into multiple independent tasks with tests
+- **Documentation**
+  * updated README with additional information
+  * added `db/structure.sql` config to README
 
 ## VERSION 0.3.0 - 2024-05-28
 

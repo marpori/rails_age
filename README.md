@@ -21,9 +21,13 @@ $ bundle
 $ bin/rails apache_age:install
 $ git add .
 $ git commit -m "Add Apache Age to Rails"
+$ rails generate apache_age:node Company company_name
+$ rails generate apache_age:node Person first_name last_name age:integer
 ```
 
-NOTE: it is important to commit the `db/schema.rb` to git because `rails db:migrate` inappropriately modifies the schema file (I haven't yet tested `db/structure.sql`).  **You can run `bin/rails apache_age:install` at any time to repair the schema file as needed.**
+NOTE: it is important to commit the `db/schema.rb` to git because `rails db:migrate` inappropriately modifies the schema file (I haven't yet tested `db/structure.sql`).
+
+**You can run `bin/rails apache_age:install` at any time to repair the schema file as needed.**
 
 For now, if you are using `db/structure.sql` you will need to manually configure Apache Age (RailsAge) as described below.
 
@@ -202,9 +206,8 @@ module Nodes
     attribute :last_name, :string, default: nil
     attribute :given_name, :string, default: nil
     attribute :nick_name, :string, default: nil
-    attribute :gender, :string, default: nil
 
-    validates :gender, :first_name, :last_name, :given_name, :nick_name,
+    validates :first_name, :last_name, :given_name, :nick_name,
               presence: true
 
     def initialize(**attributes)
