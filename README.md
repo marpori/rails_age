@@ -12,7 +12,7 @@ Add this line to your application's Gemfile:
 gem "rails_age"
 ```
 
-### Quick Install
+### Quick Start
 
 using the installer, creates the migration to install age, runs the migration, and adjusts the schema file, and updates the `config/database.yml` file.
 
@@ -160,6 +160,25 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20240521062349');
 ```
 
+configuring types:
+```ruby
+# config/initializers/types.rb
+require 'apache_age/types/age_type_generator'
+
+Rails.application.config.to_prepare do
+  require_dependency 'apache_age/entities/vertex'
+  require_dependency 'apache_age/entities/edge'
+
+  # Register the AGE types
+  ActiveModel::Type.register(
+    :vertex, ApacheAge::Types::AgeTypeGenerator.create_type_for(ApacheAge::Entities::Vertex)
+  )
+  ActiveModel::Type.register(
+    :edge, ApacheAge::Types::AgeTypeGenerator.create_type_for(ApacheAge::Entities::Edge)
+  )
+end
+```
+
 ## Contributing
 
 Create an merge request (with tests) and I will review it/merge it when ready.
@@ -295,8 +314,12 @@ Rails.application.config.to_prepare do
   require_dependency 'nodes/person'
 
   # Register the custom types
-  ActiveModel::Type.register(:company, ApacheAge::Types::AgeTypeGenerator.create_type_for(Nodes::Company))
-  ActiveModel::Type.register(:person, ApacheAge::Types::AgeTypeGenerator.create_type_for(Nodes::Person))
+  ActiveModel::Type.register(
+    :company, ApacheAge::Types::AgeTypeGenerator.create_type_for(Nodes::Company)
+  )
+  ActiveModel::Type.register(
+    :person, ApacheAge::Types::AgeTypeGenerator.create_type_for(Nodes::Person)
+  )
 end
 ```
 

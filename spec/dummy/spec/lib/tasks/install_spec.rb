@@ -8,8 +8,8 @@ RSpec.describe 'apache_age:install', type: :task do
 
   let(:install_task) { Rake::Task['apache_age:install'] }
   let(:copy_migrations_task) { Rake::Task['apache_age:copy_migrations'] }
-  let(:schema_config_task) { Rake::Task['apache_age:schema_config'] }
-  let(:database_config_task) { Rake::Task['apache_age:database_config'] }
+  let(:config_schema_task) { Rake::Task['apache_age:config_schema'] }
+  let(:config_database_task) { Rake::Task['apache_age:config_database'] }
   let(:migrate_task) { Rake::Task['db:migrate'] }
 
   before do
@@ -23,14 +23,14 @@ RSpec.describe 'apache_age:install', type: :task do
     install_task.reenable
     copy_migrations_task.reenable
     migrate_task.reenable
-    schema_config_task.reenable
-    database_config_task.reenable
+    config_schema_task.reenable
+    config_database_task.reenable
 
     # Mock the tasks
     allow(copy_migrations_task).to receive(:invoke)
     allow(migrate_task).to receive(:invoke)
-    allow(schema_config_task).to receive(:invoke)
-    allow(database_config_task).to receive(:invoke)
+    allow(config_schema_task).to receive(:invoke)
+    allow(config_database_task).to receive(:invoke)
   end
 
   it 'invokes apache_age:copy_migrations' do
@@ -45,19 +45,19 @@ RSpec.describe 'apache_age:install', type: :task do
 
   it 'invokes apache_age:schema_config' do
     install_task.invoke
-    expect(schema_config_task).to have_received(:invoke).at_least(:once)
+    expect(config_schema_task).to have_received(:invoke).at_least(:once)
   end
 
   it 'invokes apache_age:database_config' do
     install_task.invoke
-    expect(database_config_task).to have_received(:invoke).at_least(:once)
+    expect(config_database_task).to have_received(:invoke).at_least(:once)
   end
 
   it 'invokes all tasks in sequence' do
     install_task.invoke
     expect(copy_migrations_task).to have_received(:invoke).at_least(:once)
     expect(migrate_task).to have_received(:invoke).at_least(:once)
-    expect(schema_config_task).to have_received(:invoke).at_least(:once)
-    expect(database_config_task).to have_received(:invoke).at_least(:once)
+    expect(config_schema_task).to have_received(:invoke).at_least(:once)
+    expect(config_database_task).to have_received(:invoke).at_least(:once)
   end
 end

@@ -1,17 +1,17 @@
-# spec/dummy/lib/tasks/database_config_spec.rb
+# spec/dummy/lib/tasks/config_database_spec.rb
 require 'rails_helper'
 require 'rake'
 
-RSpec.describe 'apache_age:database_config', type: :task do
+RSpec.describe 'apache_age:config_database', type: :task do
   let(:db_config_file) { File.expand_path("#{Rails.root}/config/database.yml", __FILE__) }
 
   let(:engine_root_path) { File.expand_path("#{Rails.root}/../../", __FILE__) }
   let(:tasks_path) { File.expand_path("#{engine_root_path}/lib/tasks", __FILE__) }
-  let(:task) { Rake::Task['apache_age:database_config'] }
+  let(:task) { Rake::Task['apache_age:config_database'] }
 
   before do
     # Load the Rake application
-    Rake.application.rake_require('database_config', [tasks_path.to_s])
+    Rake.application.rake_require('config_database', [tasks_path.to_s])
     Rake::Task.define_task(:environment)
 
     # Re-enable the task to allow multiple invocations in the same spec run

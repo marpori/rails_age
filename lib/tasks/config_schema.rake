@@ -3,8 +3,7 @@
 #
 namespace :apache_age do
   desc "Copy migrations from rails_age to application and update schema"
-  task :schema_config => :environment do
-    # source_schema = File.expand_path('../../../db/schema.rb', __FILE__)
+  task :config_schema => :environment do
     destination_schema = File.expand_path("#{Rails.root}/db/schema.rb", __FILE__)
 
     unless File.exist?(destination_schema)

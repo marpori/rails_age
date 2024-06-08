@@ -2,6 +2,7 @@
 
 ## VERSION 0.4.0 - 2024-xx-xx
 
+- **AGE Schema override** ?
 - **cypher**
   * query support
   * paths support
@@ -11,13 +12,17 @@
 
 ## VERSION 0.3.4 - 2024-xx-xx
 
-- **Type Generators**
+- **Type Generators** (integrated into node and edge generators)
   * add `rails generate apache_age:type`
   * add `rails generate apache_age:node_type`
   * add `rails generate apache_age:edge_type`
 
 ## VERSION 0.3.3 - 2024-xx-xx
 
+- **Installer**
+  * add AGE types to initializers
+- **Node Generator**
+  * add notice to update AGE types (optionally)
 - **Edge Generator**
   * add `rails generate apache_age:edge` to create an edge model
 

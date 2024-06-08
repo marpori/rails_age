@@ -28,6 +28,8 @@ RSpec.describe ApacheAge::NodeGenerator, type: :generator do
   NODEFILE
   }
 
+  after { described_class.start([node_name], {behavior: :revoke, destination_root:}) }
+
   context 'when using invoke' do
     let(:behavior) { :invoke }
 

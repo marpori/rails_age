@@ -3,7 +3,7 @@
 #
 namespace :apache_age do
   desc "Ensure the database.yml file is properly configured for Apache Age"
-  task :database_config => :environment do
+  task :config_database => :environment do
 
     db_config_file = File.expand_path("#{Rails.root}/config/database.yml", __FILE__)
 

@@ -14,11 +14,13 @@ module ApacheAge
 
     def create_node_file
       template "node.rb.tt", File.join(destination_root, "app/nodes", class_path, "#{file_name}.rb")
+      add_type_config
     end
 
     def destroy_node_file
       file_path = File.join(destination_root, "app/nodes", class_path, "#{file_name}.rb")
       File.delete(file_path) if File.exist?(file_path)
+      remove_type_config
     end
 
     def attributes_list
@@ -51,6 +53,45 @@ module ApacheAge
       parent_module.split('::').map.with_index do |_, index|
         "#{'  ' * (parent_module.split('::').length - 1 - index)}end"
       end.join("\n") + "\n"
+    end
+
+    def add_type_config
+      return unless File.exist?(types_config_file)
+
+      new_type_info = new_type_content
+
+      types_content = File.read(types_config_file)
+      types_content.sub!(/^end\s*$/, "#{new_type_info}\nend")
+      File.open(types_config_file, 'w') { |file| file.write(types_content) }
+      puts "      modified: config/initializers/types.rb"
+    end
+
+    def remove_type_config
+      return unless File.exist?(types_config_file)
+
+      type_to_remove = new_type_content
+
+      types_content = File.read(types_config_file)
+      types_content.gsub!(type_to_remove, '')
+      File.open(types_config_file, 'w') { |file| file.write(types_content) }
+    end
+
+    def types_config_file = File.join(Rails.root, 'config', 'initializers', 'types.rb')
+
+    def new_type_content
+      file_path = File.join("app/nodes", class_path, file_name)
+      namespace = class_path.map(&:capitalize).join('::')
+      class_name = file_name.split('_').map(&:capitalize).join
+      node_name = [namespace, class_name].compact.join('::')
+      type_name = [class_path.join('_'), file_name].compact.join('_')
+
+      type_to_remove =
+      <<~RUBY
+        require_dependency '#{file_path}'
+        ActiveModel::Type.register(
+          :#{type_name}, ApacheAge::Types::AgeTypeGenerator.create_type_for(#{node_name})
+        )
+      RUBY
     end
   end
 end

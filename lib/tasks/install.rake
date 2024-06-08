@@ -10,10 +10,13 @@ namespace :apache_age do
     # run any new migrations
     Rake::Task["db:migrate"].invoke
 
-    # adjust the schema file (unfortunately rails mangles the schema file)
-    Rake::Task["apache_age:schema_config"].invoke
-
     # ensure the config/database.yml file has the proper configurations
-    Rake::Task["apache_age:database_config"].invoke
+    Rake::Task["apache_age:config_database"].invoke
+
+    # adjust the schema file (unfortunately rails mangles the schema file)
+    Rake::Task["apache_age:config_schema"].invoke
+
+    # ensure the config/initializers/types.rb file has the base AGE Types
+    Rake::Task["apache_age:config_types"].invoke
   end
 end

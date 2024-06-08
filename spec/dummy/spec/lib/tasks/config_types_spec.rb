@@ -1,18 +1,18 @@
-# spec/dummy/lib/tasks/schema_config_spec.rb
+# spec/dummy/lib/tasks/config_types_spec.rb
 require 'rails_helper'
 require 'rake'
 
-RSpec.describe 'apache_age:schema_config', type: :task do
+RSpec.describe 'apache_age:config_types', type: :task do
   let(:destination_schema) { File.expand_path("#{Rails.root}/db/schema.rb", __FILE__) }
 
   let(:engine_root_path) { File.expand_path("#{Rails.root}/../../", __FILE__) }
   let(:source_schema) { File.expand_path("#{engine_root_path}/db/schema.rb", __FILE__) }
   let(:tasks_path) { File.expand_path("#{engine_root_path}/lib/tasks", __FILE__) }
-  let(:task) { Rake::Task['apache_age:schema_config'] }
+  let(:task) { Rake::Task['apache_age:config_schema'] }
 
   before do
     # Load the Rake application and tasks
-    Rake.application.rake_require('schema_config', [tasks_path.to_s])
+    Rake.application.rake_require('config_schema', [tasks_path.to_s])
     Rake::Task.define_task(:environment)
 
     # Re-enable the task to allow multiple invocations in the same spec run
