@@ -1,31 +1,34 @@
 # Change Log
 
-## VERSION 0.4.0 - 2024-xx-xx
+## VERSION 0.5.0 - 2024-xx-xx
 
-- **AGE Schema override** ?
+- **AGE Schema override** (instance and class methods) assumes db and migrations up-to-date
 - **cypher**
+  * schema override
   * query support
   * paths support
   * select attributes support
 - **Paths**
-  * ?
 
-## VERSION 0.3.4 - 2024-xx-xx
+## VERSION 0.4.1 - 2024-xx-xx
 
+- **Edge Generator**
+  * add `rails generate apache_age:edge HasPet owner_role` just a property
+  * add `rails generate apache_age:edge HasPet owner_role start_node:person end_node:pet`
+        with property and specified start-/end-nodes (person and pet nodes must have already been created)
 - **Type Generators** (integrated into node and edge generators)
   * add `rails generate apache_age:type`
   * add `rails generate apache_age:node_type`
   * add `rails generate apache_age:edge_type`
 
-## VERSION 0.3.3 - 2024-xx-xx
+## VERSION 0.4.0 - 2024-xx-xx
+
+Minor breaking change: type (:vertix) is now required in core.
 
 - **Installer**
-  * add AGE types to initializers
+  * AGE types added to initialler
 - **Node Generator**
-  * add notice to update AGE types (optionally)
-- **Edge Generator**
-  * add `rails generate apache_age:edge` to create an edge model
-
+  * add also creates node types now
 
 ## VERSION 0.3.2 - 2024-06-08
 

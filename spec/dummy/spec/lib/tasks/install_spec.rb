@@ -8,8 +8,9 @@ RSpec.describe 'apache_age:install', type: :task do
 
   let(:install_task) { Rake::Task['apache_age:install'] }
   let(:copy_migrations_task) { Rake::Task['apache_age:copy_migrations'] }
-  let(:config_schema_task) { Rake::Task['apache_age:config_schema'] }
   let(:config_database_task) { Rake::Task['apache_age:config_database'] }
+  let(:config_schema_task) { Rake::Task['apache_age:config_schema'] }
+  let(:config_types_task) { Rake::Task['apache_age:config_types'] }
   let(:migrate_task) { Rake::Task['db:migrate'] }
 
   before do
@@ -23,14 +24,16 @@ RSpec.describe 'apache_age:install', type: :task do
     install_task.reenable
     copy_migrations_task.reenable
     migrate_task.reenable
-    config_schema_task.reenable
     config_database_task.reenable
+    config_schema_task.reenable
+    config_types_task.reenable
 
     # Mock the tasks
     allow(copy_migrations_task).to receive(:invoke)
     allow(migrate_task).to receive(:invoke)
-    allow(config_schema_task).to receive(:invoke)
     allow(config_database_task).to receive(:invoke)
+    allow(config_schema_task).to receive(:invoke)
+    allow(config_types_task).to receive(:invoke)
   end
 
   it 'invokes apache_age:copy_migrations' do

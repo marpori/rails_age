@@ -1,4 +1,5 @@
-# spec/dummy/config/initializers/types.rb
+# config/initializers/types.rb
+
 require 'apache_age/types/age_type_generator'
 # USAGE (with edges or nodes) - ie:
 # require_dependency 'nodes/company'

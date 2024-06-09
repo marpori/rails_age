@@ -4,10 +4,9 @@
 namespace :apache_age do
   desc "Install AGE types from rails_age into the rails initializers"
   task :config_types => :environment do
-    types_file_path =
-      File.expand_path("#{Rails.root}/config/initializers/types.rb", __FILE__)
+    types_file_path = File.expand_path("#{Rails.root}/config/initializers/types.rb", __FILE__)
     required_file_path = "require 'apache_age/types/age_type_generator'"
-    reqired_file_content =
+    required_file_content =
       <<~RUBY
       require 'apache_age/types/age_type_generator'
       # AGE Type Definition Usage (edges/nodes):
@@ -17,19 +16,20 @@ namespace :apache_age do
       # )
       RUBY
     node_type_content =
-      <<~RUBY
-        require_dependency 'apache_age/entities/vertex'
-        ActiveModel::Type.register(
-          :vertex, ApacheAge::Types::AgeTypeGenerator.create_type_for(ApacheAge::Entities::Vertex)
-        )
-      RUBY
+<<-RUBY
+  require_dependency 'apache_age/entities/vertex'
+  ActiveModel::Type.register(
+    :vertex, ApacheAge::Types::AgeTypeGenerator.create_type_for(ApacheAge::Entities::Vertex)
+  )
+RUBY
     edge_type_content =
-      <<~RUBY
-        require_dependency 'apache_age/entities/edge'
-        ActiveModel::Type.register(
-          :edge, ApacheAge::Types::AgeTypeGenerator.create_type_for(ApacheAge::Entities::Edge)
-        )
-      RUBY
+<<-RUBY
+  require_dependency 'apache_age/entities/edge'
+  ActiveModel::Type.register(
+    :edge, ApacheAge::Types::AgeTypeGenerator.create_type_for(ApacheAge::Entities::Edge)
+  )
+RUBY
+
     unless File.exist?(types_file_path)
       source_content =
         <<~RUBY
@@ -47,46 +47,39 @@ namespace :apache_age do
       puts "config/initializers/types.rb file created with AGE base types"
     else
       destination_content = File.read(types_file_path)
+      original_content = destination_content.dup
 
-      if destination_content.exclude?(required_file_path)
-        destination_content =
-          destination_content.gsub(
-            "Rails.application.config.to_prepare do",
-            "#{required_file_path}\n\nRails.application.config.to_prepare do"
-          )
-          puts "adding `require_dependency 'apache_age/entities/edge'` to the " \
-               "top of 'config/initializers/types.rb'"
-      end
-
-      if destination_content.exclude?('# Register AGE types')
-        destination_content.gsub(
-            "Rails.application.config.to_prepare do",
-            "Rails.application.config.to_prepare do\n  # Register AGE types"
-          )
-        puts "adding comment to the config of 'config/initializers/types.rb'"
-      end
-
-      if destination_content.exclude?(edge_type_content)
-        destination_content.gsub(
-          "Rails.application.config.to_prepare do\n  # Register AGE types",
-          "Rails.application.config.to_prepare do\n  # Register AGE types\n  #{edge_type_content}"
+      unless destination_content.include?(required_file_path)
+        destination_content.sub!(
+          /^(\s*Rails\.application\.config\.to_prepare do\n)/,
+          "#{required_file_content}\n\\1"
         )
-        puts "adding 'edge_type_content' to the config of 'config/initializers/types.rb'"
       end
 
-      if destination_content.exclude?(node_type_content)
-        destination_content.gsub(
-          "Rails.application.config.to_prepare do\n  # Register AGE types",
-          "Rails.application.config.to_prepare do\n  # Register AGE types\n  #{node_type_content}"
+      unless destination_content.include?('# Register AGE types')
+        destination_content.sub!(
+          /^(\s*Rails\.application\.config\.to_prepare do\n)/,
+          "\\1  # Register AGE types\n"
         )
-        puts "adding 'node_type_content' to the config of 'config/initializers/types.rb'"
       end
 
-      if destination_content != File.read(types_file_path)
-        File.open(types_file_path, 'w') { |file| file.write(updated_content) }
-        puts "config/initializers/types.rb is updated with AGE base type info."
-      else
-        puts "config/initializers/types.rb has AGE base types is already configired."
+      unless destination_content.include?(edge_type_content)
+        destination_content.sub!(
+          /^(\s*Rails\.application\.config\.to_prepare do\n  # Register AGE types\n)/,
+          "\\1#{edge_type_content}"
+        )
+      end
+
+      unless destination_content.include?(node_type_content)
+        destination_content.sub!(
+          /^(\s*Rails\.application\.config\.to_prepare do\n  # Register AGE types\n)/,
+          "\\1#{node_type_content}"
+        )
+      end
+
+      if destination_content != original_content
+        File.open(types_file_path, 'w') { |file| file.write(destination_content) }
+        puts "modified: config/initializers/types.rb"
       end
     end
   end
