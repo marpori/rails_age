@@ -26,9 +26,9 @@
 Minor breaking change: type (:vertix) is now required in core.
 
 - **Installer**
-  * AGE types added to initialler
+  * AGE types added to installer (with tests)
 - **Node Generator**
-  * add also creates node types now
+  * add also creates node types (with tests)
 
 ## VERSION 0.3.2 - 2024-06-08
 

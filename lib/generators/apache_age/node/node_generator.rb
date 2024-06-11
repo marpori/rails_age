@@ -58,10 +58,8 @@ module ApacheAge
     def add_type_config
       return unless File.exist?(types_config_file)
 
-      new_type_info = new_type_content
-
       types_content = File.read(types_config_file)
-      types_content.sub!(/^end\s*$/, "#{new_type_info}\nend")
+      types_content.sub!(/^end\s*$/, "#{new_type_content}end")
       File.open(types_config_file, 'w') { |file| file.write(types_content) }
       puts "      modified: config/initializers/types.rb"
     end
@@ -76,22 +74,21 @@ module ApacheAge
       File.open(types_config_file, 'w') { |file| file.write(types_content) }
     end
 
-    def types_config_file = File.join(Rails.root, 'config', 'initializers', 'types.rb')
+    def types_config_file = File.join(Rails.root, 'config/initializers/types.rb')
 
     def new_type_content
-      file_path = File.join("app/nodes", class_path, file_name)
-      namespace = class_path.map(&:capitalize).join('::')
-      class_name = file_name.split('_').map(&:capitalize).join
-      node_name = [namespace, class_name].compact.join('::')
-      type_name = [class_path.join('_'), file_name].compact.join('_')
-
-      type_to_remove =
-      <<~RUBY
-        require_dependency '#{file_path}'
-        ActiveModel::Type.register(
-          :#{type_name}, ApacheAge::Types::AgeTypeGenerator.create_type_for(#{node_name})
-        )
-      RUBY
+      file_path = [class_path, file_name].reject(&:blank?).join('/').downcase
+      node_namespace = class_path.map(&:capitalize).join('::')
+      node_class_name = file_name.split('_').map(&:capitalize).join
+      node_namespaced_class = [node_namespace, node_class_name].reject(&:blank?).join('::')
+      type_name = [class_path.join('_'), file_name].reject(&:blank?).join('_')
+      content =
+<<-RUBY
+  require_dependency '#{file_path}'
+  ActiveModel::Type.register(
+    :#{type_name}, ApacheAge::Types::AgeTypeGenerator.create_type_for(#{node_namespaced_class})
+  )
+RUBY
     end
   end
 end

@@ -27,14 +27,4 @@ Rails.application.config.to_prepare do
   ActiveModel::Type.register(
     :person, ApacheAge::Types::AgeTypeGenerator.create_type_for(Nodes::Person)
   )
-
-
-
-
-
-
-
-
-
-
 end
