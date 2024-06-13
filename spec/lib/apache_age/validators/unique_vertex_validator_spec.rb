@@ -38,8 +38,9 @@ RSpec.describe ApacheAge::Validators::UniqueVertexValidator do
       it { expect(subject.age_type).to eq('vertex') }
       it 'is not unique' do
         expect(subject).not_to be_valid
-        expect(subject.errors.messages[:species]).to include 'attribute combination not unique'
-        expect(subject.errors.messages[:pet_name]).to include 'attribute combination not unique'
+        expect(subject.errors.messages[:base]).to include 'record not unique'
+        expect(subject.errors.messages[:species]).to include 'property combination not unique'
+        expect(subject.errors.messages[:pet_name]).to include 'property combination not unique'
       end
     end
   end
@@ -69,8 +70,9 @@ RSpec.describe ApacheAge::Validators::UniqueVertexValidator do
       it { expect(subject.age_type).to eq('vertex') }
       it 'is not unique' do
         expect(subject).not_to be_valid
-        expect(subject.errors.messages[:species]).to include 'attribute combination not unique'
-        expect(subject.errors.messages[:pet_name]).to include 'attribute combination not unique'
+        expect(subject.errors.messages[:base]).to include 'record not unique'
+        expect(subject.errors.messages[:species]).to include 'property combination not unique'
+        expect(subject.errors.messages[:pet_name]).to include 'property combination not unique'
       end
     end
   end
@@ -101,8 +103,9 @@ RSpec.describe ApacheAge::Validators::UniqueVertexValidator do
         subject.pet_name = 'Rex'
         expect(subject).to be_invalid
         expect(subject.save).to be_falsy
-        expect(subject.errors.messages[:species]).to include 'attribute combination not unique'
-        expect(subject.errors.messages[:pet_name]).to include 'attribute combination not unique'
+        expect(subject.errors.messages[:base]).to include 'record not unique'
+        expect(subject.errors.messages[:species]).to include 'property combination not unique'
+        expect(subject.errors.messages[:pet_name]).to include 'property combination not unique'
       end
     end
   end
@@ -134,8 +137,9 @@ RSpec.describe ApacheAge::Validators::UniqueVertexValidator do
 
       it 'returns validation errors' do
         expect(fido.update(pet_name: 'Rex')).to be_falsy
-        expect(fido.errors.messages[:species]).to include 'attribute combination not unique'
-        expect(fido.errors.messages[:pet_name]).to include 'attribute combination not unique'
+        expect(fido.errors.messages[:base]).to include 'record not unique'
+        expect(fido.errors.messages[:species]).to include 'property combination not unique'
+        expect(fido.errors.messages[:pet_name]).to include 'property combination not unique'
       end
     end
   end

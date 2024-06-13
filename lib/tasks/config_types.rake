@@ -36,11 +36,10 @@ RUBY
         # config/initializers/types.rb
 
         #{required_file_content}
-
         Rails.application.config.to_prepare do
           # Register AGE types
-          #{node_type_content}
-          #{edge_type_content}
+        #{node_type_content}
+        #{edge_type_content}
         end
         RUBY
       File.open(types_file_path, 'w') { |file| file.write(source_content) }

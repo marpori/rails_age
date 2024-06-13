@@ -20,8 +20,8 @@ module ApacheAge
         # if no match is found or if it finds itself, it's valid
         return if query.blank?  || (query.id == record.id)
 
-        record.errors.add(:base, 'attribute combination not unique')
-        attributes.each { record.errors.add(_1, 'attribute combination not unique') }
+        record.errors.add(:base, 'record not unique')
+        attributes.each { record.errors.add(_1, 'property combination not unique') }
       end
     end
   end

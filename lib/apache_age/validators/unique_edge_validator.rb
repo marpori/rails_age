@@ -35,10 +35,10 @@ module ApacheAge
         query = record.class.find_by(edge_attribs.compact)
         return if query.blank? || (query.id == record.id)
 
-        record.errors.add(:base, 'attribute combination not unique')
-        record.errors.add(:end_node, 'attribute combination not unique')
-        record.errors.add(:start_node, 'attribute combination not unique')
-        attributes.each { record.errors.add(_1, 'attribute combination not unique') }
+        record.errors.add(:base, 'record not unique')
+        record.errors.add(:end_node, 'node combination not unique')
+        record.errors.add(:start_node, 'node combination not unique')
+        attributes.each { record.errors.add(_1, 'prpoerty combination not unique') }
       end
 
       private

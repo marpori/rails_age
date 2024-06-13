@@ -29,7 +29,8 @@ RSpec.describe Nodes::Company do
       it { expect(subject.company_name).to eq attributes[:company_name] }
       it '#valid?' do
         expect(subject).to be_invalid
-        expect(subject.errors[:company_name]).to include('attribute combination not unique')
+        expect(subject.errors[:base]).to include('record not unique')
+        expect(subject.errors[:company_name]).to include('property combination not unique')
       end
 
       it '#save' do
@@ -68,7 +69,8 @@ RSpec.describe Nodes::Company do
       it '#valid?' do
         expect(subject).to be_invalid
         expect(subject).not_to be_persisted
-        expect(subject.errors[:company_name]).to include('attribute combination not unique')
+        expect(subject.errors[:base]).to include('record not unique')
+        expect(subject.errors[:company_name]).to include('property combination not unique')
       end
     end
   end

@@ -70,9 +70,10 @@ RSpec.describe ApacheAge::Validators::UniqueEdgeValidator do
       it 'is not unique' do
         subject.end_node = rex
         expect(subject).not_to be_valid
-        expect(subject.errors.messages[:caregiver_role]).to include 'attribute combination not unique'
-        expect(subject.errors.messages[:start_node]).to include 'attribute combination not unique'
-        expect(subject.errors.messages[:end_node]).to include 'attribute combination not unique'
+        expect(subject.errors.messages[:caregiver_role]).to include 'prpoerty combination not unique'
+        expect(subject.errors.messages[:start_node]).to include 'node combination not unique'
+        expect(subject.errors.messages[:end_node]).to include 'node combination not unique'
+        expect(subject.errors.messages[:base]).to include 'record not unique'
       end
     end
   end
@@ -107,9 +108,10 @@ RSpec.describe ApacheAge::Validators::UniqueEdgeValidator do
       it { expect(subject.age_type).to eq('edge') }
       it 'is not unique' do
         expect(subject).not_to be_valid
-        expect(subject.errors.messages[:caregiver_role]).to include 'attribute combination not unique'
-        expect(subject.errors.messages[:start_node]).to include 'attribute combination not unique'
-        expect(subject.errors.messages[:end_node]).to include 'attribute combination not unique'
+        expect(subject.errors.messages[:caregiver_role]).to include 'prpoerty combination not unique'
+        expect(subject.errors.messages[:start_node]).to include 'node combination not unique'
+        expect(subject.errors.messages[:end_node]).to include 'node combination not unique'
+        expect(subject.errors.messages[:base]).to include 'record not unique'
       end
     end
   end
@@ -140,8 +142,9 @@ RSpec.describe ApacheAge::Validators::UniqueEdgeValidator do
 
       it 'is not unique' do
         expect(subject).not_to be_valid
-        expect(subject.errors.messages[:species]).to include 'attribute combination not unique'
-        expect(subject.errors.messages[:pet_name]).to include 'attribute combination not unique'
+        expect(subject.errors.messages[:base]).to include 'record not unique'
+        expect(subject.errors.messages[:species]).to include 'property combination not unique'
+        expect(subject.errors.messages[:pet_name]).to include 'property combination not unique'
       end
     end
   end
