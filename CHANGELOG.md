@@ -3,32 +3,49 @@
 ## VERSION 0.5.0 - 2024-xx-xx
 
 - **AGE Schema override** (instance and class methods) assumes db and migrations up-to-date
+
 - **cypher**
   * schema override
   * query support
   * paths support
   * select attributes support
+
 - **Paths**
 
-## VERSION 0.4.1 - 2024-xx-xx
+## VERSION 0.4.4 - 2024-xx-xx
+
+- **Edge Scaffold** (generates edge, type, view and controller)
+  * add `rails generate apache_age:edge_scaffold HasJob employee_role start_node:person end_node:company`
+
+## VERSION 0.4.3 - 2024-xx-xx
+
+- **Node Scaffold** (generates node, type, view and controller)
+  * add `rails generate apache_age:node_scaffold Person first_name last_name age:integer`
+
+## VERSION 0.4.2 - 2024-xx-xx
 
 - **Edge Generator**
   * add `rails generate apache_age:edge HasPet owner_role` just a property
   * add `rails generate apache_age:edge HasPet owner_role start_node:person end_node:pet`
         with property and specified start-/end-nodes (person and pet nodes must have already been created)
-- **Type Generators** (integrated into node and edge generators)
-  * add `rails generate apache_age:type`
-  * add `rails generate apache_age:node_type`
-  * add `rails generate apache_age:edge_type`
 
-## VERSION 0.4.0 - 2024-xx-xx
+## VERSION 0.4.1 - 2024-xx-xx
 
-Minor breaking change: type (:vertix) is now required in core.
+- **OPTIONAL Installer**
+  * add `config_migrate` to `rails generate apache_age:install` auto fix the schema after `rails db:migrate`
+
+## VERSION 0.4.0 - 2024-06-14
+
+Minor breaking change: type (:vertix) is now required in core for edges
 
 - **Installer**
   * AGE types added to installer (with tests)
+
 - **Node Generator**
   * add also creates node types (with tests)
+
+- **Apache AGE Migrate**
+  * add `bin/rails apache_age:migrate` runs `bin/rails db:migrate` followed by `bin/rails apache_age:config_schema` to fix the schema file after `bin/rails db:migrate`
 
 ## VERSION 0.3.2 - 2024-06-08
 
@@ -41,6 +58,7 @@ Minor breaking change: type (:vertix) is now required in core.
 
 - **Installer**
   * refactor into multiple independent tasks with tests
+
 - **Documentation**
   * updated README with additional information
   * added `db/structure.sql` config to README
@@ -49,6 +67,7 @@ Minor breaking change: type (:vertix) is now required in core.
 
 - **Edges**
   * `find_by(start_node:, :end_node:, properties:)` to find an edge with specific nodes & properties (deprecated `find_edge`)
+
 - **Installer** (`rails generate apache_age:install`)
   * copy Age PG Extenstion migration to `db/migrate`
   * run the AGE PG Migration
@@ -64,6 +83,7 @@ NOTE: the `rails generate apache_age:install` can be run at any time to repair t
   * add missing methods to use in rails controllers
   * validate edge start- & end-nodes are valid
   * add unique edge validations
+
 - **Nodes**
   * add missing methods to use in rails controllers
   * add unique node validations
@@ -75,9 +95,11 @@ Initial release has the following features:
 - **Nodes:**
   * `.create`, `.read`, `.update`, `.delete`, `.all`, `.find(by id)`, `.find_by(age_properties)`
   * verified with usage in a controller and views
+
 - **Edges:**
   *`.create`, `.read`, `.update`, `.delete`, `.all`, `.find(by id)`, `.find_by(age_properties)`
   * verified with usage in a controller and views
+
 - **Entities:**
   * `.all`, `.find(id)`, `.find_by(age_property)` use these when class, label, edge, node
 
