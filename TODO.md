@@ -1,13 +1,15 @@
 # TODO
 
 - [x] Figure out / test how to add unique constraints and validations to nodes and edges
-- [x] Simplify setup with a `lib/tasks/install.rake` task (Add a `rails_age:install` generator)
+- [x] Safe migrations with `bin/rails apache_age:migrate`
+- [x] Simplify setup with `rails_age:install`
 - [x] create a generator for node
 - [ ] create a generator for edge
+- [ ] Test mismatched node types within edges
 - [ ] create a generator for node_scaffold
 - [ ] create a generator for edge_scaffold
+- [ ] support for AGE paths (nodes and edges) combined
+- [ ] support for multiple AGE schemas
 - [ ] Enforce Private and Protected methods
-- [ ] Test mismatched node types within edges
-- [ ] Implement age_path (nodes and edges) combined
-- [ ] Add/test additional data-types to be stored in the age properties (Arrays, Hashes, etc.)
-- [ ] Create easy cypher queries that instantiate nodes and edges (or just return given properties)
+- [ ] Add additional data-types for AGE properties (Arrays, Hashes, etc.)
+- [ ] support for AGE cypher queries (nodes, edges, paths, and select attributes)
