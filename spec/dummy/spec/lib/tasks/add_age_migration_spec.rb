@@ -7,11 +7,11 @@ RSpec.describe 'apache_age:add_age_migration', type: :task do
   # let(:source_path) { File.expand_path("#{engine_root_path}/db/migrate", __FILE__) }
   let(:tasks_path) { File.expand_path("#{engine_root_path}/lib/tasks", __FILE__) }
   let(:destination_path) { Dir.mktmpdir }
-  let(:task) { Rake::Task['apache_age:copy_migrations'] }
+  let(:task) { Rake::Task['apache_age:add_age_migration'] }
 
   before do
     # Load the Rake application
-    Rake.application.rake_require('copy_migrations', [tasks_path.to_s])
+    Rake.application.rake_require('add_age_migration', [tasks_path.to_s])
     Rake::Task.define_task(:environment)
 
     # Re-enable the task to allow multiple invocations in the same spec run

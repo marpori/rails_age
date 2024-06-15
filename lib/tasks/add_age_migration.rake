@@ -16,7 +16,7 @@ namespace :apache_age do
       Dir.glob("#{destination_path}/*.rb").map { |file| File.basename(file).sub(/^\d+/, '') }
 
     if existing_migrations.any? { |migration| migration.include?(base_name) }
-      puts "No new migration needed AddApacheAge migration already exists"
+      puts "Skipping migration AddApacheAge, it already exists"
     else
       age_migration_contents =
         <<~RUBY
@@ -63,7 +63,7 @@ namespace :apache_age do
       destination_file = File.join(destination_path, new_filename)
 
       File.write(destination_file, age_migration_contents)
-      puts "AddApacheAge migration created"
+      puts "Created migration AddApacheAge"
     end
   end
 end
