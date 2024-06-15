@@ -4,7 +4,6 @@ require 'rake'
 
 RSpec.describe 'apache_age:add_age_migration', type: :task do
   let(:engine_root_path) { File.expand_path("#{Rails.root}/../../", __FILE__) }
-  # let(:source_path) { File.expand_path("#{engine_root_path}/db/migrate", __FILE__) }
   let(:tasks_path) { File.expand_path("#{engine_root_path}/lib/tasks", __FILE__) }
   let(:destination_path) { Dir.mktmpdir }
   let(:task) { Rake::Task['apache_age:add_age_migration'] }
