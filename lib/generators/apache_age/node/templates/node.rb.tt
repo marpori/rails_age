@@ -9,9 +9,9 @@ class <%= class_name %>
   validates :<%= attribute[:name] %>, presence: true
 <%- end -%>
 
-  # unique node validator (remove any attributes that are not important to uniqueness)
+  # custom unique node validator (remove any attributes that are NOT important to uniqueness)
   validates_with(
-    ApacheAge::Validators::UniqueVertexValidator,
+    ApacheAge::Validators::UniqueVertex,
     attributes: <%= unique_attributes.inspect %>
   )
 end

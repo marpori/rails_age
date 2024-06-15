@@ -193,7 +193,7 @@ class Company
 
   validates :company_name, presence: true
   validates_with(
-    ApacheAge::Validators::UniqueVertexValidator,
+    ApacheAge::Validators::UniqueVertex,
     attributes: [:company_name]
   )
 end
@@ -237,14 +237,14 @@ module Edges
     validate :validate_unique
     # or with a one-liner
     # validates_with(
-    #   ApacheAge::Validators::UniqueEdgeValidator,
+    #   ApacheAge::Validators::UniqueEdge,
     #   attributes: %i[employee_role start_node end_node]
     # )
 
     private
 
     def validate_unique
-      ApacheAge::Validators::UniqueEdgeValidator
+      ApacheAge::Validators::UniqueEdge
         .new(attributes: %i[employee_role start_node end_node])
         .validate(self)
     end

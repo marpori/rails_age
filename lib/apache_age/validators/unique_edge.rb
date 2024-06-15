@@ -1,10 +1,14 @@
+# lib/apache_age/validators/unique_edge.rb
+
 # Usage (within an Age Model)
-# validates_with UniqueEdgeValidator, attributes: [:employee_role, :start_node, :end_node]
-# validates_with UniqueEdgeValidator, attributes: [:start_id, :employee_role, :end_id]
-#
+# validates_with(
+#   ApacheAge::Validators::UniqueEdge,
+#   attributes: [:start_id, :employee_role, :end_id]
+# )
+
 module ApacheAge
   module Validators
-    class UniqueEdgeValidator < ActiveModel::Validator
+    class UniqueEdge < ActiveModel::Validator
       def validate(record)
         allowed_keys = record.age_properties.keys
         attributes = options[:attributes] || []

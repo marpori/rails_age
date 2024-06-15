@@ -1,14 +1,17 @@
-# lib/generators/apache_age/node/entity_generator.rb
+# lib/generators/apache_age/edge/edge_generator.rb
 require 'rails/generators'
 require 'rails/generators/named_base'
+# TODO: get generators to work with custom types!
+# require_relative "#{Rails.root}/config/initializers/types"
 
 module ApacheAge
-  class NodeGenerator < Rails::Generators::NamedBase
+  class EdgeGenerator < Rails::Generators::NamedBase
     source_root File.expand_path('templates', __dir__)
     argument :attributes, type: :array, default: [], banner: "field:type field:type"
 
     def perform_task
-      age_type = 'node'
+      age_type = 'edge'
+      Rails.application.eager_load! # Ensure all initializers and dependencies are loaded
       behavior == :invoke ? generate_age_entity(age_type) : destroy_age_entity(age_type)
     end
 
@@ -16,13 +19,13 @@ module ApacheAge
 
     def generate_age_entity(age_type)
       template "#{age_type}.rb.tt", File.join(destination_root, "app/#{age_type}s", class_path, "#{file_name}.rb")
-      add_type_config
+      # add_type_config
     end
 
     def destroy_age_entity(age_type)
       file_path = File.join(destination_root, "app/#{age_type}s", class_path, "#{file_name}.rb")
       File.delete(file_path) if File.exist?(file_path)
-      remove_type_config
+      # remove_type_config
     end
 
     def attributes_list

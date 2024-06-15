@@ -75,7 +75,7 @@ RSpec.describe ApacheAge::Entities::ClassMethods do
         attribute :last_name, :string
 
         validates :first_name, :last_name, presence: true
-        validates_with(ApacheAge::Validators::UniqueVertexValidator, attributes: [:first_name, :last_name])
+        validates_with(ApacheAge::Validators::UniqueVertex, attributes: [:first_name, :last_name])
       end
 
       class Pet
@@ -86,7 +86,7 @@ RSpec.describe ApacheAge::Entities::ClassMethods do
 
         validates :species, :pet_name, presence: true
         validates_with(
-          ApacheAge::Validators::UniqueVertexValidator,
+          ApacheAge::Validators::UniqueVertex,
           attributes: [:species, :pet_name]
         )
       end
@@ -98,7 +98,7 @@ RSpec.describe ApacheAge::Entities::ClassMethods do
 
         validates :caregiver_role, presence: true
         validates_with(
-          ApacheAge::Validators::UniqueEdgeValidator,
+          ApacheAge::Validators::UniqueEdge,
           attributes: [:caregiver_role]
         )
       end

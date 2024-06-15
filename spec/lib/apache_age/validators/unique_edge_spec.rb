@@ -1,7 +1,7 @@
 # spec/lib/apache_age/validators/unique_edge_validator_spec.rb
 require 'rails_helper'
 
-RSpec.describe ApacheAge::Validators::UniqueEdgeValidator do
+RSpec.describe ApacheAge::Validators::UniqueEdge do
   before do
     class Person
       include ApacheAge::Entities::Vertex
@@ -11,7 +11,7 @@ RSpec.describe ApacheAge::Validators::UniqueEdgeValidator do
 
       validates :first_name, :last_name, presence: true
       validates_with(
-        ApacheAge::Validators::UniqueVertexValidator,
+        ApacheAge::Validators::UniqueVertex,
         attributes: %i[first_name last_name]
       )
     end
@@ -24,7 +24,7 @@ RSpec.describe ApacheAge::Validators::UniqueEdgeValidator do
 
       validates :species, :pet_name, presence: true
       validates_with(
-        ApacheAge::Validators::UniqueVertexValidator,
+        ApacheAge::Validators::UniqueVertex,
         attributes: %i[species pet_name]
       )
     end
@@ -36,7 +36,7 @@ RSpec.describe ApacheAge::Validators::UniqueEdgeValidator do
 
       validates :caregiver_role, presence: true
       validates_with(
-        ApacheAge::Validators::UniqueEdgeValidator,
+        ApacheAge::Validators::UniqueEdge,
         attributes: %i[caregiver_role start_node end_node]
       )
     end

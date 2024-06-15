@@ -72,10 +72,10 @@ make some edges (`:vertex` is the default type) for start_node and end_node
 ```bash
 # when start node and end node are not specified they are of type `:vertex`
 # this is generally not recommended - exept when very generic relationships are needed
-rails generate apache_age:edge HasJob employee_role
+rails generate apache_age:edge HasJob employee_role begin_date:date
 
-# this is recommended - use explicit start_node and end_node types
-rails generate apache_age:node HasPet start_node:person end_node:pet caretaker_role
+# # this is recommended - (but not yet working) add explicit start_node and end_node types manually
+# rails generate apache_age:node HasPet start_node:person end_node:pet caretaker_role
 ```
 
 **NOTE:** the default `rails db:migrate` inappropriately modifies the schema file. This installer patches the migration to prevent this (however this might break on rails updates, etc). **You can run `bin/rails apache_age:install` at any time to repair the schema file as needed.**

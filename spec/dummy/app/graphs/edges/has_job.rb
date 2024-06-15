@@ -7,16 +7,15 @@ module Edges
     attribute :end_node, :company
 
     validates :employee_role, presence: true
-    validate :validate_unique
-    # validates_with(
-    #   ApacheAge::Validators::UniqueEdgeValidator,
-    #   attributes: %i[employee_role start_node end_node]
-    # )
+    validates :start_node, presence: true
+    validates :end_node, presence: true
+
+    validate :validate_unique_edge
 
     private
 
-    def validate_unique
-      ApacheAge::Validators::UniqueEdgeValidator
+    def validate_unique_edge
+      ApacheAge::Validators::UniqueEdge
         .new(attributes: %i[employee_role start_node end_node])
         .validate(self)
     end

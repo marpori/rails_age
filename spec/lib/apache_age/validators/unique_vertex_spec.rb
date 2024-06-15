@@ -1,7 +1,7 @@
-# spec/lib/apache_age/validators/unique_vertex_validator_spec.rb
+# spec/lib/apache_age/validators/unique_vertex_spec.rb
 require 'rails_helper'
 
-RSpec.describe ApacheAge::Validators::UniqueVertexValidator do
+RSpec.describe ApacheAge::Validators::UniqueVertex do
   before do
     class Pet
       include ApacheAge::Entities::Vertex
@@ -11,7 +11,7 @@ RSpec.describe ApacheAge::Validators::UniqueVertexValidator do
 
       validates :species, :pet_name, presence: true
       validates_with(
-        ApacheAge::Validators::UniqueVertexValidator,
+        ApacheAge::Validators::UniqueVertex,
         attributes: [:species, :pet_name]
       )
     end

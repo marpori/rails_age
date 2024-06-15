@@ -1,29 +1,29 @@
 Description:
-    This creates Apache AGE nodes that work seamlessly with Rails.
-    A node can be created with or without a namespace.
+    This creates Apache AGE edges that work seamlessly with Rails.
+    An edge can be created with or without a namespace.
     See the below examples.
 
 Example:
-    `bin/rails g apache_age:node Cat name age:integer`
+    `bin/rails g apache_age:edge HasJob employee_role start_date:date start_node:person end_node:company`
 
     This creates:
-        `app/nodes/cat.rb`
+        `app/edges/has_job.rb`
 
     with the contents:
         ```
-        class Cat
-          include ApacheAge::Entities::Vertex
+        class HasJob
+          include ApacheAge::Entities::Edge
 
-          attribute :full_name, :string
-          attribute :birthdate, :date
+          attribute :employee_role, :string
+          attribute :start_date, :date
 
-          validates :full_name, presence: true
-          validates :birthdate, presence: true
+          validates :employee_role, presence: true
+          validates :start_date, presence: true
 
           # unique node validator (remove any attributes that are not important to uniqueness)
           validates_with(
             ApacheAge::Validators::UniqueVertex,
-            attributes: [:full_name, :birthdate]
+            attributes: [:employee_role, :start_date]
           )
         end
         ```

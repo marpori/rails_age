@@ -12,7 +12,7 @@ module Nodes
               presence: true
 
     validates_with(
-      ApacheAge::Validators::UniqueVertexValidator,
+      ApacheAge::Validators::UniqueVertex,
       attributes: [:first_name, :last_name, :gender]
     )
 

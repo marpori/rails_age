@@ -1,10 +1,14 @@
-# Usage (within an Age Model)
-# validates_with UniqueVertexValidator, attributes: [:first_name, :last_name, :gender]
+# lib/apache_age/validators/unique_vertex.rb
 
-# lib/apache_age/validators/unique_vertex_validator.rb
+# Usage (within an Age Model)
+# validates_with(
+#   ApacheAge::Validators::UniqueVertex,
+#   attributes: [:first_name, :last_name, :gender]
+# )
+
 module ApacheAge
   module Validators
-    class UniqueVertexValidator < ActiveModel::Validator
+    class UniqueVertex < ActiveModel::Validator
       def validate(record)
         allowed_keys = record.age_properties.keys
         attributes = options[:attributes]

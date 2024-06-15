@@ -1,0 +1,28 @@
+class <%= class_name %>
+  include ApacheAge::Entities::Edge
+
+<%- attributes_list.each do |attribute| -%>
+  attribute :<%= attribute[:name] %>, :<%= attribute[:reference] || attribute[:type] %>
+<%- end -%>
+  # recommendation for (start_node and end_node): change `:vertex` with the 'node' type
+  # see `config/initializers/apache_age.rb` for the list of available node types
+  attribute :start_node, :vertex
+  attribute :end_node, :vertex
+
+<%- attributes_list.each do |attribute| -%>
+  validates :<%= attribute[:name] %>, presence: true
+<%- end -%>
+  validates :start_node, presence: true
+  validates :end_node, presence: true
+
+  validate :validate_unique_edge
+
+  private
+
+  # custom unique edge validator (remove any attributes that are NOT important to uniqueness)
+  def validate_unique_edge
+    ApacheAge::Validators::UniqueEdge
+      .new(attributes: <%= unique_attributes.inspect %>)
+      .validate(self)
+  end
+end

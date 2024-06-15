@@ -5,7 +5,11 @@
 - [x] create a generator for node
 - [x] Safe migrations with `bin/rails apache_age:migrate`
 - [x] Safe migrations with `bin/rails db:migrate` (using installer `bin/rails apache_age:override_db_migrate`)
-- [ ] create a generator for edge
+- [x] create a generator for edge (currntly can't specify start_node and end_node types in generator)
+      `rails generate apache_age:edge HasJob epmployee_role begin_date:date`
+- [ ] edge type generation in `config/initializers/types.rb`
+- [ ] allow edge generator to usse custom types for start_node and end_node, ie:
+      `rails generate apache_age:edge HasPet caretaker_role start_node:person end_node:pet`
 - [ ] Test mismatched node types within edges
 - [ ] create a generator for node_scaffold
 - [ ] create a generator for edge_scaffold
