@@ -55,8 +55,11 @@ install Apache Age (you can ignore the `unknown OID` warnings)
 bundle add rails_age
 bundle install
 bin/rails apache_age:install
+# optional: prevents `bin/rails db:migrate` from modifying the schema file,
+# alternatively you can use: `bin/rails apache_age:migrate` to run safe migrations
+bin/rails apache_age:override_db_migrate
 git add .
-git commit -m "Add Apache Age to Rails"
+git commit -m "Add & configure Apache Age within Rails"
 ```
 
 make some nodes :string is the default type

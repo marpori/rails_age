@@ -28,12 +28,18 @@
 - **Node Scaffold** (generates node, type, view and controller)
   * add `rails generate apache_age:node_scaffold Person first_name last_name age:integer`
 
-## VERSION 0.4.1 - 2024-xx-xx
+## VERSION 0.4.2 - 2024-xx-xx
 
 - **Edge Generator**
   * add `rails generate apache_age:edge HasPet owner_role` just a property
   * add `rails generate apache_age:edge HasPet owner_role start_node:person end_node:pet`
         with property and specified start-/end-nodes (person and pet nodes must have already been created)
+
+## VERSION 0.4.1 - 2024-06-15
+
+- **Installer**
+  * add optional: safe migrations with `bin/rails db:migrate` instead of using `bin/rails apache_age:migrate`
+    (install using `bin/rails apache_age:override_db_migrate`)
 
 ## VERSION 0.4.0 - 2024-06-14
 

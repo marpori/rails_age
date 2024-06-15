@@ -4,7 +4,7 @@
 - [x] Simplify setup with `rails_age:install`
 - [x] create a generator for node
 - [x] Safe migrations with `bin/rails apache_age:migrate`
-- [x] Safe migrations with `bin/rails db:migrate`
+- [x] Safe migrations with `bin/rails db:migrate` (using installer `bin/rails apache_age:override_db_migrate`)
 - [ ] create a generator for edge
 - [ ] Test mismatched node types within edges
 - [ ] create a generator for node_scaffold
