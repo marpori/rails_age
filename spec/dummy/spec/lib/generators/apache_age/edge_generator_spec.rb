@@ -55,21 +55,24 @@ RSpec.describe ApacheAge::EdgeGenerator, type: :generator do
         edge_content = File.read(expected_edge_path)
         expect(edge_content).to eq(expected_edge_content)
 
-        # type_content = File.read(types_config_path)
-        # expect(type_content)
-        #   .to include("require_dependency 'test_edge'")
-        # expect(type_content)
-        #   .to include(":test_node, ApacheAge::Types::AgeTypeGenerator.create_type_for(TestEdge)")
+        type_content = File.read(types_config_path)
+        expect(type_content).to include("require_dependency 'test_edge'")
+        expect(type_content)
+          .to include(
+            ":test_edge, ApacheAge::Types::AgeTypeGenerator.create_type_for(TestEdge)"
+          )
 
         # ensure destroy works
         described_class.start([edge_name], {behavior: :revoke, destination_root:})
         expect(File.exist?(expected_edge_path)).to be false
 
-        # type_content = File.read(types_config_path)
-        # expect(type_content)
-        #   .not_to include("require_dependency 'test_edge'")
-        # expect(type_content)
-        #   .not_to include(":test_edge, ApacheAge::Types::AgeTypeGenerator.create_type_for(TestEdge)")
+        type_content = File.read(types_config_path)
+        expect(type_content)
+          .not_to include("require_dependency 'test_edge'")
+        expect(type_content)
+          .not_to include(
+            ":test_edge, ApacheAge::Types::AgeTypeGenerator.create_type_for(TestEdge)"
+          )
       end
     end
 
@@ -84,25 +87,23 @@ RSpec.describe ApacheAge::EdgeGenerator, type: :generator do
         file_content = File.read(expected_edge_path)
         expect(file_content).to eq(expected_edge_content)
 
-        # type_content = File.read(types_config_path)
-        # expect(type_content)
-        #   .to include("require_dependency 'tests/test_edge'")
-        # expect(type_content)
-        #   .to include(
-        #     ":tests_test_node, ApacheAge::Types::AgeTypeGenerator.create_type_for(Tests::TestNode)"
-        #   )
+        type_content = File.read(types_config_path)
+        expect(type_content).to include("require_dependency 'tests/test_edge'")
+        expect(type_content)
+          .to include(
+            ":tests_test_edge, ApacheAge::Types::AgeTypeGenerator.create_type_for(Tests::TestEdge)"
+          )
 
         # ensure destroy works
         described_class.start([edge_name], {behavior: :revoke, destination_root:})
         expect(File.exist?(expected_edge_path)).to be false
 
-        # type_content = File.read(types_config_path)
-        # expect(type_content)
-        #   .not_to include("require_dependency 'tests/test_node'")
-        # expect(type_content)
-        #   .not_to include(
-        #     ":tests_test_node, ApacheAge::Types::AgeTypeGenerator.create_type_for(Tests::TestEdge)"
-        #   )
+        type_content = File.read(types_config_path)
+        expect(type_content).not_to include("require_dependency 'tests/test_edge'")
+        expect(type_content)
+          .not_to include(
+            ":tests_test_edge, ApacheAge::Types::AgeTypeGenerator.create_type_for(Tests::TestEdge)"
+          )
       end
     end
   end

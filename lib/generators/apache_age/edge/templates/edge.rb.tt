@@ -22,7 +22,7 @@ class <%= class_name %>
   # custom unique edge validator (remove any attributes that are NOT important to uniqueness)
   def validate_unique_edge
     ApacheAge::Validators::UniqueEdge
-      .new(attributes: <%= unique_attributes.inspect %>)
+      .new(attributes: <%= unique_edge_attributes.inspect %>)
       .validate(self)
   end
 end

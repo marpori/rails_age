@@ -1,6 +1,6 @@
 # Change Log
 
-## VERSION 0.5.1 - 2024-xx-xx
+## VERSION 0.6.2 - 2024-xx-xx
 
 - **cypher queries** (like active record queries)
   * schema override
@@ -8,43 +8,42 @@
   * paths support
   * select attributes support
 
-## VERSION 0.5.0 - 2024-xx-xx
+## VERSION 0.6.1 - 2024-xx-xx
 
 - **Age Path**
 
-## VERSION 0.4.3 - 2024-xx-xx
+## VERSION 0.6.0 - 2024-xx-xx
+
+breaking change?: namespaces (by default) will use their own schema? (add to database.yml & schema.rb ?)
 
 - **AGE Schema override**
 
 - **multiple AGE Schema**
 
-## VERSION 0.4.3 - 2024-xx-xx
+## VERSION 0.5.3 - 2024-xx-xx
 
 - **Edge Scaffold** (generates edge, type, view and controller)
   * add `rails generate apache_age:edge_scaffold HasJob employee_role start_node:person end_node:company`
 
 ## VERSION 0.5.2 - 2024-xx-xx
 
-- **Node Scaffold** (generates node, type, view and controller)
-  * add `rails generate apache_age:node_scaffold Person first_name last_name age:integer`
+- **Edge Generator**
+  * add start-/end-nodes types to edge generator (would make scaffold easier), ie:
+    `rails generate apache_age:edge HasPet owner_role start_node:person end_node:pet`
+    with property and specified start-/end-nodes (person and pet nodes must have already been created)
 
 ## VERSION 0.5.1 - 2024-xx-xx
 
-- **Edge Generator** (hopefully - I can figure out how to load custom types into the generators
-  * add `rails generate apache_age:edge HasPet owner_role start_node:person end_node:pet`
-        add edge type generation
-  * add `rails generate apache_age:edge HasPet owner_role start_node:person end_node:pet`
-        with property and specified start-/end-nodes (person and pet nodes must have already been created)
+- **Node Scaffold** (generates node, type, view and controller)
+  * add `rails generate apache_age:node_scaffold Person first_name last_name age:integer`
 
-## VERSION 0.5.0 - 2024-06-16
+## VERSION 0.5.0 - 2024-06-15
 
 **breaking change**: renamed the validators to UniqueVertex and UniqueEdge
 
 - **Edge Generator**
   * add `rails generate apache_age:edge HasPet owner_role`
-    caveats:
-    1. start_node and end_node are of type `:vertex` in the generator but can be changed manually in the class file - having trouble with the generator loading the types (so it the generator rejects custom type - but rails still works with them)
-    2. edge types are not yet generated automatically (not yet needed)
+    caveate: start_node and end_node are of type `:vertex` in the generator but can be changed manually in the class file - having trouble with the generator loading the types (the generator rejects custom types - but rails still works with custom types)
 
 ## VERSION 0.4.1 - 2024-06-15
 
