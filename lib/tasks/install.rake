@@ -4,8 +4,8 @@
 namespace :apache_age do
   desc "Install & configure Apache Age within Rails (updates migrations, schema & database.yml)"
   task :install => :environment do
-    # copy our migrations to the application (if needed)
-    Rake::Task["apache_age:copy_migrations"].invoke
+    # Ensure the AGE migration is in place
+    Rake::Task["apache_age:add_age_migration"].invoke
 
     # run any new migrations
     Rake::Task["db:migrate"].invoke
