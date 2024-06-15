@@ -32,7 +32,7 @@ RSpec.describe ApacheAge::EdgeGenerator, type: :generator do
       # custom unique edge validator (remove any attributes that are NOT important to uniqueness)
       def validate_unique_edge
         ApacheAge::Validators::UniqueEdge
-          .new(attributes: [:employee_role, :begin_date])
+          .new(attributes: [:employee_role, :begin_date, :start_node, :end_node])
           .validate(self)
       end
     end

@@ -4,6 +4,9 @@ Description:
     See the below examples.
 
 Example:
+    `bin/rails g apache_age:edge HasJob employee_role start_date:date`
+
+    (hopefully comming soon - but not yet ready is the ability to add start_node and end_node types)
     `bin/rails g apache_age:edge HasJob employee_role start_date:date start_node:person end_node:company`
 
     This creates:
@@ -18,18 +21,18 @@ Example:
           attribute :start_date, :date
 
           validates :employee_role, presence: true
-          validates :start_date, presence: true
+          validates :begin_date, presence: true
 
           # unique node validator (remove any attributes that are not important to uniqueness)
           validates_with(
             ApacheAge::Validators::UniqueVertex,
-            attributes: [:employee_role, :start_date]
+            attributes: [:employee_role, :begin_date :start_node, :end_node]
           )
         end
         ```
 
     A namespace can also be used:
-        `bin/rails g apache_age:node Animals/Cat name age:integer`
+        `bin/rails g apache_age:edge Animals/Cat name age:integer`
 
     This creates:
         `app/nodes/animals/cat.rb`
@@ -48,7 +51,7 @@ Example:
           # unique node validator (remove any attributes that are not important to uniqueness)
           validates_with(
             ApacheAge::Validators::UniqueVertex,
-            attributes: [:name, :age]
+            attributes: [:name, :age, :start_node, :end_node]
           )
         end
         ```

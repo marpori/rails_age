@@ -28,12 +28,13 @@ module ApacheAge
       # remove_type_config
     end
 
-    def attributes_list
-      attributes.map { |attr| { name: attr.name, type: attr.type } }
+    # different than node_generator.rb
+    def unique_attributes
+      attributes_list.map { |attr| attr[:name].to_sym } + [:start_node, :end_node]
     end
 
-    def unique_attributes
-      attributes_list.map { |attr| attr[:name].to_sym }
+    def attributes_list
+      attributes.map { |attr| { name: attr.name, type: attr.type } }
     end
 
     def parent_module
