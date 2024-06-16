@@ -1,6 +1,6 @@
 <p style="color: green"><%%= notice %></p>
 
-<%%= render @<%= singular_table_name %> %>
+<%%= render '<%= singular_table_name %>', <%= singular_table_name %>: @<%= singular_table_name %> %>
 
 <div>
   <%%= link_to "Edit this <%= human_name.downcase %>", <%= edit_helper(type: :path) %> %> |

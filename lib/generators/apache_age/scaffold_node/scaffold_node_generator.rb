@@ -40,7 +40,8 @@ module ApacheAge
 
     def copy_view_files
       available_views.each do |view|
-        filename = filename_with_extensions(view)
+        view_name = view == 'partial' ? "_#{singular_table_name}" : view
+        filename = filename_with_extensions(view_name)
         template "views/#{view}.html.erb.tt", File.join("app/views", controller_file_path, filename)
       end
     end
