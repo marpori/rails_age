@@ -20,19 +20,26 @@ breaking change?: namespaces (by default) will use their own schema? (add to dat
 
 - **multiple AGE Schema**
 
-## VERSION 0.5.3 - 2024-xx-xx
+## VERSION 0.5.4 - 2024-xx-xx
 
 - **Edge Scaffold** (generates edge, type, view and controller)
   * add `rails generate apache_age:edge_scaffold HasJob employee_role start_node:person end_node:company`
 
-## VERSION 0.5.2 - 2024-xx-xx
+## VERSION 0.5.3 - 2024-xx-xx
 
 - **Edge Generator**
   * add start-/end-nodes types to edge generator (would make scaffold easier), ie:
     `rails generate apache_age:edge HasPet owner_role start_node:person end_node:pet`
     with property and specified start-/end-nodes (person and pet nodes must have already been created)
 
+## VERSION 0.5.2 - 2024-06-16
+
+- **Node Scaffold** (generates node, type, view and controller)
+  * add `rails generate apache_age:node_scaffold Person first_name last_name age:integer`
+
 ## VERSION 0.5.1 - 2024-06-16
+
+**yanked** (2024-06-16) - had an issue with the generator
 
 - **Node Scaffold** (generates node, type, view and controller)
   * add `rails generate apache_age:node_scaffold Person first_name last_name age:integer`
