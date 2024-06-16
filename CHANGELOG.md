@@ -22,22 +22,29 @@ breaking change?: namespaces (by default) will use their own schema? (add to dat
 
 ## VERSION 0.5.4 - 2024-xx-xx
 
+- **Edge Generator**
+  * add start-/end-nodes types to edge generator (would make scaffold easier), ie:
+    `rails generate apache_age:edge HasPet owner_role start_node:person end_node:pet`
+    with property and specified start-/end-nodes (person and pet nodes must have already been created)
+
 - **Edge Scaffold** (generates edge, type, view and controller)
   * add `rails generate apache_age:edge_scaffold HasJob employee_role start_node:person end_node:company`
 
 ## VERSION 0.5.3 - 2024-xx-xx
 
-- **Edge Generator**
-  * add start-/end-nodes types to edge generator (would make scaffold easier), ie:
-    `rails generate apache_age:edge HasPet owner_role start_node:person end_node:pet`
-    with property and specified start-/end-nodes (person and pet nodes must have already been created)
+- **Node Scaffold** (generates node, type, view and controller)
+  * add system test (to dummy app after scaffold_node is run)
+
+- **Edge Scaffold** (generates edge, type, view and controller) - without start-/end-nodes types!?
+  * add `rails generate apache_age:edge_scaffold HasJob employee_role`
+  * add system test (to dummy app after scaffold_node is run)
 
 ## VERSION 0.5.2 - 2024-06-16
 
 - **Node Scaffold** (generates node, type, view and controller)
   * add `rails generate apache_age:node_scaffold Person first_name last_name age:integer`
 
-## VERSION 0.5.1 - 2024-06-16
+## VERSION 0.5.1 - 2024-06-16 (yanked)
 
 **yanked** (2024-06-16) - had an issue with the generator
 
