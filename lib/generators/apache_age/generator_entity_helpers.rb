@@ -1,7 +1,7 @@
-# lib/generators/apache_age/generate_entity_methods.rb
+# lib/generators/apache_age/generator_entity_helpers.rb
 
 module ApacheAge
-  module GenerateEntityMethods
+  module GeneratorEntityHelpers
     def generate_age_entity(age_type)
       template "#{age_type}.rb.tt", File.join(destination_root, "app/#{age_type}s", class_path, "#{file_name}.rb")
       add_type_config

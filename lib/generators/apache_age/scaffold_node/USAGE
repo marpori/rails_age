@@ -1,0 +1,16 @@
+Description:
+    Explain the generator
+
+Example:
+    bin/rails generate apache_age:scaffold_node Pet name birthdate:date
+
+    This will create:
+        create  app/nodes/pet.rb
+        modified: config/initializers/types.rb
+        create  app/controllers/pets_controller.rb
+        route  resources :pets
+        create  app/views/pets/index.html.erb
+        create  app/views/pets/edit.html.erb
+        create  app/views/pets/show.html.erb
+        create  app/views/pets/new.html.erb
+        create  app/views/pets/partial.html.erb

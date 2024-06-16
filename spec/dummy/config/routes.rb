@@ -1,9 +1,10 @@
 Rails.application.routes.draw do
+  # route for people controller
+  resources :people
+
   # not needed with the engine
   # mount RailsAge::Engine => "/rails_age"
 
-  # route for people controller
-  resources :people
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

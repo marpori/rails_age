@@ -2,13 +2,15 @@
 require 'rails/generators'
 require 'rails/generators/named_base'
 
-require_relative '../generate_entity_methods'
+require_relative '../generator_entity_helpers'
 # TODO: get generators to work with custom types!
 # require_relative "#{Rails.root}/config/initializers/types"
 
 module ApacheAge
   class EdgeGenerator < Rails::Generators::NamedBase
-    include ApacheAge::GenerateEntityMethods
+    include ApacheAge::GeneratorEntityHelpers
+
+    desc "Generates edge (model) with attributes."
 
     source_root File.expand_path('templates', __dir__)
     argument :attributes, type: :array, default: [], banner: "field:type field:type"

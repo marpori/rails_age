@@ -2,11 +2,13 @@
 require 'rails/generators'
 require 'rails/generators/named_base'
 
-require_relative '../generate_entity_methods'
+require_relative '../generator_entity_helpers'
 
 module ApacheAge
   class NodeGenerator < Rails::Generators::NamedBase
-    include ApacheAge::GenerateEntityMethods
+    include ApacheAge::GeneratorEntityHelpers
+
+    desc "Generates node (model) with attributes."
 
     source_root File.expand_path('templates', __dir__)
     argument :attributes, type: :array, default: [], banner: "field:type field:type"
