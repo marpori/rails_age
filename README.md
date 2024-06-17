@@ -16,8 +16,12 @@ gem "rails_age"
 
 using the installer, creates the migration to install age, runs the migration, and adjusts the schema file, and updates the `config/database.yml` file.
 
-setup (& Test) postgresql with AGE (using the docker version of AGE DB may be the easiest way to get started)
-using the docker version of AGE DB, you can confirm psql AGE with the following commands:
+### Install Apache Age
+
+see: [Apache AGE Installation](https://age.apache.org/age-manual/master/intro/setup.html#installation)
+(The docker install is probably the easiest way to get started with a new application - for existing applications you may need to compile the extension from source.)
+
+Verify your PostgreSQL AGE with the following commands:
 ```bash
 psql -h localhost -p 5455 -U docker_username
 > CREATE EXTENSION IF NOT EXISTS age;
@@ -27,6 +31,11 @@ psql -h localhost -p 5455 -U docker_username
 > \q
 ```
 
+### Install and Configure Rails (if not done already)
+
+AGE REQUIRES POSTGRESQL!
+
+```bash
 create a new Rails app (WITH POSTGRESQL!)
 ```bash
 rails new age_demo -d postgresql
@@ -42,15 +51,20 @@ username: docker_username
 password: dockerized_password
 ```
 
-now you should be able to create the rails database:
+If both the Rails DB config and AGE DB are correctly configured, you should be able to run the following command without error:
+
+
 ```bash
 rails db:create
 rails db:migrate
 git add .
-git commit -m "Add Apache Age Postgres DB configured with Rails App"
+git commit -m "Basic Rails Configuration"
 ```
 
-install Apache Age (you can ignore the `unknown OID` warnings)
+### install Apache Age Plugin
+
+NOTE: _ignore the `unknown OID` warnings_
+
 ```bash
 bundle add rails_age
 bundle install
@@ -62,61 +76,53 @@ git add .
 git commit -m "Add & configure Apache Age within Rails"
 ```
 
-make some nodes :string is the default type
+### Optional Migration override (OPTIONAL)
+
+run `bin/rails apache_age:override_db_migrate` to ensure that running `rails db:migrate` does not inappropriately modify the schema file.
+
+However, if you are familiar with the schema file and git then you can safely ignore this step and manage the changes after a migration manually - only submitting changes directly related to the newest migration and not those related AGE.
+
+**NOTE:**
+* **You can run `bin/rails apache_age:config_schema` at any time to repair the schema file as needed.**
+( **You can run `bin/rails apache_age:install` at any time to repair any AGE related config file**
+
+If you are using `db/structure.sql` you will need to manually configure Apache Age (RailsAge).
+
+
+### Generate (Scaffold) some nodes and edges
+
+**NODE Scaffold**
+
 ```bash
-rails generate apache_age:node Company company_name
-rails generate apache_age:node Person first_name last_name
-rails generate apache_age:node Pet pet_name:string age:integer
+rails generate apache_age:scaffold_node Company company_name:string
+
+# string is the default type (so it can be omitted)
+rails generate apache_age:scaffold_node Person first_name last_name
+
+# with a namespace
+rails generate apache_age:scaffold_node Animals/Pet pet_name birthdate:date
 ```
-make some edges (`:vertex` is the default type) for start_node and end_node
+
+**EDGE Generation**
+
+NOTE: the generator will only allow `:vertex` (default type) for start_node and end_node, however, it is strongly recommended to specify the start_node and end_node types manually. _Hopefully, I can find a way to get the generators to recognize and allow the usage of custom node types. Thus eventually, I hope: `rails generate apache_age:node HasPet start_node:person end_node:pet caretaker_role` will work._
+
 ```bash
-# when start node and end node are not specified they are of type `:vertex`
-# this is generally not recommended - exept when very generic relationships are needed
 rails generate apache_age:edge HasJob employee_role begin_date:date
-
-# # this is recommended - (but not yet working) add explicit start_node and end_node types manually
-# rails generate apache_age:node HasPet start_node:person end_node:pet caretaker_role
 ```
 
-**NOTE:** the default `rails db:migrate` inappropriately modifies the schema file. This installer patches the migration to prevent this (however this might break on rails updates, etc). **You can run `bin/rails apache_age:install` at any time to repair the schema file as needed.**
+_edge scaffold is comming soon._
+```bash
+# without a namespace
+rails generate apache_age:scaffold_edge HasPet caretaker_role
 
-For now, if you are using `db/structure.sql` you will need to manually configure Apache Age (RailsAge) as described below.
-
-### Rails Console Usage
-
-```ruby
-bin/rails c
-
-fred = Person.new(first_name: 'Fredrick Jay', last_name: 'Flintstone')
-fred.valid?
-fred.save
-fred.to_h # should have an ID
-
-# fails because of a missing required field (Property)
-incomplete = Person.new(first_name: 'Fredrick Jay')
-incomplete.valid?
-incomplete.errors
-incomplete.to_h
-
-# fails because of uniqueness constraints
-jay = Person.create(first_name: 'Fredrick Jay', last_name: 'Flintstone')
-jay.to_h
-=> {:id=>nil, :first_name=>"Fredrick Jay", :last_name=>"Flintstone"}
-jay.valid?
-=> false
-jay.errors
-=> #<ActiveModel::Errors [#<ActiveModel::Error attribute=base, type=record not unique, options={}>, #<ActiveModel::Error attribute=first_name, type=property combination not unique, options={}>, #<ActiveModel::Error attribute=last_name, type=property combination not unique, options={}>]>
-irb(main):008> jav.to_h
-=> {:id=>nil, :first_name=>"Fredrick Jay", :last_name=>"Flintstone"}
-
-# .create is a shortcut for .new and .save
-quarry = Company.create(company_name: 'Bedrock Quarry')
-quarry.to_h # should have an ID
-
-# create an edge (no generator yet)
-job = HasJob.create(start_node: fred, end_node: quarry, employee_role: 'Crane Operator')
-job.to_h # should have an ID
+# with a namespace
+rails generate apache_age:scaffold_edge People/HasSpouse spousal_role
 ```
+
+### AGE Usage within Rails Console
+
+see [AGE Usage within Rails Console](AGE_CONSOLE_USAGE.md)
 
 ## Manual Install, Config and Usage
 
