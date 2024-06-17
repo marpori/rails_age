@@ -23,7 +23,8 @@ see: [Apache AGE Installation](https://age.apache.org/age-manual/master/intro/se
 
 Verify your PostgreSQL AGE with the following commands:
 ```bash
-psql -h localhost -p 5455 -U docker_username
+$ psql -h localhost -p 5455 -U docker_username
+
 > CREATE EXTENSION IF NOT EXISTS age;
 > LOAD 'age';
 > SET search_path = ag_catalog, "$user", public;
@@ -35,8 +36,8 @@ psql -h localhost -p 5455 -U docker_username
 
 AGE REQUIRES POSTGRESQL!
 
-```bash
 create a new Rails app (WITH POSTGRESQL!)
+
 ```bash
 rails new age_demo -d postgresql
 cd age_demo
