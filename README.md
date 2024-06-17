@@ -2,8 +2,62 @@
 
 Apache Age integration within a Rails application.
 
+## Quick Start - Essentials
 
-## Quick Start
+**NOTE:** you must be using Postgres as your database! Apache Age requires it.
+
+```bash
+bundle add rails_age
+bundle install
+bin/rails apache_age:install
+# optional: prevents `bin/rails db:migrate` from modifying the schema file,
+# bin/rails apache_age:override_db_migrate
+git add .
+git commit -m "Add & configure Apache Age within Rails"
+```
+
+## Generators
+
+**NODES**
+
+```bash
+rails generate apache_age:scaffold_node Company company_name
+
+rails generate apache_age:scaffold_node Person first_name last_name
+```
+
+**EDGES**
+
+```bash
+rails generate apache_age:scaffold_edge HasJob employee_role start_date:date
+```
+
+Ideally, edit the HasJob class so that `start_node` would use a type `:person` and the `end_node` uses at type `:company`
+
+ie:
+```ruby
+# app/edges/has_job.rb
+class HasJob
+  include ApacheAge::Entities::Edge
+
+  attribute :employee_role, :string
+  attribute :start_node, :person # instead of `:vertex`
+  attribute :end_node, :company # instead of `:vertex`
+
+  validates :employee_role, presence: true
+  validate :validate_unique_edge
+
+  private
+
+  def validate_unique_edge
+    ApacheAge::Validators::UniqueEdge
+      .new(attributes: %i[employee_role start_node end_node])
+      .validate(self)
+  end
+end
+```
+
+## Installation in Detail
 
 using the installer, creates the migration to install age, runs the migration, and adjusts the schema file, and updates the `config/database.yml` file.
 
