@@ -1,4 +1,6 @@
+require 'rails_helper'
 require 'rails/generators'
+
 require_relative "#{Rails.root}/../../lib/generators/apache_age/node/node_generator"
 
 RSpec.describe ApacheAge::NodeGenerator, type: :generator do

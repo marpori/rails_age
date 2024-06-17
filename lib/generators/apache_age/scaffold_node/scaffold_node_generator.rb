@@ -4,14 +4,9 @@ require 'rails/generators'
 require 'rails/generators/named_base'
 require 'rails/generators/resource_helpers'
 
-require_relative '../generator_entity_helpers'
-require_relative '../generator_resource_helpers'
-
 module ApacheAge
   class ScaffoldNodeGenerator < Rails::Generators::NamedBase
     include Rails::Generators::ResourceHelpers
-    # include ApacheAge::GeneratorEntityHelpers
-    # include ApacheAge::GeneratorResourceHelpers
 
     desc "Generates a node, and its controller and views with the given attributes."
 
@@ -26,23 +21,26 @@ module ApacheAge
     def create_controller_files
       template(
         "node_controller.rb.tt",
-        File.join("app/controllers", controller_class_path, "#{controller_file_name}_controller.rb")
+        File.join(Rails.root, "app/controllers", controller_class_path, "#{controller_file_name}_controller.rb")
       )
     end
 
     def create_route
-      if class_path.empty?
-        route "resources :#{file_name.pluralize}"
-      else
-        route nested_route(class_path, file_name)
-      end
+      route_content = route_text(class_path, file_name)
+      inject_into_file(
+        File.join(Rails.root, 'config', 'routes.rb'), "\n#{route_content}",
+        after: "Rails.application.routes.draw do"
+      )
     end
 
     def copy_view_files
       available_views.each do |view|
         view_name = view == 'partial' ? "_#{singular_table_name}" : view
         filename = filename_with_extensions(view_name)
-        template "views/#{view}.html.erb.tt", File.join("app/views", controller_file_path, filename)
+        template(
+          "views/#{view}.html.erb.tt",
+          File.join(Rails.root, "app/views", controller_file_path, filename)
+        )
       end
     end
 
@@ -56,13 +54,14 @@ module ApacheAge
       [view, :html, :erb].compact.join('.')
     end
 
-    def nested_route(class_path, file_name)
-      # "namespace :#{class_path.join(':')} do\n  resources :#{file_name.pluralize}\nend"
-      <<~RUBY
-      namespace :#{class_path.join(':')} do
-        resources :#{file_name.pluralize}
-      end
-      RUBY
+    def route_text(class_path, file_name)
+      return "  resources :#{file_name.pluralize}" if class_path.empty?
+
+<<-RUBY
+  namespace :#{class_path.join(':')} do
+    resources :#{file_name.pluralize}
+  end
+RUBY
     end
   end
 end

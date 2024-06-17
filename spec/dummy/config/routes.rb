@@ -1,4 +1,9 @@
 Rails.application.routes.draw do
+  namespace :animals do
+    resources :cats
+  end
+
+  resources :dogs
   # route for people controller
   resources :people
 

@@ -27,5 +27,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'rails', '>= 7.0', '< 9.0'
 
   spec.add_development_dependency 'rspec-rails', '~> 6.0'
-  # spec.add_development_dependency 'pry-rails'
+  spec.add_development_dependency 'capybara', '~> 3.4'
+  spec.add_development_dependency 'selenium-webdriver'
 end

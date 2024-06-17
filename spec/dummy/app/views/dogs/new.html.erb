@@ -1,0 +1,11 @@
+<% content_for :title, "New dog" %>
+
+<h1>New dog</h1>
+
+<%= render "form", dog: @dog %>
+
+<br>
+
+<div>
+  <%= link_to "Back to dogs", dogs_path %>
+</div>

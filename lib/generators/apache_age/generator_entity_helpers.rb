@@ -3,12 +3,15 @@
 module ApacheAge
   module GeneratorEntityHelpers
     def generate_age_entity(age_type)
-      template "#{age_type}.rb.tt", File.join(destination_root, "app/#{age_type}s", class_path, "#{file_name}.rb")
+      template(
+        "#{age_type}.rb.tt",
+        File.join(Rails.root, "app/#{age_type}s", class_path, "#{file_name}.rb")
+      )
       add_type_config
     end
 
     def destroy_age_entity(age_type)
-      file_path = File.join(destination_root, "app/#{age_type}s", class_path, "#{file_name}.rb")
+      file_path = File.join(Rails.root, "app/#{age_type}s", class_path, "#{file_name}.rb")
       File.delete(file_path) if File.exist?(file_path)
       remove_type_config
     end

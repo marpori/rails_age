@@ -27,4 +27,12 @@ Rails.application.config.to_prepare do
   ActiveModel::Type.register(
     :person, ApacheAge::Types::AgeTypeGenerator.create_type_for(Nodes::Person)
   )
+  require_dependency 'dog'
+  ActiveModel::Type.register(
+    :dog, ApacheAge::Types::AgeTypeGenerator.create_type_for(Dog)
+  )
+  require_dependency 'animals/cat'
+  ActiveModel::Type.register(
+    :animals_cat, ApacheAge::Types::AgeTypeGenerator.create_type_for(Animals::Cat)
+  )
 end
