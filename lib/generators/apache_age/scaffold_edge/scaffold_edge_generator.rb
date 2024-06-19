@@ -1,21 +1,21 @@
-# lib/generators/apache_age/scaffold_node/scaffold_node_generator.rb
+# lib/generators/apache_age/scaffold_edge/scaffold_edge_generator.rb
 
 require 'rails/generators'
 require 'rails/generators/named_base'
 require 'rails/generators/resource_helpers'
 
 module ApacheAge
-  class ScaffoldNodeGenerator < Rails::Generators::NamedBase
+  class ScaffoldEdgeGenerator < Rails::Generators::NamedBase
     include Rails::Generators::ResourceHelpers
 
-    desc "Generates a node, and its controller and views with the given attributes."
+    desc "Generates an edge, and its controller and views with the given attributes."
 
     source_root File.expand_path("templates", __dir__)
 
     argument :attributes, type: :array, default: [], banner: "field:type field:type"
 
     def create_model_file
-      invoke 'apache_age:node', [name] + attributes.collect { |attr| "#{attr.name}:#{attr.type}" }
+      invoke 'apache_age:edge', [name] + attributes.collect { |attr| "#{attr.name}:#{attr.type}" }
     end
 
     def create_controller_files

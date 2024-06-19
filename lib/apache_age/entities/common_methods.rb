@@ -7,6 +7,12 @@ module ApacheAge
       def persisted? = id.present?
       def to_s = ":#{age_label} #{properties_to_s}"
 
+      # default display value
+      def display
+        info = age_properties&.values&.first
+        info.blank? ? "#{age_label} (#{id})" : "#{info} (#{age_label})"
+      end
+
       def to_h
         base_h = attributes.to_hash
         if age_type == 'edge'

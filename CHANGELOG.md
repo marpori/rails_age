@@ -57,7 +57,7 @@ breaking change?: namespaces (by default) will use their own schema? (add to dat
 
 - **Edge Generator**
   * add `rails generate apache_age:edge HasPet owner_role`
-    caveate: start_node and end_node are of type `:vertex` in the generator but can be changed manually in the class file - having trouble with the generator loading the types (the generator rejects custom types - but rails still works with custom types)
+    caveate: start_node and end_node are of type `:node` in the generator but can be changed manually in the class file - having trouble with the generator loading the types (the generator rejects custom types - but rails still works with custom types)
 
 ## VERSION 0.4.1 - 2024-06-15
 

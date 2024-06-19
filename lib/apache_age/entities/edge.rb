@@ -9,11 +9,12 @@ module ApacheAge
         include ActiveModel::Attributes
 
         attribute :id, :integer
+        # attribute :label, :string
         attribute :end_id, :integer
         attribute :start_id, :integer
-        # type: `:vertex` can be overriden with a specific node type
-        attribute :end_node, :vertex
-        attribute :start_node, :vertex
+        # override with a specific node type in the defining class
+        attribute :end_node
+        attribute :start_node
 
         validates :end_node, :start_node, presence: true
         validate :validate_nodes

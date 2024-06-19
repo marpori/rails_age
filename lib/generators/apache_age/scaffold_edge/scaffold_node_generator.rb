@@ -15,7 +15,7 @@ module ApacheAge
     argument :attributes, type: :array, default: [], banner: "field:type field:type"
 
     def create_model_file
-      invoke 'apache_age:node', [name] + attributes.collect { |attr| "#{attr.name}:#{attr.type}" }
+      invoke 'apache_age:edge', [name] + attributes.collect { |attr| "#{attr.name}:#{attr.type}" }
     end
 
     def create_controller_files

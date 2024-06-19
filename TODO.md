@@ -9,7 +9,7 @@
       `rails generate apache_age:edge HasJob epmployee_role begin_date:date`
 - [x] edge type generation in `config/initializers/types.rb`
 - [x] create a generator for node_scaffold
-- [ ] create a generator for edge_scaffold
+- [x] create a generator for edge_scaffold
 - [ ] Test mismatched node types within edges
 - [ ] allow edge generator to usse custom types for start_node and end_node, ie:
       `rails generate apache_age:edge HasPet caretaker_role start_node:person end_node:pet`

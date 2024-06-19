@@ -1,6 +1,6 @@
 module ApacheAge
   module Entities
-    module Node
+    module Vertex
       extend ActiveSupport::Concern
 
       included do

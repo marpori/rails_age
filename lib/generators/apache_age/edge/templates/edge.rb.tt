@@ -4,10 +4,10 @@ class <%= class_name %>
 <%- attributes_list.each do |attribute| -%>
   attribute :<%= attribute[:name] %>, :<%= attribute[:reference] || attribute[:type] %>
 <%- end -%>
-  # recommendation for (start_node and end_node): change `:vertex` with the 'node' type
+  # recommendation for (start_node and end_node): change `:node` with the actual 'node' type
   # see `config/initializers/apache_age.rb` for the list of available node types
-  attribute :start_node, :vertex
-  attribute :end_node, :vertex
+  attribute :start_node
+  attribute :end_node
 
 <%- attributes_list.each do |attribute| -%>
   validates :<%= attribute[:name] %>, presence: true

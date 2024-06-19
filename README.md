@@ -41,8 +41,8 @@ class HasJob
   include ApacheAge::Entities::Edge
 
   attribute :employee_role, :string
-  attribute :start_node, :person # instead of `:vertex`
-  attribute :end_node, :company # instead of `:vertex`
+  attribute :start_node, :person # instead of `:node`
+  attribute :end_node, :company # instead of `:node`
 
   validates :employee_role, presence: true
   validate :validate_unique_edge
@@ -149,7 +149,7 @@ rails generate apache_age:scaffold_node Animals/Pet pet_name birthdate:date
 
 ### EDGE Scaffold Generation**
 
-NOTE: the generator will only allow `:vertex` (default type) for start_node and end_node, however, it is strongly recommended to specify the start_node and end_node types manually. _Hopefully, I can find a way to get the generators to recognize and allow the usage of custom node types. Thus eventually, I hope: `rails generate apache_age:node HasPet start_node:person end_node:pet caretaker_role` will work._
+NOTE: the generator will only allow `:node` (default type) for start_node and end_node, however, it is strongly recommended to specify the start_node and end_node types manually. _Hopefully, I can find a way to get the generators to recognize and allow the usage of custom node types. Thus eventually, I hope: `rails generate apache_age:node HasPet start_node:person end_node:pet caretaker_role` will work._
 
 ```bash
 rails generate apache_age:edge HasJob employee_role begin_date:date
