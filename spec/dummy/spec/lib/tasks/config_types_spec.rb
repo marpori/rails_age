@@ -11,17 +11,17 @@ RSpec.describe 'apache_age:config_types' do
   let(:required_file_content) { "require 'apache_age/types/age_type_generator'" }
   let(:node_type_content) do
 <<-RUBY
-  require_dependency 'apache_age/entities/vertex'
+  require_dependency 'apache_age/node'
   ActiveModel::Type.register(
-    :vertex, ApacheAge::Types::AgeTypeGenerator.create_type_for(ApacheAge::Entities::Vertex)
+    :node, ApacheAge::Types::AgeTypeGenerator.create_type_for(ApacheAge::Node)
   )
 RUBY
   end
   let(:edge_type_content) do
 <<-RUBY
-  require_dependency 'apache_age/entities/edge'
+  require_dependency 'apache_age/edge'
   ActiveModel::Type.register(
-    :edge, ApacheAge::Types::AgeTypeGenerator.create_type_for(ApacheAge::Entities::Edge)
+    :edge, ApacheAge::Types::AgeTypeGenerator.create_type_for(ApacheAge::Edge)
   )
 RUBY
   end

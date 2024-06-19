@@ -9,13 +9,13 @@ require 'apache_age/types/age_type_generator'
 
 Rails.application.config.to_prepare do
   # Register AGE types
-  require_dependency 'apache_age/entities/vertex'
+  require_dependency 'apache_age/node'
   ActiveModel::Type.register(
-    :vertex, ApacheAge::Types::AgeTypeGenerator.create_type_for(ApacheAge::Entities::Vertex)
+    :node, ApacheAge::Types::AgeTypeGenerator.create_type_for(ApacheAge::Node)
   )
-  require_dependency 'apache_age/entities/edge'
+  require_dependency 'apache_age/edge'
   ActiveModel::Type.register(
-    :edge, ApacheAge::Types::AgeTypeGenerator.create_type_for(ApacheAge::Entities::Edge)
+    :edge, ApacheAge::Types::AgeTypeGenerator.create_type_for(ApacheAge::Edge)
   )
 
   # Register the custom types

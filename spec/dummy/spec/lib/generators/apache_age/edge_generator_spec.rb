@@ -17,10 +17,10 @@ RSpec.describe ApacheAge::EdgeGenerator, type: :generator do
 
       attribute :employee_role, :string
       attribute :begin_date, :date
-      # recommendation for (start_node and end_node): change `:vertex` with the 'node' type
+      # recommendation for (start_node and end_node): change `:node` with the actual 'node' type
       # see `config/initializers/apache_age.rb` for the list of available node types
-      attribute :start_node, :vertex
-      attribute :end_node, :vertex
+      attribute :start_node
+      attribute :end_node
 
       validates :employee_role, presence: true
       validates :begin_date, presence: true
