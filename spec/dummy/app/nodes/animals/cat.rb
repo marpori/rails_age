@@ -1,5 +1,5 @@
 class Animals::Cat
-  include ApacheAge::Entities::Vertex
+  include ApacheAge::Entities::Node
 
   attribute :name, :string
 
@@ -7,7 +7,7 @@ class Animals::Cat
 
   # custom unique node validator (remove any attributes that are NOT important to uniqueness)
   validates_with(
-    ApacheAge::Validators::UniqueVertex,
+    ApacheAge::Validators::UniqueNode,
     attributes: [:name]
   )
 end

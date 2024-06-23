@@ -1,0 +1,10 @@
+<p style="color: green"><%= notice %></p>
+
+<%= render 'has_dog', has_dog: @has_dog %>
+
+<div>
+  <%= link_to "Edit this has dog", edit_has_dog_path(@has_dog) %> |
+  <%= link_to "Back to has dogs", has_dogs_path %>
+
+  <%= button_to "Destroy this has dog", @has_dog, method: :delete %>
+</div>

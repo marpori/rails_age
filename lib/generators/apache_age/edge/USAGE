@@ -23,9 +23,9 @@ Example:
           validates :employee_role, presence: true
           validates :begin_date, presence: true
 
-          # unique node validator (remove any attributes that are not important to uniqueness)
+          # unique edge validator (remove any attributes that are not important to uniqueness)
           validates_with(
-            ApacheAge::Validators::UniqueVertex,
+            ApacheAge::Validators::UniqueEdge,
             attributes: [:employee_role, :begin_date :start_node, :end_node]
           )
         end
@@ -35,12 +35,12 @@ Example:
         `bin/rails g apache_age:edge Animals/Cat name age:integer`
 
     This creates:
-        `app/nodes/animals/cat.rb`
+        `app/edges/animals/has_cat.rb`
 
     with the contents
         ```
-        class Animals::Cat
-          include ApacheAge::Entities::Vertex
+        class Animals::HatCat
+          include ApacheAge::Entities::Edge
 
           attribute :name, :string
           attribute :age, :integer
@@ -48,9 +48,9 @@ Example:
           validates :name, presence: true
           validates :age, presence: true
 
-          # unique node validator (remove any attributes that are not important to uniqueness)
+          # unique edge validator (remove any attributes that are not important to uniqueness)
           validates_with(
-            ApacheAge::Validators::UniqueVertex,
+            ApacheAge::Validators::UniqueEdge,
             attributes: [:name, :age, :start_node, :end_node]
           )
         end

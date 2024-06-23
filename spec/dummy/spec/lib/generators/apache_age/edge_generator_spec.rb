@@ -61,7 +61,7 @@ RSpec.describe ApacheAge::EdgeGenerator, type: :generator do
         expect(type_content).to include("require_dependency 'test_edge'")
         expect(type_content)
           .to include(
-            ":test_edge, ApacheAge::Types::AgeTypeGenerator.create_type_for(TestEdge)"
+            ":test_edge, ApacheAge::Types::Factory.create_type_for(TestEdge)"
           )
 
         # ensure destroy works
@@ -73,7 +73,7 @@ RSpec.describe ApacheAge::EdgeGenerator, type: :generator do
           .not_to include("require_dependency 'test_edge'")
         expect(type_content)
           .not_to include(
-            ":test_edge, ApacheAge::Types::AgeTypeGenerator.create_type_for(TestEdge)"
+            ":test_edge, ApacheAge::Types::Factory.create_type_for(TestEdge)"
           )
       end
     end
@@ -93,7 +93,7 @@ RSpec.describe ApacheAge::EdgeGenerator, type: :generator do
         expect(type_content).to include("require_dependency 'tests/test_edge'")
         expect(type_content)
           .to include(
-            ":tests_test_edge, ApacheAge::Types::AgeTypeGenerator.create_type_for(Tests::TestEdge)"
+            ":tests_test_edge, ApacheAge::Types::Factory.create_type_for(Tests::TestEdge)"
           )
 
         # ensure destroy works
@@ -104,7 +104,7 @@ RSpec.describe ApacheAge::EdgeGenerator, type: :generator do
         expect(type_content).not_to include("require_dependency 'tests/test_edge'")
         expect(type_content)
           .not_to include(
-            ":tests_test_edge, ApacheAge::Types::AgeTypeGenerator.create_type_for(Tests::TestEdge)"
+            ":tests_test_edge, ApacheAge::Types::Factory.create_type_for(Tests::TestEdge)"
           )
       end
     end

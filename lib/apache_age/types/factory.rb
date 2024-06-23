@@ -1,4 +1,4 @@
-# lib/apache_age/types/age_type_factory.rb
+# lib/apache_age/types/factory.rb
 # Automatically generates ActiveModel::Type classes
 # Dynamically builds this (as a concrete example):
 # module ApacheAge
@@ -22,7 +22,7 @@
 # end
 module ApacheAge
   module Types
-    class AgeTypeFactory
+    class Factory
       def self.create_type_for(klass)
         Class.new(ActiveModel::Type::Value) do
           define_method(:cast) do |value|

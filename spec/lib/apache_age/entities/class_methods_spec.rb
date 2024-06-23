@@ -12,7 +12,7 @@ RSpec.describe ApacheAge::Entities::ClassMethods do
 
     before do
       class Pet
-        include ApacheAge::Entities::Vertex
+        include ApacheAge::Entities::Node
 
         attribute :species, :string
         attribute :pet_name, :string
@@ -70,23 +70,23 @@ RSpec.describe ApacheAge::Entities::ClassMethods do
 
     before do
       class Person
-        include ApacheAge::Entities::Vertex
+        include ApacheAge::Entities::Node
         attribute :first_name, :string
         attribute :last_name, :string
 
         validates :first_name, :last_name, presence: true
-        validates_with(ApacheAge::Validators::UniqueVertex, attributes: [:first_name, :last_name])
+        validates_with(ApacheAge::Validators::UniqueNode, attributes: [:first_name, :last_name])
       end
 
       class Pet
-        include ApacheAge::Entities::Vertex
+        include ApacheAge::Entities::Node
 
         attribute :species, :string
         attribute :pet_name, :string
 
         validates :species, :pet_name, presence: true
         validates_with(
-          ApacheAge::Validators::UniqueVertex,
+          ApacheAge::Validators::UniqueNode,
           attributes: [:species, :pet_name]
         )
       end

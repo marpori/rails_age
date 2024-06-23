@@ -32,7 +32,7 @@ rails generate apache_age:scaffold_node Person first_name last_name
 rails generate apache_age:scaffold_edge HasJob employee_role start_date:date
 ```
 
-Ideally, edit the HasJob class so that `start_node` would use a type `:person` and the `end_node` uses at type `:company`
+Ideally, edit the HasJob class so that `start_node` would use a type `:person` and the `end_node` uses at type `:company` - this is not yet supported by the generator, but easy to do manually as shown below.  (The problem is that I havent been able to figure out how load all the rails types in the testing environment).
 
 ie:
 ```ruby
@@ -41,8 +41,8 @@ class HasJob
   include ApacheAge::Entities::Edge
 
   attribute :employee_role, :string
-  attribute :start_node, :person # instead of `:node`
-  attribute :end_node, :company # instead of `:node`
+  attribute :start_node, :person
+  attribute :end_node, :company
 
   validates :employee_role, presence: true
   validate :validate_unique_edge

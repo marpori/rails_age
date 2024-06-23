@@ -1,0 +1,12 @@
+<% content_for :title, "Editing has cat" %>
+
+<h1>Editing has cat</h1>
+
+<%= render "form", people_has_cat: @people_has_cat %>
+
+<br>
+
+<div>
+  <%= link_to "Show this has cat", @people_has_cat %> |
+  <%= link_to "Back to has cats", people_has_cats_path %>
+</div>

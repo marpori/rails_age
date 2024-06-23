@@ -4,27 +4,27 @@ require 'rails_helper'
 RSpec.describe ApacheAge::Validators::UniqueEdge do
   before do
     class Person
-      include ApacheAge::Entities::Vertex
+      include ApacheAge::Entities::Node
 
       attribute :first_name, :string
       attribute :last_name, :string
 
       validates :first_name, :last_name, presence: true
       validates_with(
-        ApacheAge::Validators::UniqueVertex,
+        ApacheAge::Validators::UniqueNode,
         attributes: %i[first_name last_name]
       )
     end
 
     class Pet
-      include ApacheAge::Entities::Vertex
+      include ApacheAge::Entities::Node
 
       attribute :species, :string
       attribute :pet_name, :string
 
       validates :species, :pet_name, presence: true
       validates_with(
-        ApacheAge::Validators::UniqueVertex,
+        ApacheAge::Validators::UniqueNode,
         attributes: %i[species pet_name]
       )
     end

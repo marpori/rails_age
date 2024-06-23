@@ -12,7 +12,7 @@ Example:
     with the contents:
         ```
         class Cat
-          include ApacheAge::Entities::Vertex
+          include ApacheAge::Entities::Node
 
           attribute :full_name, :string
           attribute :birthdate, :date
@@ -22,7 +22,7 @@ Example:
 
           # unique node validator (remove any attributes that are not important to uniqueness)
           validates_with(
-            ApacheAge::Validators::UniqueVertex,
+            ApacheAge::Validators::UniqueNode,
             attributes: [:full_name, :birthdate]
           )
         end
@@ -37,7 +37,7 @@ Example:
     with the contents
         ```
         class Animals::Cat
-          include ApacheAge::Entities::Vertex
+          include ApacheAge::Entities::Node
 
           attribute :name, :string
           attribute :age, :integer
@@ -47,7 +47,7 @@ Example:
 
           # unique node validator (remove any attributes that are not important to uniqueness)
           validates_with(
-            ApacheAge::Validators::UniqueVertex,
+            ApacheAge::Validators::UniqueNode,
             attributes: [:name, :age]
           )
         end

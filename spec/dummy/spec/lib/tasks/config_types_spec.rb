@@ -8,12 +8,12 @@ Rails.application.load_tasks
 RSpec.describe 'apache_age:config_types' do
   let(:task_name) { 'apache_age:config_types' }
   let(:types_file_path) { Rails.root.join('config', 'initializers', 'types.rb').to_s }
-  let(:required_file_content) { "require 'apache_age/types/age_type_generator'" }
+  let(:required_file_content) { "require 'apache_age/types/factory'" }
   let(:node_type_content) do
 <<-RUBY
   require_dependency 'apache_age/node'
   ActiveModel::Type.register(
-    :node, ApacheAge::Types::AgeTypeGenerator.create_type_for(ApacheAge::Node)
+    :node, ApacheAge::Types::Factory.create_type_for(ApacheAge::Node)
   )
 RUBY
   end
@@ -21,7 +21,7 @@ RUBY
 <<-RUBY
   require_dependency 'apache_age/edge'
   ActiveModel::Type.register(
-    :edge, ApacheAge::Types::AgeTypeGenerator.create_type_for(ApacheAge::Edge)
+    :edge, ApacheAge::Types::Factory.create_type_for(ApacheAge::Edge)
   )
 RUBY
   end

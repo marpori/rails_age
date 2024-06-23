@@ -1,17 +1,17 @@
-# spec/lib/apache_age/validators/unique_vertex_spec.rb
+# spec/lib/apache_age/validators/unique_node_spec.rb
 require 'rails_helper'
 
-RSpec.describe ApacheAge::Validators::UniqueVertex do
+RSpec.describe ApacheAge::Validators::UniqueNode do
   before do
     class Pet
-      include ApacheAge::Entities::Vertex
+      include ApacheAge::Entities::Node
 
       attribute :species, :string
       attribute :pet_name, :string
 
       validates :species, :pet_name, presence: true
       validates_with(
-        ApacheAge::Validators::UniqueVertex,
+        ApacheAge::Validators::UniqueNode,
         attributes: [:species, :pet_name]
       )
     end

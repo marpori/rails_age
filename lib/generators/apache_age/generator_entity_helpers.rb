@@ -79,7 +79,7 @@ module ApacheAge
 <<-RUBY
   require_dependency '#{file_path}'
   ActiveModel::Type.register(
-    :#{type_name}, ApacheAge::Types::AgeTypeGenerator.create_type_for(#{entity_namespaced_class})
+    :#{type_name}, ApacheAge::Types::Factory.create_type_for(#{entity_namespaced_class})
   )
 RUBY
     end

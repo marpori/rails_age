@@ -1,0 +1,32 @@
+<%= form_with(model: people_has_cat) do |form| %>
+  <% if people_has_cat.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(people_has_cat.errors.count, "error") %> prohibited this people_has_cat from being saved:</h2>
+
+      <ul>
+        <% people_has_cat.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :role, style: "display: block" %>
+    <%= form.text_field :role %>
+  </div>
+
+  <div>
+    <%= form.label :start_node, style: "display: block" %>
+    <%= form.collection_select(:start_id, ApacheAge::Node.all, :id, :display, prompt: 'Select a Start-Node') %>
+  </div>
+
+  <div>
+    <%= form.label :end_node, style: "display: block" %>
+    <%= form.collection_select(:end_id, ApacheAge::Node.all, :id, :display, prompt: 'Select an End-Node') %>
+  </div>
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>

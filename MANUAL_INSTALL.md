@@ -161,18 +161,18 @@ configuring types:
 ```ruby
 # config/initializers/types.rb
 
-require 'apache_age/types/age_type_generator'
+require 'apache_age/types/factory'
 
 Rails.application.config.to_prepare do
 
   # Register the AGE types
   require_dependency 'apache_age/node'
   ActiveModel::Type.register(
-    :node, ApacheAge::Types::AgeTypeGenerator.create_type_for(ApacheAge::Node)
+    :node, ApacheAge::Types::Factory.create_type_for(ApacheAge::Node)
   )
   require_dependency 'apache_age/edge'
   ActiveModel::Type.register(
-    :edge, ApacheAge::Types::AgeTypeGenerator.create_type_for(ApacheAge::Edge)
+    :edge, ApacheAge::Types::Factory.create_type_for(ApacheAge::Edge)
   )
 end
 ```
@@ -187,13 +187,13 @@ $ mkdir app/nodes
 ```ruby
 # app/nodes/company.rb
 class Company
-  include ApacheAge::Entities::Vertex
+  include ApacheAge::Entities::Node
 
   attribute :company_name, :string
 
   validates :company_name, presence: true
   validates_with(
-    ApacheAge::Validators::UniqueVertex,
+    ApacheAge::Validators::UniqueNode,
     attributes: [:company_name]
   )
 end
@@ -202,7 +202,7 @@ end
 ```ruby
 # app/nodes/person.rb
 class Person
-  include ApacheAge::Entities::Vertex
+  include ApacheAge::Entities::Node
 
   attribute :first_name, :string, default: nil
   attribute :last_name, :string, default: nil
@@ -288,7 +288,7 @@ end
 
 ```ruby
 # spec/dummy/config/initializers/types.rb
-require 'apache_age/types/age_type_generator'
+require 'apache_age/types/factory'
 
 Rails.application.config.to_prepare do
   # Ensure the files are loaded
@@ -297,10 +297,10 @@ Rails.application.config.to_prepare do
 
   # Register the custom types
   ActiveModel::Type.register(
-    :company, ApacheAge::Types::AgeTypeGenerator.create_type_for(Nodes::Company)
+    :company, ApacheAge::Types::Factory.create_type_for(Nodes::Company)
   )
   ActiveModel::Type.register(
-    :person, ApacheAge::Types::AgeTypeGenerator.create_type_for(Nodes::Person)
+    :person, ApacheAge::Types::Factory.create_type_for(Nodes::Person)
   )
 end
 ```

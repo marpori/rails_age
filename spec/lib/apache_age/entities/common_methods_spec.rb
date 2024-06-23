@@ -14,7 +14,7 @@ RSpec.describe ApacheAge::Entities::CommonMethods do
 
     before do
       class CavePerson
-        include ApacheAge::Entities::Vertex
+        include ApacheAge::Entities::Node
 
         attribute :name, :string
 

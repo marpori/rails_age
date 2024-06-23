@@ -10,7 +10,7 @@ RSpec.describe ApacheAge::Entities::Edge do
     before do
       module Nodes
         class CavePerson
-          include ApacheAge::Entities::Vertex
+          include ApacheAge::Entities::Node
 
           attribute :name, :string
 
@@ -109,7 +109,7 @@ RSpec.describe ApacheAge::Entities::Edge do
       module Flintstones
         module Nodes
           class CavePerson
-            include ApacheAge::Entities::Vertex
+            include ApacheAge::Entities::Node
             attribute :name, :string
             validates :name, presence: true
           end

@@ -1,5 +1,5 @@
 module ApacheAge
-  module VertexTypeValidator
+  module NodeTypeValidator
     def
       # Register the AGE typesvertex_attribute(attribute_name, type_symbol, klass)
       attribute attribute_name, type_symbol

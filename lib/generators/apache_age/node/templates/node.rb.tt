@@ -1,5 +1,5 @@
 class <%= class_name %>
-  include ApacheAge::Entities::Vertex
+  include ApacheAge::Entities::Node
 
 <%- attributes_list.each do |attribute| -%>
   attribute :<%= attribute[:name] %>, :<%= attribute[:type] %>
@@ -11,7 +11,7 @@ class <%= class_name %>
 
   # custom unique node validator (remove any attributes that are NOT important to uniqueness)
   validates_with(
-    ApacheAge::Validators::UniqueVertex,
+    ApacheAge::Validators::UniqueNode,
     attributes: <%= unique_attributes.inspect %>
   )
 end

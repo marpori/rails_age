@@ -1,5 +1,5 @@
 class Dog
-  include ApacheAge::Entities::Vertex
+  include ApacheAge::Entities::Node
 
   attribute :name, :string
 
@@ -7,7 +7,7 @@ class Dog
 
   # custom unique node validator (remove any attributes that are NOT important to uniqueness)
   validates_with(
-    ApacheAge::Validators::UniqueVertex,
+    ApacheAge::Validators::UniqueNode,
     attributes: [:name]
   )
 end

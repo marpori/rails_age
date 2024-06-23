@@ -10,7 +10,7 @@ RSpec.describe ApacheAge::Entities::Entity do
 
   before do
     class Pet
-      include ApacheAge::Entities::Vertex
+      include ApacheAge::Entities::Node
 
       attribute :species, :string
       attribute :pet_name, :string

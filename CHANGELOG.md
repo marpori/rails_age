@@ -1,6 +1,6 @@
 # Change Log
 
-## VERSION 0.6.2 - 2024-xx-xx
+## VERSION 0.6.4 - 2024-xx-xx
 
 - **cypher queries** (like active record queries)
   * schema override
@@ -8,11 +8,11 @@
   * paths support
   * select attributes support
 
-## VERSION 0.6.1 - 2024-xx-xx
+## VERSION 0.6.3 - 2024-xx-xx
 
 - **Age Path**
 
-## VERSION 0.6.0 - 2024-xx-xx
+## VERSION 0.6.2 - 2024-xx-xx
 
 breaking change?: namespaces (by default) will use their own schema? (add to database.yml & schema.rb ?)
 
@@ -20,7 +20,10 @@ breaking change?: namespaces (by default) will use their own schema? (add to dat
 
 - **multiple AGE Schema**
 
-## VERSION 0.5.4 - 2024-xx-xx
+## VERSION 0.6.1 - 2024-xx-xx
+
+- **Fix**
+  * show validation errors in scaffold views
 
 - **Edge Generator**
   * add start-/end-nodes types to edge generator (would make scaffold easier), ie:
@@ -30,13 +33,21 @@ breaking change?: namespaces (by default) will use their own schema? (add to dat
 - **Edge Scaffold** (generates edge, type, view and controller)
   * add `rails generate apache_age:edge_scaffold HasJob employee_role start_node:person end_node:company`
 
-## VERSION 0.5.3 - 2024-xx-xx
+## VERSION 0.6.0 - 2024-06-xx
 
-- **Node Scaffold** (generates node, type, view and controller)
-  * add system test (to dummy app after scaffold_node is run)
+**breaking changes**: update inhertiances
+  * renamed `Entities::Vertex` module to `Entities::Node`
+  * renamed `UniqueVertex` to `UniqueNode`
+  * rebamed `AgeTypeGenerator` to `Type::Factory`
+  * move `lib/generators/*` intp `lib/apache_age/generators`
+
+## VERSION 0.5.3 - 2024-06-23
 
 - **Edge Scaffold** (generates edge, type, view and controller) - without start-/end-nodes types!?
   * add `rails generate apache_age:edge_scaffold HasJob employee_role`
+  * add system test (to dummy app after scaffold_node is run)
+
+- **Node Scaffold** (generates node, type, view and controller)
   * add system test (to dummy app after scaffold_node is run)
 
 ## VERSION 0.5.2 - 2024-06-16

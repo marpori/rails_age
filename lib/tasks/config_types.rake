@@ -5,28 +5,28 @@ namespace :apache_age do
   desc "Install AGE types from rails_age into the rails initializers"
   task :config_types => :environment do
     types_file_path = File.expand_path("#{Rails.root}/config/initializers/types.rb", __FILE__)
-    required_file_path = "require 'apache_age/types/age_type_generator'"
+    required_file_path = "require 'apache_age/types/factory'"
     required_file_content =
       <<~RUBY
-      require 'apache_age/types/age_type_generator'
+      require 'apache_age/types/factory'
       # AGE Type Definition Usage (edges/nodes):
       # require_dependency 'nodes/company'
       # ActiveModel::Type.register(
-      #   :company, ApacheAge::Types::AgeTypeGenerator.create_type_for(Nodes::Company)
+      #   :company, ApacheAge::Types::Factory.create_type_for(Nodes::Company)
       # )
       RUBY
     node_type_content =
 <<-RUBY
   require_dependency 'apache_age/node'
   ActiveModel::Type.register(
-    :node, ApacheAge::Types::AgeTypeGenerator.create_type_for(ApacheAge::Node)
+    :node, ApacheAge::Types::Factory.create_type_for(ApacheAge::Node)
   )
 RUBY
     edge_type_content =
 <<-RUBY
   require_dependency 'apache_age/edge'
   ActiveModel::Type.register(
-    :edge, ApacheAge::Types::AgeTypeGenerator.create_type_for(ApacheAge::Edge)
+    :edge, ApacheAge::Types::Factory.create_type_for(ApacheAge::Edge)
   )
 RUBY
 
