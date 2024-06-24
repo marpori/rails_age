@@ -40,14 +40,6 @@ module ApacheAge
       end.join("\n") + "\n"
     end
 
-    # def indented_end_namespace
-    #   return '' if parent_module.empty?
-
-    #   parent_module.split('::').map.with_index do |_, index|
-    #     "#{'  ' * (parent_module.split('::').length - 1 - index)}end"
-    #   end.join("\n") + "\n"
-    # end
-
     def add_type_config
       return unless File.exist?(types_config_file)
 

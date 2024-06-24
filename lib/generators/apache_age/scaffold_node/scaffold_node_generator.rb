@@ -9,10 +9,9 @@ module ApacheAge
     include Rails::Generators::ResourceHelpers
 
     desc "Generates a node, and its controller and views with the given attributes."
-
     source_root File.expand_path("templates", __dir__)
-
     argument :attributes, type: :array, default: [], banner: "field:type field:type"
+    class_option :skip_namespace, type: :boolean, default: true, desc: "Skip namespace 'rails_age' in generated files"
 
     def create_model_file
       invoke 'apache_age:node', [name] + attributes.collect { |attr| "#{attr.name}:#{attr.type}" }
