@@ -1,0 +1,10 @@
+<p style="color: green"><%= notice %></p>
+
+<%= render 'flintstones_character', flintstones_character: @flintstones_character %>
+
+<div>
+  <%= link_to "Edit this character", edit_flintstones_character_path(@flintstones_character) %> |
+  <%= link_to "Back to characters", flintstones_characters_path %>
+
+  <%= button_to "Destroy this character", @flintstones_character, method: :delete %>
+</div>

@@ -43,4 +43,12 @@ Rails.application.config.to_prepare do
   ActiveModel::Type.register(
     :has_dog, ApacheAge::Types::Factory.create_type_for(HasDog)
   )
+  require_dependency 'character'
+  ActiveModel::Type.register(
+    :character, ApacheAge::Types::Factory.create_type_for(Character)
+  )
+  require_dependency 'flintstones/character'
+  ActiveModel::Type.register(
+    :flintstones_character, ApacheAge::Types::Factory.create_type_for(Flintstones::Character)
+  )
 end

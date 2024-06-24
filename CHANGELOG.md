@@ -35,11 +35,13 @@ breaking change?: namespaces (by default) will use their own schema? (add to dat
 
 ## VERSION 0.6.0 - 2024-06-xx
 
-**breaking changes**: update inhertiances
+**breaking changes**: update naming
   * renamed `Entities::Vertex` module to `Entities::Node`
   * renamed `UniqueVertex` to `UniqueNode`
   * rebamed `AgeTypeGenerator` to `Type::Factory`
   * move `lib/generators/*` intp `lib/apache_age/generators`
+
+here is the [commit](https://github.com/marpori/rails_age_demo_app/commit/a6f0708f2bbc165eddbafe63896068a72d803b17) to see the changes te demo app to make it work for release 0.6.0
 
 ## VERSION 0.5.3 - 2024-06-23
 

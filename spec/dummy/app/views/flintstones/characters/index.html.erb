@@ -1,0 +1,16 @@
+<p style="color: green"><%= notice %></p>
+
+<% content_for :title, "Characters" %>
+
+<h1>Characters</h1>
+
+<div id="flintstones_characters">
+  <% @flintstones_characters.each do |flintstones_character| %>
+    <%= render 'flintstones_character', flintstones_character: flintstones_character %>
+    <p>
+      <%= link_to "Show this character", flintstones_character %>
+    </p>
+  <% end %>
+</div>
+
+<%= link_to "New character", new_flintstones_character_path %>

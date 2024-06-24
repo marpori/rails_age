@@ -1,0 +1,11 @@
+<% content_for :title, "New character" %>
+
+<h1>New character</h1>
+
+<%= render "form", flintstones_character: @flintstones_character %>
+
+<br>
+
+<div>
+  <%= link_to "Back to characters", flintstones_characters_path %>
+</div>

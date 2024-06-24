@@ -1,4 +1,9 @@
 Rails.application.routes.draw do
+  namespace :flintstones do
+    resources :characters
+  end
+
+  resources :characters
   resources :has_dogs
   namespace :people do
     resources :has_cats
