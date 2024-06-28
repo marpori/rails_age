@@ -13,7 +13,7 @@ RSpec.describe 'apache_age:config_types' do
 <<-RUBY
   require_dependency 'apache_age/node'
   ActiveModel::Type.register(
-    :node, ApacheAge::Types::Factory.create_type_for(ApacheAge::Node)
+    :node, ApacheAge::Types::Factory.type_for(ApacheAge::Node)
   )
 RUBY
   end
@@ -21,7 +21,7 @@ RUBY
 <<-RUBY
   require_dependency 'apache_age/edge'
   ActiveModel::Type.register(
-    :edge, ApacheAge::Types::Factory.create_type_for(ApacheAge::Edge)
+    :edge, ApacheAge::Types::Factory.type_for(ApacheAge::Edge)
   )
 RUBY
   end

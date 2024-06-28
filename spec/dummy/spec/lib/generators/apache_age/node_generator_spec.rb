@@ -49,7 +49,7 @@ RSpec.describe ApacheAge::NodeGenerator, type: :generator do
         expect(type_content)
           .to include("require_dependency 'test_node'")
         expect(type_content)
-          .to include(":test_node, ApacheAge::Types::Factory.create_type_for(TestNode)")
+          .to include(":test_node, ApacheAge::Types::Factory.type_for(TestNode)")
 
         # ensure destroy works
         described_class.start([node_name], {behavior: :revoke, destination_root:})
@@ -58,7 +58,7 @@ RSpec.describe ApacheAge::NodeGenerator, type: :generator do
         expect(type_content)
           .not_to include("require_dependency 'test_node'")
         expect(type_content)
-          .not_to include(":test_node, ApacheAge::Types::Factory.create_type_for(TestNode)")
+          .not_to include(":test_node, ApacheAge::Types::Factory.type_for(TestNode)")
       end
     end
 
@@ -77,7 +77,7 @@ RSpec.describe ApacheAge::NodeGenerator, type: :generator do
           .to include("require_dependency 'tests/test_node'")
         expect(type_content)
           .to include(
-            ":tests_test_node, ApacheAge::Types::Factory.create_type_for(Tests::TestNode)"
+            ":tests_test_node, ApacheAge::Types::Factory.type_for(Tests::TestNode)"
           )
 
         # ensure destroy works
@@ -88,7 +88,7 @@ RSpec.describe ApacheAge::NodeGenerator, type: :generator do
           .not_to include("require_dependency 'tests/test_node'")
         expect(type_content)
           .not_to include(
-            ":tests_test_node, ApacheAge::Types::Factory.create_type_for(Tests::TestNode)"
+            ":tests_test_node, ApacheAge::Types::Factory.type_for(Tests::TestNode)"
           )
       end
     end

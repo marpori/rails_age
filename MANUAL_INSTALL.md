@@ -168,11 +168,11 @@ Rails.application.config.to_prepare do
   # Register the AGE types
   require_dependency 'apache_age/node'
   ActiveModel::Type.register(
-    :node, ApacheAge::Types::Factory.create_type_for(ApacheAge::Node)
+    :node, ApacheAge::Types::Factory.type_for(ApacheAge::Node)
   )
   require_dependency 'apache_age/edge'
   ActiveModel::Type.register(
-    :edge, ApacheAge::Types::Factory.create_type_for(ApacheAge::Edge)
+    :edge, ApacheAge::Types::Factory.type_for(ApacheAge::Edge)
   )
 end
 ```
@@ -297,10 +297,10 @@ Rails.application.config.to_prepare do
 
   # Register the custom types
   ActiveModel::Type.register(
-    :company, ApacheAge::Types::Factory.create_type_for(Nodes::Company)
+    :company, ApacheAge::Types::Factory.type_for(Nodes::Company)
   )
   ActiveModel::Type.register(
-    :person, ApacheAge::Types::Factory.create_type_for(Nodes::Person)
+    :person, ApacheAge::Types::Factory.type_for(Nodes::Person)
   )
 end
 ```

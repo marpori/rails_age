@@ -23,7 +23,7 @@
 module ApacheAge
   module Types
     class Factory
-      def self.create_type_for(klass)
+      def self.type_for(klass)
         Class.new(ActiveModel::Type::Value) do
           define_method(:cast) do |value|
             case value
