@@ -22,9 +22,6 @@ breaking change?: namespaces (by default) will use their own schema? (add to dat
 
 ## VERSION 0.6.1 - 2024-xx-xx
 
-- **Fix**
-  * show validation errors in scaffold views
-
 - **Edge Generator**
   * add start-/end-nodes types to edge generator (would make scaffold easier), ie:
     `rails generate apache_age:edge HasPet owner_role start_node:person end_node:pet`
@@ -35,10 +32,12 @@ breaking change?: namespaces (by default) will use their own schema? (add to dat
 
 ## VERSION 0.6.0 - 2024-06-xx
 
+**Document showing errors**
+
 **breaking changes**: update naming
   * renamed `Entities::Vertex` module to `Entities::Node`
   * renamed `UniqueVertex` to `UniqueNode`
-  * rebamed `AgeTypeGenerator` to `Type::Factory`
+  * rebamed `AgeTypeGenerator.create_type_for` to `Type::Factory.type_for`
   * move `lib/generators/*` intp `lib/apache_age/generators`
 
 here is the [commit](https://github.com/marpori/rails_age_demo_app/commit/a6f0708f2bbc165eddbafe63896068a72d803b17) to see the changes te demo app to make it work for release 0.6.0

@@ -147,23 +147,127 @@ rails generate apache_age:scaffold_node Person first_name last_name
 rails generate apache_age:scaffold_node Animals/Pet pet_name birthdate:date
 ```
 
-### EDGE Scaffold Generation**
-
-NOTE: the generator will only allow `:node` (default type) for start_node and end_node, however, it is strongly recommended to specify the start_node and end_node types manually. _Hopefully, I can find a way to get the generators to recognize and allow the usage of custom node types. Thus eventually, I hope: `rails generate apache_age:node HasPet start_node:person end_node:pet caretaker_role` will work._
-
+now you can test your nodes at:
 ```bash
-rails generate apache_age:edge HasJob employee_role begin_date:date
+http://localhost/people
+# and
+http://localhost/animals_pets
 ```
 
-_edge scaffold is coming soon._
+Note: Turbo seems to interfere with the default rails template's ability to show errors, this can easily be fixed by disabling turbo for forms that where turbo isn't needed by adding `data: { turbo: false }` to the form, ie:
+```ruby
+<%= form_with(model: animals_pet, data: { turbo: false }) do |form| %>
+  ...
+<% end %>
+```
+
+### EDGE Scaffold Generation**
 
 ```bash
 # without a namespace
 rails generate apache_age:scaffold_edge HasPet caretaker_role
+rails generate apache_age:edge HasJob employee_role begin_date:date
 
 # with a namespace
-rails generate apache_age:scaffold_edge People/HasSpouse spousal_role
+rails generate apache_age:scaffold_edge People/HasSpouce spousal_role
 ```
+
+now you can test your edges at:
+```bash
+http://localhost/has_pets
+http://localhost/has_jobs
+# and
+http://localhost/people/has_spouses
+```
+
+you can improve the view to only show the items you expect to be associated with the start- and end-node by changing the selects in the form from the generic form (finds all nodes):
+```ruby
+  <div>
+    <%= form.label :end_node, style: "display: block" %>
+    <%= form.collection_select(:end_id, ApacheAge::Node.all, :id, :display, prompt: 'Select an End-Node') %>
+  </div>
+```
+to selecting a specific node expected (along with the desired 'name' in the list)
+```ruby
+  <div>
+    <%= form.label :end_node, style: "display: block" %>
+    <%= form.collection_select(:end_id, Company.all, :id, :company_name, prompt: 'Select a Company') %>
+  </div>
+```
+so full form change for has_job could look like:
+```ruby
+# app/views/has_jobs/_form.html.erb
+<%= form_with(model: has_job, url: form_url) do |form| %>
+  <% if has_job.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(has_job.errors.count, "error") %> prohibited this has_job from being saved:</h2>
+
+      <ul>
+        <% has_job.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :employee_role, style: "display: block" %>
+    <%= form.text_field :employee_role %>
+  </div>
+
+  <div>
+    <%= form.label :start_node, style: "display: block" %>
+    <%= form.collection_select(:start_id, Person.all, :id, :first_name, prompt: 'Select a person') %>
+  </div>
+
+  <div>
+    <%= form.label :end_node, style: "display: block" %>
+    <%= form.collection_select(:end_id, Company.all, :id, :company_name, prompt: 'Select a Company') %>
+  </div>
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>
+```
+
+To make your code more robust (enforce that the appropriate node type is associate with the start- and end-nodes) you can adjust the edge definition by adding the node type to the `start_node` and `end_node` attributes.
+from
+```ruby
+  attribute :start_node
+  attribute :end_node
+```
+to:
+```ruby
+  attribute :start_node, :person
+  attribute :end_node, :company
+```
+For example you can make the edge/has_pet.rb more robust by making the model look like:
+```ruby
+# app/edges/has_job.rb
+class HasJob
+  include ApacheAge::Entities::Edge
+
+  attribute :employee_role, :string
+  attribute :start_node, :person
+  attribute :end_node, :company
+
+  validates :employee_role, presence: true
+  validate :validate_unique
+
+  private
+
+  def validate_unique
+    ApacheAge::Validators::UniqueEdge
+      .new(attributes: %i[employee_role start_node end_node])
+      .validate(self)
+  end
+end
+```
+
+The generator will only allow `:node` (default type) since at the time of running the generator (at least within tests, the custom types are not known), eventually, I hope to find a way to fix that and allow:
+`rails generate apache_age:node HasPet start_node:person end_node:pet caretaker_role`
+but that doesn't work yet!
 
 ### AGE Usage within Rails Console
 
