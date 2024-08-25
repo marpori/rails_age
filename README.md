@@ -269,7 +269,87 @@ The generator will only allow `:node` (default type) since at the time of runnin
 `rails generate apache_age:node HasPet start_node:person end_node:pet caretaker_role`
 but that doesn't work yet!
 
+### AGE Rails Quick Example
+
+```bash
+rails new stone_age --database=postresql
+cd stone_age
+
+bundle add rails_age
 bundle install
+bin/rails apache_age:install
+bin/rails apache_age:override_db_migrate
+rails db:create
+rails db:migrate
+rails generate apache_age:scaffold_node Person first_name, last_name, gender
+rails generate apache_age:scaffold_node Pet name gender species
+rails generate apache_age:scaffold_edge HasChild role:string
+rails generate apache_age:scaffold_edge HasSibling role:string
+rails generate apache_age:scaffold_edge HasSpouse role:string
+
+# seed file: [db/seed.rb](SEED.md)
+rails db:seed
+
+# Console Usage (seed doesn't provide any pets)
+dino = Pet.create(name: 'Dino', gender: 'male', species: 'dinosaur')
+dino.to_h
+
+# find a person
+fred = Person.find_by(first_name: 'Fred', last_name: 'Flintstone')
+fred.to_h
+
+pebbles = Person.find_by(first_name: 'Pebbles')
+pebbles.to_h
+
+# find an edge
+father_relationship = HasChild.find_by(start_node: fred, end_node: pebbles)
+father_relationship.to_h
+> {:id=>1407374883553310,
+ :end_id=>844424930131996,
+ :start_id=>844424930131986,
+ :role=>"father",
+ :end_node=>{:id=>844424930131996, :last_name=>"Flintstone", :first_name=>"Pebbles", :gender=>"female"},
+ :start_node=>{:id=>844424930131986, :last_name=>"Flintstone", :first_name=>"Fred", :gender=>"male"}}
+
+# where - find multiple nodes
+family = Person.where(last_name: 'Flintstone').order(:first_name).limit(4).all.puts family.map(&:to_h)
+
+family
+> [{:id=>844424930131974, :last_name=>"Flintstone", :first_name=>"Ed", :gender=>"male"},
+>  {:id=>844424930131976, :last_name=>"Flintstone", :first_name=>"Edna", :gender=>"female"},
+?  {:id=>844424930131986, :last_name=>"Flintstone", :first_name=>"Fred", :gender=>"male"},
+>  {:id=>844424930131975, :last_name=>"Flintstone", :first_name=>"Giggles", :gender=>"male"}]
+
+# all - unsorted
+all_family = Person.where(last_name: 'Flintstone').all
+puts all_family.map(&:to_h)
+> {:id=>844424930131969, :last_name=>"Flintstone", :first_name=>"Zeke", :gender=>"female"}
+> {:id=>844424930131970, :last_name=>"Flintstone", :first_name=>"Jed", :gender=>"male"}
+> {:id=>844424930131971, :last_name=>"Flintstone", :first_name=>"Rockbottom", :gender=>"male"}
+> {:id=>844424930131974, :last_name=>"Flintstone", :first_name=>"Ed", :gender=>"male"}
+> {:id=>844424930131975, :last_name=>"Flintstone", :first_name=>"Giggles", :gender=>"male"}
+> {:id=>844424930131976, :last_name=>"Flintstone", :first_name=>"Edna", :gender=>"female"}
+> {:id=>844424930131986, :last_name=>"Flintstone", :first_name=>"Fred", :gender=>"male"}
+> {:id=>844424930131987, :last_name=>"Flintstone", :first_name=>"Wilma", :gender=>"female"}
+> {:id=>844424930131995, :last_name=>"Flintstone", :first_name=>"Stoney", :gender=>"male"}
+> {:id=>844424930131996, :last_name=>"Flintstone", :first_name=>"Pebbles", :gender=>"female"}
+
+# where - multiple edges (relations) - for now only edge attributes and start/end nodes can be queried
+parental_relations = HasChild.where(end_node: pebbles)
+puts parental_relations.map(&:to_h)
+> {:id=>1407374883553310, :end_id=>844424930131996, :start_id=>844424930131986, :role=>"father", :end_node=>{:id=>844424930131996, :last_name=>"Flintstone", :first_name=>"Pebbles", :gender=>"female"}, :start_node=>{:id=>844424930131986, :last_name=>"Flintstone", :first_name=>"Fred", :gender=>"male"}}
+> {:id=>1407374883553309, :end_id=>844424930131996, :start_id=>844424930131987, :role=>"mother", :end_node=>{:id=>844424930131996, :last_name=>"Flintstone", :first_name=>"Pebbles", :gender=>"female"}, :start_node=>{:id=>844424930131987, :last_name=>"Flintstone", :first_name=>"Wilma", :gender=>"female"}}
+
+
+raw_pg_results = Person.where(last_name: 'Flintstone').order(:first_name).limit(4).execute
+=> #<PG::Result:0x000000012255f348 status=PGRES_TUPLES_OK ntuples=4 nfields=1 cmd_tuples=4>
+raw_pg_results.values
+> [["{\"id\": 844424930131974, \"label\": \"Person\", \"properties\": {\"gender\": \"male\", \"last_name\": \"Flintstone\", \"first_name\": \"Ed\"}}::vertex"],
+>  ["{\"id\": 844424930131976, \"label\": \"Person\", \"properties\": {\"gender\": \"female\", \"last_name\": \"Flintstone\", \"first_name\": \"Edna\"}}::vertex"],
+>  ["{\"id\": 844424930131986, \"label\": \"Person\", \"properties\": {\"gender\": \"male\", \"last_name\": \"Flintstone\", \"first_name\": \"Fred\"}}::vertex"],
+>  ["{\"id\": 844424930131975, \"label\": \"Person\", \"properties\": {\"gender\": \"male\", \"last_name\": \"Flintstone\", \"first_name\": \"Giggles\"}}::vertex"]]
+
+```
 
 ### AGE Usage within Rails Console
 
