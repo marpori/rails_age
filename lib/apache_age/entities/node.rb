@@ -7,6 +7,8 @@ module ApacheAge
         include ActiveModel::Model
         include ActiveModel::Dirty
         include ActiveModel::Attributes
+        include ActiveModel::Validations
+        include ActiveModel::Validations::Callbacks
 
         attribute :id, :integer
 

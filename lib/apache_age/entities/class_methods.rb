@@ -8,35 +8,41 @@ module ApacheAge
         instance
       end
 
-      def find_by(attributes)
-        return nil if attributes.reject{ |k,v| v.blank? }.empty?
+      # def execute(query)
+      #   age_results = query.execute
+      #   return [] if age_results.values.count.zero?
 
-        edge_keys = [:start_id, :start_node, :end_id, :end_node]
-        return find_edge(attributes) if edge_keys.any? { |key| attributes.include?(key) }
+      #   age_results.values.map do |result|
+      #     json_string = result.first.split('::').first
+      #     hash = JSON.parse(json_string)
+      #     attribs = hash.except('label', 'properties').merge(hash['properties']).symbolize_keys
 
-        where_clause = attributes.map { |k, v| "find.#{k} = '#{v}'" }.join(' AND ')
-        cypher_sql = find_sql(where_clause)
+      #     new(**attribs)
+      #   end
+      # end
 
-        execute_find(cypher_sql)
-      end
-
-      def find(id)
-        where_clause = "id(find) = #{id}"
-        cypher_sql = find_sql(where_clause)
-        execute_find(cypher_sql)
+      def where(attributes)
+        query_builder = QueryBuilder.new(self)
+        query_builder.where(attributes)
       end
 
       def all
-        age_results = ActiveRecord::Base.connection.execute(all_sql)
-        return [] if age_results.values.count.zero?
+        QueryBuilder.new(self).all
+      end
 
-        age_results.values.map do |result|
-          json_string = result.first.split('::').first
-          hash = JSON.parse(json_string)
-          attribs = hash.except('label', 'properties').merge(hash['properties']).symbolize_keys
+      def first
+        QueryBuilder.new(self).first
+      end
 
-          new(**attribs)
-        end
+      def find(id)
+        where(id: id).first
+      end
+
+      def find_by(attributes)
+        return nil if attributes.reject{ |k,v| v.blank? }.empty?
+
+        query_builder = QueryBuilder.new(self)
+        query_builder.where(attributes).first
       end
 
       # Private stuff
@@ -57,9 +63,30 @@ module ApacheAge
         where_clause = [where_attribs, where_start_id, where_end_id].compact.join(' AND ')
         return nil if where_clause.empty?
 
-        cypher_sql = find_edge_sql(where_clause)
+        cypher_sql = edge_sql(where_clause)
 
         execute_find(cypher_sql)
+      end
+
+      def where_edge(attributes)
+        where_attribs =
+          attributes
+          .compact
+          .except(:end_id, :start_id, :end_node, :start_node)
+          .map { |k, v| "find.#{k} = '#{v}'" }.join(' AND ')
+        where_attribs = where_attribs.empty? ? nil : where_attribs
+
+        end_id = attributes[:end_id] || attributes[:end_node]&.id
+        start_id = attributes[:start_id] || attributes[:start_node]&.id
+        where_end_id = end_id ? "id(end_node) = #{end_id}" : nil
+        where_start_id = start_id ? "id(start_node) = #{start_id}" : nil
+
+        where_clause = [where_attribs, where_start_id, where_end_id].compact.join(' AND ')
+        return nil if where_clause.empty?
+
+        cypher_sql = edge_sql(where_clause)
+
+        execute_where(cypher_sql)
       end
 
       def age_graph = 'age_schema'
@@ -71,16 +98,33 @@ module ApacheAge
       end
 
       def execute_find(cypher_sql)
-        age_result = ActiveRecord::Base.connection.execute(cypher_sql)
-        return nil if age_result.values.count.zero?
+        age_results = ActiveRecord::Base.connection.execute(cypher_sql)
+        return nil if age_results.values.count.zero?
 
-        age_type = age_result.values.first.first.split('::').last
-        json_data = age_result.values.first.first.split('::').first
+        age_type = age_results.values.first.first.split('::').last
+        json_data = age_results.values.first.first.split('::').first
 
         hash = JSON.parse(json_data)
         attribs = hash.except('label', 'properties').merge(hash['properties']).symbolize_keys
 
         new(**attribs)
+      end
+
+      def execute_sql(cypher_sql)
+        ActiveRecord::Base.connection.execute(cypher_sql)
+      end
+
+      def execute_where(cypher_sql)
+        age_results = ActiveRecord::Base.connection.execute(cypher_sql)
+        return nil if age_results.values.count.zero?
+
+        age_results.values.map do |value|
+          json_data = value.first.split('::').first
+          hash = JSON.parse(json_data)
+          attribs = hash.except('label', 'properties').merge(hash['properties']).symbolize_keys
+
+          new(**attribs)
+        end
       end
 
       def all_sql
@@ -93,7 +137,7 @@ module ApacheAge
         SQL
       end
 
-      def find_sql(where_clause)
+      def node_sql(where_clause)
         <<-SQL
           SELECT *
           FROM cypher('#{age_graph}', $$
@@ -104,7 +148,7 @@ module ApacheAge
         SQL
       end
 
-      def find_edge_sql(where_clause)
+      def edge_sql(where_clause)
         <<-SQL
           SELECT *
           FROM cypher('#{age_graph}', $$
@@ -113,6 +157,31 @@ module ApacheAge
               RETURN find
           $$) as (#{age_label} agtype);
         SQL
+      end
+
+      private
+
+      def where_node_clause(attributes)
+        build_core_where_clause(attributes)
+      end
+
+      def where_edge_clause(attributes)
+        core_attributes = attributes.except(:end_id, :start_id, :end_node, :start_node)
+        core_clauses = core_attributes.empty? ? nil : build_core_where_clause(core_attributes)
+
+        end_id = attributes[:end_id] || attributes[:end_node]&.id
+        start_id = attributes[:start_id] || attributes[:start_node]&.id
+        where_end_id = end_id ? "id(end_node) = #{end_id}" : nil
+        where_start_id = start_id ? "id(start_node) = #{start_id}" : nil
+
+        [core_clauses, where_start_id, where_end_id].compact.join(' AND ')
+      end
+
+      def build_core_where_clause(attributes)
+        attributes
+          .compact
+          .map { |k, v| k == :id ? "id(find) = #{v}" : "find.#{k} = '#{v}'"}
+          .join(' AND ')
       end
     end
   end

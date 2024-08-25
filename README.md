@@ -269,6 +269,8 @@ The generator will only allow `:node` (default type) since at the time of runnin
 `rails generate apache_age:node HasPet start_node:person end_node:pet caretaker_role`
 but that doesn't work yet!
 
+bundle install
+
 ### AGE Usage within Rails Console
 
 see [AGE Usage within Rails Console](AGE_CONSOLE_USAGE.md)
