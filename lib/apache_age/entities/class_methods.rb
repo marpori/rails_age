@@ -8,65 +8,22 @@ module ApacheAge
         instance
       end
 
-      # def execute(query)
-      #   age_results = query.execute
-      #   return [] if age_results.values.count.zero?
-
-      #   age_results.values.map do |result|
-      #     json_string = result.first.split('::').first
-      #     hash = JSON.parse(json_string)
-      #     attribs = hash.except('label', 'properties').merge(hash['properties']).symbolize_keys
-
-      #     new(**attribs)
-      #   end
-      # end
-
       def where(attributes)
         query_builder = QueryBuilder.new(self)
         query_builder.where(attributes)
       end
 
-      def all
-        QueryBuilder.new(self).all
-      end
-
-      def first
-        QueryBuilder.new(self).first
-      end
-
-      def find(id)
-        where(id: id).first
-      end
+      def all = QueryBuilder.new(self).all
+      def first = QueryBuilder.new(self).limit(1).first
+      def find(id) = where(id: id).first
 
       def find_by(attributes)
-        return nil if attributes.reject{ |k,v| v.blank? }.empty?
+        return nil if attributes.reject { |k, v| v.blank? }.empty?
 
-        query_builder = QueryBuilder.new(self)
-        query_builder.where(attributes).first
+        where(attributes).limit(1).first
       end
 
       # Private stuff
-
-      def find_edge(attributes)
-        where_attribs =
-          attributes
-          .compact
-          .except(:end_id, :start_id, :end_node, :start_node)
-          .map { |k, v| "find.#{k} = '#{v}'" }.join(' AND ')
-        where_attribs = where_attribs.empty? ? nil : where_attribs
-
-        end_id = attributes[:end_id] || attributes[:end_node]&.id
-        start_id = attributes[:start_id] || attributes[:start_node]&.id
-        where_end_id = end_id ? "id(end_node) = #{end_id}" : nil
-        where_start_id = start_id ? "id(start_node) = #{start_id}" : nil
-
-        where_clause = [where_attribs, where_start_id, where_end_id].compact.join(' AND ')
-        return nil if where_clause.empty?
-
-        cypher_sql = edge_sql(where_clause)
-
-        execute_find(cypher_sql)
-      end
 
       def where_edge(attributes)
         where_attribs =
@@ -97,22 +54,9 @@ module ApacheAge
         age_type == 'vertex' ? "(find:#{age_label})" : "(start_node)-[find:#{age_label}]->(end_node)"
       end
 
-      def execute_sql(cypher_sql)
-        ActiveRecord::Base.connection.execute(cypher_sql)
-      end
+      def execute_sql(cypher_sql) = ActiveRecord::Base.connection.execute(cypher_sql)
 
-      def execute_find(cypher_sql)
-        age_results = ActiveRecord::Base.connection.execute(cypher_sql)
-        return nil if age_results.values.count.zero?
-
-        age_type = age_results.values.first.first.split('::').last
-        json_data = age_results.values.first.first.split('::').first
-
-        hash = JSON.parse(json_data)
-        attribs = hash.except('label', 'properties').merge(hash['properties']).symbolize_keys
-
-        new(**attribs)
-      end
+      def execute_find(cypher_sql) = execute_where(cypher_sql).first
 
       def execute_where(cypher_sql)
         age_results = ActiveRecord::Base.connection.execute(cypher_sql)
