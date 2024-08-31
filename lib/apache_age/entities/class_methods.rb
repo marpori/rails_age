@@ -97,6 +97,10 @@ module ApacheAge
         age_type == 'vertex' ? "(find:#{age_label})" : "(start_node)-[find:#{age_label}]->(end_node)"
       end
 
+      def execute_sql(cypher_sql)
+        ActiveRecord::Base.connection.execute(cypher_sql)
+      end
+
       def execute_find(cypher_sql)
         age_results = ActiveRecord::Base.connection.execute(cypher_sql)
         return nil if age_results.values.count.zero?
@@ -110,13 +114,9 @@ module ApacheAge
         new(**attribs)
       end
 
-      def execute_sql(cypher_sql)
-        ActiveRecord::Base.connection.execute(cypher_sql)
-      end
-
       def execute_where(cypher_sql)
         age_results = ActiveRecord::Base.connection.execute(cypher_sql)
-        return nil if age_results.values.count.zero?
+        return [] if age_results.values.count.zero?
 
         age_results.values.map do |value|
           json_data = value.first.split('::').first
