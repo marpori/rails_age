@@ -12,8 +12,10 @@
 - [x] create a generator for edge_scaffold
 - [x] Test mismatched node types within edges
 - [x] Fix validation errors display
+- [x] support for AGE cypher queries (nodes)
+- [ ] support for AGE cypher queries (edges)
 - [ ] support for AGE paths (nodes and edges) combined
-- [ ] support for AGE cypher queries (nodes, edges, paths, and select attributes)
+- [ ] support for AGE cypher queries (paths)
 - [ ] support for multiple AGE schemas
 - [ ] Enforce Private and Protected methods
 - [ ] Add additional data-types for AGE properties (Arrays, Hashes, etc.)

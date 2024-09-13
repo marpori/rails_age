@@ -348,8 +348,58 @@ raw_pg_results.values
 >  ["{\"id\": 844424930131976, \"label\": \"Person\", \"properties\": {\"gender\": \"female\", \"last_name\": \"Flintstone\", \"first_name\": \"Edna\"}}::vertex"],
 >  ["{\"id\": 844424930131986, \"label\": \"Person\", \"properties\": {\"gender\": \"male\", \"last_name\": \"Flintstone\", \"first_name\": \"Fred\"}}::vertex"],
 >  ["{\"id\": 844424930131975, \"label\": \"Person\", \"properties\": {\"gender\": \"male\", \"last_name\": \"Flintstone\", \"first_name\": \"Giggles\"}}::vertex"]]
-
 ```
+
+### Age Cypher Queries
+
+```ruby
+flintstone_family =
+  Person.where(last_name: 'Flintstone')
+        .order(:first_name)
+        .limit(4).all
+        .map(&:to_h)
+
+# generates the query
+SELECT *
+FROM cypher('age_schema', $$
+    MATCH (find:Person)
+    WHERE find.last_name = 'Flintstone'
+    RETURN find
+    ORDER BY find.first_name
+    LIMIT 4
+$$) as (Person agtype);
+
+# and returns:
+[{:id=>844424930131974, :last_name=>"Flintstone", :first_name=>"Ed", :gender=>"male"},
+ {:id=>844424930131976, :last_name=>"Flintstone", :first_name=>"Edna", :gender=>"female"},
+ {:id=>844424930131986, :last_name=>"Flintstone", :first_name=>"Fred", :gender=>"male"},
+ {:id=>844424930131975, :last_name=>"Flintstone", :first_name=>"Giggles", :gender=>"male"}]
+```
+
+```ruby
+query =
+  Person.
+    cypher('age_schema')
+    .match("(a:Person), (b:Person)")
+    .where("a.name = 'Node A'", "b.name = 'Node B'")
+    .return("a.name", "b.name")
+    .as("name_a agtype, name_b agtype")
+    .execute
+```
+
+or more generally:
+
+```ruby
+tihen =
+  ApacheAge::Cypher
+    .new('age_schema')
+    .create("(person:Person {name: 'Tihen'})")
+    .return('person')
+    .as('Person agtype')
+    .execute
+```
+
+see [AGE Cypher Queries](AGE_CYPHER_QUERIES.md)
 
 ### AGE Usage within Rails Console
 
