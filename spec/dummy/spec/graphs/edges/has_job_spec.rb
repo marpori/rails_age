@@ -139,4 +139,150 @@ RSpec.describe Edges::HasJob do
       end
     end
   end
+
+  describe 'Queries' do
+    let(:betty) { Nodes::Person.create(first_name: 'Betty', last_name: 'Rubble', gender: 'female') }
+    let(:wilma) { Nodes::Person.create(first_name: 'Wilma', last_name: 'Flintstone', gender: 'female') }
+    let(:news) { Nodes::Company.create(company_name: 'Rockport News') }
+    let(:betty_news) { described_class.create(employee_role: 'Reporter', start_node: betty, end_node: news) }
+    let(:wilma_news) { described_class.create(employee_role: 'Reporter', start_node: wilma, end_node: news) }
+
+    let(:fred) { Nodes::Person.create(first_name: 'Fred', last_name: 'Flintstone', gender: 'male') }
+    let(:barney) { Nodes::Person.create(first_name: 'Barney', last_name: 'Rubble', gender: 'male') }
+    let(:mr_slate) { Nodes::Person.create(first_name: 'Mr', last_name: 'Slate', gender: 'male') }
+    let(:quarry) { Nodes::Company.create(company_name: 'Rockport Quarry') }
+    let(:fred_quarry) { described_class.create(employee_role: 'Quarry Worker', start_node: fred, end_node: quarry) }
+    let(:barney_quarry) { described_class.create(employee_role: 'Quarry Worker', start_node: barney, end_node: quarry) }
+    let(:mr_slate_quarry) { described_class.create(employee_role: 'Owner', start_node: mr_slate, end_node: quarry) }
+
+    before do
+      fred_quarry
+      barney_quarry
+      mr_slate_quarry
+      betty_news
+      wilma_news
+    end
+
+    describe '.where' do
+      context 'single where condition on an edge property' do
+        subject { described_class.where(employee_role: 'Quarry Worker') }
+
+        it 'returns all edges with the given employee_role' do
+          expect(subject.all.count).to eq(2)
+          expect(subject.all.map(&:id)).to match_array([fred_quarry.id, barney_quarry.id])
+          expect(subject.to_sql)
+           .to eq("SELECT * FROM cypher('age_schema', $$ MATCH (start_node)-[find:Edges__HasJob]->(end_node) " \
+                  "WHERE find.employee_role = 'Quarry Worker' RETURN find $$) AS (find agtype);")
+        end
+      end
+
+      context 'single where condition on a node' do
+        subject { described_class.where(end_node: quarry) }
+
+        it 'returns all edges with the given employee_role' do
+          expect(subject.all.count).to eq(3)
+          expect(subject.all.map(&:id)).to match_array([fred_quarry.id, barney_quarry.id, mr_slate_quarry.id])
+          expect(subject.to_sql)
+            .to eq("SELECT * FROM cypher('age_schema', $$ MATCH (start_node)-[find:Edges__HasJob]->(end_node) " \
+                   "WHERE id(end_node) = #{quarry.id} RETURN find $$) AS (find agtype);")
+        end
+      end
+
+      # .where("start_node.last_name = 'Rubble'") }  -> .where(start_node: { last_name: 'Rubble' })
+      xcontext 'single where condition on a node attribute' do
+        # subject { described_class.where("start_node.last_name = 'Rubble'") }
+        subject { described_class.where(start_node: { last_name: 'Rubble' })}
+
+        it 'returns all edges with the given employee_role' do
+          expect(subject.all.count).to eq(1)
+          expect(subject.all.first.id).to eq(barney_quarry.id)
+          expect(subject.to_sql)
+            .to eq("SELECT * FROM cypher('age_schema', $$ MATCH (start_node)-[find:Edges__HasJob]->(end_node) " \
+                   "WHERE id(end_node) = #{quarry.id} RETURN find $$) AS (find agtype);")
+        end
+      end
+
+      context 'multiple where condition on node' do
+        subject { described_class.where(end_node: quarry).where(start_node: mr_slate) }
+
+        it 'returns all edges with the given employee_role' do
+          expect(subject.all.count).to eq(1)
+          expect(subject.all.first.id).to eq(mr_slate_quarry.id)
+          expect(subject.to_sql)
+            .to eq("SELECT * FROM cypher('age_schema', $$ MATCH (start_node)-[find:Edges__HasJob]->(end_node) " \
+                   "WHERE id(end_node) = #{quarry.id} AND id(start_node) = #{mr_slate.id} RETURN find $$) AS (find agtype);")
+        end
+      end
+    end
+
+    describe '.order' do
+      context 'single order condition on edge property' do
+        subject { described_class.where(end_node: quarry).order(:employee_role) }
+
+        it 'returns all edges with the given employee_role' do
+          expect(subject.all.count).to eq(3)
+          expect(subject.all.map(&:id).first).to eq(mr_slate_quarry.id)
+          expect(subject.to_sql)
+            .to eq("SELECT * FROM cypher('age_schema', $$ MATCH (start_node)-[find:Edges__HasJob]->(end_node) " \
+                   "WHERE id(end_node) = #{quarry.id} RETURN find ORDER BY find.employee_role $$) AS (find agtype);")
+        end
+      end
+
+      context 'single order condition with direction' do
+        subject { described_class.where(end_node: quarry).order(employee_role: :desc) }
+
+        it 'returns all edges with the given employee_role' do
+          expect(subject.all.count).to eq(3)
+          expect(subject.all.map(&:id).last).to eq(mr_slate_quarry.id)
+          expect(subject.to_sql)
+            .to eq("SELECT * FROM cypher('age_schema', $$ MATCH (start_node)-[find:Edges__HasJob]->(end_node) " \
+                   "WHERE id(end_node) = #{quarry.id} RETURN find ORDER BY find.employee_role desc $$) AS (find agtype);")
+        end
+      end
+
+      context 'single order condition on node property with attribute' do
+        subject { described_class.where(end_node: quarry).where(start_node: mr_slate).order(employee_role: :desc) }
+
+        it 'returns all edges with the given employee_role' do
+          expect(subject.all.count).to eq(1)
+          expect(subject.all.first.id).to eq(mr_slate_quarry.id)
+          expect(subject.to_sql)
+            .to eq("SELECT * FROM cypher('age_schema', $$ MATCH (start_node)-[find:Edges__HasJob]->(end_node) " \
+                   "WHERE id(end_node) = #{quarry.id} AND id(start_node) = #{mr_slate.id} RETURN find " \
+                   "ORDER BY find.employee_role desc $$) AS (find agtype);")
+        end
+      end
+    end
+
+    describe '.limit' do
+      context 'simple limit' do
+        subject { described_class.where(end_node: quarry).order(:employee_role).limit(1) }
+
+        it 'returns all edges with the given employee_role' do
+          expect(subject.all.count).to eq(1)
+          expect(subject.all.map(&:id)).to eq([mr_slate_quarry.id])
+          expect(subject.to_sql)
+            .to eq("SELECT * FROM cypher('age_schema', $$ MATCH (start_node)-[find:Edges__HasJob]->(end_node) " \
+                   "WHERE id(end_node) = #{quarry.id} RETURN find ORDER BY find.employee_role LIMIT 1 $$) AS (find agtype);")
+        end
+      end
+
+      context 'single wherem order on a nested node property' do
+        subject {
+          described_class
+            .where(employee_role: 'Quarry Worker')
+            .order('start_node.first_name desc')
+            .limit(1)
+        }
+
+        it 'returns the expected worker edge whose first_name is lowest in the alphabet "Fred"' do
+          expect(subject.all.count).to eq(1)
+          expect(subject.all.first.id).to eq(fred_quarry.id)
+          expect(subject.to_sql)
+            .to eq("SELECT * FROM cypher('age_schema', $$ MATCH (start_node)-[find:Edges__HasJob]->(end_node) " \
+                   "WHERE find.employee_role = 'Quarry Worker' RETURN find ORDER BY start_node.first_name desc LIMIT 1 $$) AS (find agtype);")
+        end
+      end
+    end
+  end
 end
