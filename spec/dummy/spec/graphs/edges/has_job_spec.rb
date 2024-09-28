@@ -188,17 +188,36 @@ RSpec.describe Edges::HasJob do
         end
       end
 
-      # .where("start_node.last_name = 'Rubble'") }  -> .where(start_node: { last_name: 'Rubble' })
-      xcontext 'single where condition on a node attribute' do
-        # subject { described_class.where("start_node.last_name = 'Rubble'") }
+      context 'with a single where condition on a node attribute' do
         subject { described_class.where(start_node: { last_name: 'Rubble' })}
 
         it 'returns all edges with the given employee_role' do
-          expect(subject.all.count).to eq(1)
-          expect(subject.all.first.id).to eq(barney_quarry.id)
+          expect(subject.all.count).to eq(2)
+
+          ids = subject.all.map(&:id)
+          expect(ids).to include(barney_quarry.id)
+          expect(ids).to include(betty_news.id)
           expect(subject.to_sql)
-            .to eq("SELECT * FROM cypher('age_schema', $$ MATCH (start_node)-[find:Edges__HasJob]->(end_node) " \
-                   "WHERE id(end_node) = #{quarry.id} RETURN find $$) AS (find agtype);")
+            .to eq("SELECT * FROM cypher('age_schema', $$ " \
+                   "MATCH (start_node)-[find:Edges__HasJob]->(end_node) " \
+                   "WHERE start_node.last_name = 'Rubble' " \
+                   "RETURN find $$) AS (find agtype);")
+        end
+      end
+
+      context 'with 2 where condition on a node attribute and an edge attribute' do
+        subject { described_class.where(start_node: { last_name: 'Rubble' }).where(employee_role: 'Quarry Worker')}
+
+        it 'returns all edges with the given employee_role' do
+          expect(subject.all.count).to eq(1)
+
+          ids = subject.all.map(&:id)
+          expect(ids).to include(barney_quarry.id)
+          expect(subject.to_sql)
+            .to eq("SELECT * FROM cypher('age_schema', $$ " \
+                   "MATCH (start_node)-[find:Edges__HasJob]->(end_node) " \
+                   "WHERE start_node.last_name = 'Rubble' AND find.employee_role = 'Quarry Worker' " \
+                   "RETURN find $$) AS (find agtype);")
         end
       end
 

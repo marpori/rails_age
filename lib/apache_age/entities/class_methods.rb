@@ -113,12 +113,29 @@ module ApacheAge
         core_attributes = attributes.except(:end_id, :start_id, :end_node, :start_node)
         core_clauses = core_attributes.empty? ? nil : build_core_where_clause(core_attributes)
 
-        end_id = attributes[:end_id] || attributes[:end_node]&.id
-        start_id = attributes[:start_id] || attributes[:start_node]&.id
+        end_id =
+          if attributes[:end_id]
+            end_id = attributes[:end_id]
+          elsif attributes[:end_node].is_a?(Node)
+            end_id = attributes[:end_node]&.id
+          end
         where_end_id = end_id ? "id(end_node) = #{end_id}" : nil
+
+        start_id =
+          if attributes[:start_id]
+            start_id = attributes[:start_id]
+          elsif attributes[:start_node].is_a?(Node)
+            start_id = attributes[:start_node]&.id
+          end
         where_start_id = start_id ? "id(start_node) = #{start_id}" : nil
 
-        [core_clauses, where_start_id, where_end_id].compact.join(' AND ')
+        where_end_attrs =
+          attributes[:end_node].map { |k, v| "end_node.#{k} = '#{v}'" } if attributes[:end_node].is_a?(Hash)
+        where_start_attrs =
+          attributes[:start_node].map { |k, v| "start_node.#{k} = '#{v}'" } if attributes[:start_node].is_a?(Hash)
+
+        [core_clauses, where_start_id, where_end_id, where_start_attrs, where_end_attrs]
+          .flatten.compact.join(' AND ')
       end
 
       def build_core_where_clause(attributes)
