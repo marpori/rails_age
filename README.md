@@ -387,7 +387,7 @@ query =
     .execute
 ```
 
-or more generally:
+or more generally (soon - not yet tested nor santized):
 
 ```ruby
 tihen =

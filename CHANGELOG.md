@@ -22,30 +22,31 @@
   * paths support
   * select attributes support
 
-## VERSION 0.7.0 - 2024-xx-xx
-
-- **Age Path** - nodes and edges combined
-  * add `rails generate apache_age:path_scaffold HasJob employee_role start_node:person end_node:company`
-
-## VERSION 0.6.2 - 2024-xx-xx
+## VERSION 0.8.0 - 2024-xx-xx
 
 breaking change?: namespaces (by default) will use their own schema? (add to database.yml & schema.rb ?)
 
 - **AGE Schema override**
 
-- **multiple AGE Schema**
+- **Multiple AGE Schema**
 
+## VERSION 0.7.0 - 2024-xx-xx
+
+- **Age Path** - nodes and edges combined
+  * add `rails generate apache_age:path_scaffold HasJob employee_role start_node:person end_node:company`
+
+
+## VERSION 0.6.2 - 2024-xx-xx
+
+- **Query Sanitize**
+
+## VERSION 0.6.1 - 2024-09-29
+
+**Queries are not yet sanitize (injection filtered)!**
+
+- **where nodes** - Edge and Node
 - **where edges** - allow subquery on node attributes?
-
 - **limit** - limit the number of results returned
-
-## VERSION 0.6.1 - 2024-xx-xx
-
-breaking change?: namespaces (by default) will use their own schema? (add to database.yml & schema.rb ?)
-
-- **Where** - Edge and Node
-  * allow custom `where` to Edge and Node Classes
-
 
 ## VERSION 0.6.0 - 2024-06-28
 
