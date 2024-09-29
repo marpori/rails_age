@@ -41,7 +41,10 @@ module ApacheAge
         self
       end
 
-      # need to handle string inputs too: ie: "id(find) = #{id}"
+      # TODO: need to handle string inputs too: instead of: \
+      # "id(find) = #{id}" & "find.name = #{name}"
+      # we can have: "id(find) = ?", id & "find.name = ?", name
+      # ActiveRecord::Base.sanitize_sql([query_string, v])
       def where(attributes)
         return self if attributes.blank?
 
@@ -112,21 +115,23 @@ module ApacheAge
 
       private
 
+      # TODO: ensure ordering keys are present in the model
       def parse_ordering(ordering)
         if ordering.is_a?(Hash)
-          # Convert hash into "find.key direction" format and join with commas
-          ordering = ordering.map { |k, v| "find.#{k} #{v}" }.join(', ')
+          ordering =
+            ordering
+              .map { |k, v| "find.#{k} #{ActiveRecord::Base.sanitize_sql_like(v.to_s)}" }
+              .join(', ')
         elsif ordering.is_a?(Symbol)
-          # If it's a symbol, simply prepend "find."
           ordering = "find.#{ordering}"
         elsif ordering.is_a?(String)
-          # If it's a string, assume it's already in the correct format
-          ordering = ordering
+          ordering
         elsif ordering.is_a?(Array)
-          # If it's an array, process each element recursively
           ordering = ordering.map do |order|
             if order.is_a?(Hash)
-              order.map { |k, v| "find.#{k} #{v}" }.join(', ')
+              order
+                .map { |k, v| "find.#{k} #{ActiveRecord::Base.sanitize_sql_like(v.to_s)}" }
+                .join(', ')
             elsif order.is_a?(Symbol)
               "find.#{order}"
             elsif order.is_a?(String)
@@ -154,6 +159,22 @@ module ApacheAge
           $$) AS (#{return_names.join(' agtype, ')} agtype);
         SQL
       end
+      # def build_query(_extra_clause = nil)
+      #   sanitized_where_sql = where_clauses.any? ? "WHERE #{where_clauses.map { |clause| ActiveRecord::Base.sanitize_sql_like(clause) }.join(' AND ')}" : ''
+      #   sanitized_order_by = order_clause.present? ? ActiveRecord::Base.sanitize_sql_like(order_clause) : ''
+      #   sanitized_limit_clause = limit_clause.present? ? ActiveRecord::Base.sanitize_sql_like(limit_clause) : ''
+
+      #   <<-SQL.squish
+      #     SELECT *
+      #     FROM cypher('#{graph_name}', $$
+      #         MATCH #{ActiveRecord::Base.sanitize_sql_like(match_clause)}
+      #         #{sanitized_where_sql}
+      #         RETURN #{ActiveRecord::Base.sanitize_sql_like(return_clause)}
+      #         #{sanitized_order_by}
+      #         #{sanitized_limit_clause}
+      #     $$) AS (#{return_names.map { |name| "#{ActiveRecord::Base.sanitize_sql_like(name)} agtype" }.join(', ')});
+      #   SQL
+      # end
     end
   end
 end

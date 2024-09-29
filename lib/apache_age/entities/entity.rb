@@ -3,14 +3,20 @@ module ApacheAge
     class Entity
       class << self
         def find_by(attributes)
-          where_clause = attributes.map { |k, v| "find.#{k} = '#{v}'" }.join(' AND ')
+          where_clause =
+            attributes
+              .map do |k, v|
+                if k == :id
+                  ActiveRecord::Base.sanitize_sql(["id(find) = ?", v])
+                else
+                  ActiveRecord::Base.sanitize_sql(["find.#{k} = ?", v])
+                end
+              end
+              .join(' AND ')
           handle_find(where_clause)
         end
 
-        def find(id)
-          where_clause = "id(find) = #{id}"
-          handle_find(where_clause)
-        end
+        def find(id) = find_by(id: id)
 
         private
 
@@ -46,19 +52,24 @@ module ApacheAge
           json_data = JSON.parse(json_string)
 
           age_label = json_data['label']
-          attribs = json_data.except('label', 'properties')
-                            .merge(json_data['properties'])
-                            .symbolize_keys
+          attribs =
+            json_data
+              .except('label', 'properties')
+              .merge(json_data['properties'])
+              .symbolize_keys
 
           "#{json_data['label'].gsub('__', '::')}".constantize.new(**attribs)
         end
 
         def find_sql(match_clause, where_clause)
+          sanitized_match_clause = ActiveRecord::Base.sanitize_sql(match_clause)
+          sanitized_where_clause = where_clause # Already sanitized in `find_by` or `find`
+
           <<-SQL
             SELECT *
             FROM cypher('#{age_graph}', $$
-                MATCH #{match_clause}
-                WHERE #{where_clause}
+                MATCH #{sanitized_match_clause}
+                WHERE #{sanitized_where_clause}
                 RETURN find
             $$) as (found agtype);
           SQL

@@ -70,12 +70,25 @@ module ApacheAge
       def create_sql
         self.start_node = start_node.save unless start_node.persisted?
         self.end_node = end_node.save unless end_node.persisted?
+
+        start_node_age_label = ActiveRecord::Base.sanitize_sql(start_node.age_label)
+        end_node_age_label = ActiveRecord::Base.sanitize_sql(end_node.age_label)
+        sanitized_start_id = ActiveRecord::Base.sanitize_sql(["?", start_node.id])
+        sanitized_end_id = ActiveRecord::Base.sanitize_sql(["?", end_node.id])
+        # cant use sanitize_sql_like because it escapes the % and _ characters
+        # label_name = ActiveRecord::Base.sanitize_sql_like(age_label)
+
+        reject_keys = %i[id start_id end_id start_node end_node]
+        sanitized_properties =
+          self.to_h.reject { |k, _v| reject_keys.include?(k) }.reject { |_k, v| v.nil? }
+            .map { |k, v| "#{k}: #{ActiveRecord::Base.sanitize_sql(["?", v])}" }
+            .join(', ')
         <<-SQL
           SELECT *
           FROM cypher('#{age_graph}', $$
-              MATCH (from_node:#{start_node.age_label}), (to_node:#{end_node.age_label})
-              WHERE id(from_node) = #{start_node.id} and id(to_node) = #{end_node.id}
-              CREATE (from_node)-[edge#{self}]->(to_node)
+              MATCH (from_node:#{start_node_age_label}), (to_node:#{end_node_age_label})
+              WHERE id(from_node) = #{sanitized_start_id} AND id(to_node) = #{sanitized_end_id}
+              CREATE (from_node)-[edge:#{age_label} {#{sanitized_properties}}]->(to_node)
               RETURN edge
           $$) as (edge agtype);
         SQL
@@ -84,14 +97,24 @@ module ApacheAge
       # So far just properties of string type with '' around them
       def update_sql
         alias_name = age_alias || age_label.downcase
-        set_caluse =
-          age_properties.map { |k, v| v ? "#{alias_name}.#{k} = '#{v}'" : "#{alias_name}.#{k} = NULL" }.join(', ')
+        set_clause =
+          age_properties.map do |k, v|
+            if v
+              sanitized_value = ActiveRecord::Base.sanitize_sql(["?", v])
+              "#{alias_name}.#{k} = #{sanitized_value}"
+            else
+              "#{alias_name}.#{k} = NULL"
+            end
+          end.join(', ')
+
+        sanitized_id = ActiveRecord::Base.sanitize_sql(["?", id])
+
         <<-SQL
           SELECT *
           FROM cypher('#{age_graph}', $$
               MATCH ()-[#{alias_name}:#{age_label}]->()
-              WHERE id(#{alias_name}) = #{id}
-              SET #{set_caluse}
+              WHERE id(#{alias_name}) = #{sanitized_id}
+              SET #{set_clause}
               RETURN #{alias_name}
           $$) as (#{age_label} agtype);
         SQL

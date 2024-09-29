@@ -57,13 +57,14 @@ module ApacheAge
       def destroy
         match_clause = (age_type == 'vertex' ? "(done:#{age_label})" : "()-[done:#{age_label}]->()")
         delete_clause = (age_type == 'vertex' ? 'DETACH DELETE done' : 'DELETE done')
+        sanitized_id = ActiveRecord::Base.sanitize_sql(["id(done) = ?", id])
         cypher_sql =
           <<-SQL
           SELECT *
           FROM cypher('#{age_graph}', $$
               MATCH #{match_clause}
-              WHERE id(done) = #{id}
-   	          #{delete_clause}
+              WHERE #{sanitized_id}
+              #{delete_clause}
               return done
           $$) as (deleted agtype);
           SQL
@@ -99,7 +100,8 @@ module ApacheAge
       def properties_to_s
         string_values =
           age_properties.each_with_object([]) do |(key, val), array|
-            array << "#{key}: '#{val}'"
+            sanitized_val = ActiveRecord::Base.sanitize_sql(["?", val])
+            array << "#{key}: #{sanitized_val}"
           end
         "{#{string_values.join(', ')}}"
       end

@@ -25,18 +25,20 @@ module ApacheAge
 
       # Private stuff
 
+      # used? or dead code?
       def where_edge(attributes)
         where_attribs =
           attributes
-          .compact
-          .except(:end_id, :start_id, :end_node, :start_node)
-          .map { |k, v| "find.#{k} = '#{v}'" }.join(' AND ')
+            .compact
+            .except(:end_id, :start_id, :end_node, :start_node)
+            .map { |k, v| ActiveRecord::Base.sanitize_sql(["find.#{k} = ?", v]) }
+            .join(' AND ')
         where_attribs = where_attribs.empty? ? nil : where_attribs
 
         end_id = attributes[:end_id] || attributes[:end_node]&.id
         start_id = attributes[:start_id] || attributes[:start_node]&.id
-        where_end_id = end_id ? "id(end_node) = #{end_id}" : nil
-        where_start_id = start_id ? "id(start_node) = #{start_id}" : nil
+        where_end_id = end_id ? ActiveRecord::Base.sanitize_sql(["id(end_node) = ?", end_id]) : nil
+        where_start_id = start_id ? ActiveRecord::Base.sanitize_sql(["id(start_node) = ?", start_id]) : nil
 
         where_clause = [where_attribs, where_start_id, where_end_id].compact.join(' AND ')
         return nil if where_clause.empty?
@@ -115,33 +117,41 @@ module ApacheAge
 
         end_id =
           if attributes[:end_id]
-            end_id = attributes[:end_id]
+            attributes[:end_id]
           elsif attributes[:end_node].is_a?(Node)
-            end_id = attributes[:end_node]&.id
+            attributes[:end_node]&.id
           end
-        where_end_id = end_id ? "id(end_node) = #{end_id}" : nil
+        where_end_id = end_id ? ActiveRecord::Base.sanitize_sql(["id(end_node) = ?", end_id]) : nil
 
         start_id =
           if attributes[:start_id]
-            start_id = attributes[:start_id]
+            attributes[:start_id]
           elsif attributes[:start_node].is_a?(Node)
-            start_id = attributes[:start_node]&.id
+            attributes[:start_node]&.id
           end
-        where_start_id = start_id ? "id(start_node) = #{start_id}" : nil
+        where_start_id = start_id ? ActiveRecord::Base.sanitize_sql(["id(start_node) = ?", start_id]) : nil
 
         where_end_attrs =
-          attributes[:end_node].map { |k, v| "end_node.#{k} = '#{v}'" } if attributes[:end_node].is_a?(Hash)
+          if attributes[:end_node].is_a?(Hash)
+            attributes[:end_node].map { |k, v| ActiveRecord::Base.sanitize_sql(["end_node.#{k} = ?", v]) }
+          end
         where_start_attrs =
-          attributes[:start_node].map { |k, v| "start_node.#{k} = '#{v}'" } if attributes[:start_node].is_a?(Hash)
+          if attributes[:start_node].is_a?(Hash)
+            attributes[:start_node].map { |k, v| ActiveRecord::Base.sanitize_sql(["start_node.#{k} = ?", v]) }
+          end
 
         [core_clauses, where_start_id, where_end_id, where_start_attrs, where_end_attrs]
           .flatten.compact.join(' AND ')
       end
 
+
       def build_core_where_clause(attributes)
         attributes
           .compact
-          .map { |k, v| k == :id ? "id(find) = #{v}" : "find.#{k} = '#{v}'"}
+          .map do |k, v|
+            query_string = k == :id ? "id(find) = #{v}" : "find.#{k} = '#{v}'"
+            ActiveRecord::Base.sanitize_sql([query_string, v])
+          end
           .join(' AND ')
       end
     end
