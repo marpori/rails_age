@@ -45,12 +45,21 @@ module ApacheAge
       def where(attributes)
         return self if attributes.blank?
 
-        edge_keys = [:start_id, :start_node, :end_id, :end_node]
-        if edge_keys.any? { |key| attributes.include?(key) }
-          @where_clauses << model_class.send(:where_edge_clause, attributes)
-        else
-          @where_clauses << model_class.send(:where_node_clause, attributes)
-        end
+        @where_clauses <<
+          if attributes.is_a?(String)
+            if attributes.include?('id(') || attributes.include?('find.')
+              attributes
+            else
+              "find.#{attributes}"
+            end
+          else
+            edge_keys = [:start_id, :start_node, :end_id, :end_node]
+            if edge_keys.any? { |key| attributes.include?(key) }
+              model_class.send(:where_edge_clause, attributes)
+            else
+              model_class.send(:where_node_clause, attributes)
+            end
+          end
 
         self
       end

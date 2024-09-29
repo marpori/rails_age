@@ -203,4 +203,178 @@ RSpec.describe Nodes::Person do
       end
     end
   end
+
+  describe 'Queries' do
+    let(:barney) { described_class.create(first_name: 'Barney', last_name: 'Rubble', gender: 'male') }
+    let(:betty) { described_class.create(first_name: 'Betty', last_name: 'Rubble', gender: 'female') }
+
+    before do
+      barney
+      betty
+    end
+
+    describe '.where' do
+      context 'single where condition on a property' do
+        subject { described_class.where(last_name: 'Rubble') }
+
+        it 'returns all edges with the given employee_role' do
+          expect(subject.all.count).to eq(2)
+          expect(subject.all.map(&:id)).to match_array([betty.id, barney.id])
+          expect(subject.to_sql)
+            .to eq("SELECT * FROM cypher('age_schema', $$ " \
+                   "MATCH (find:Nodes__Person) " \
+                   "WHERE find.last_name = 'Rubble' " \
+                   "RETURN find $$) AS (find agtype);")
+        end
+      end
+
+      context 'single string where condition on a node attitibute' do
+        subject { described_class.where("last_name = 'Rubble'") }
+
+        it 'returns all edges with the given employee_role' do
+          expect(subject.all.count).to eq(2)
+          expect(subject.all.map(&:id)).to match_array([betty.id, barney.id])
+          expect(subject.to_sql)
+            .to eq("SELECT * FROM cypher('age_schema', $$ " \
+                    "MATCH (find:Nodes__Person) " \
+                    "WHERE find.last_name = 'Rubble' " \
+                    "RETURN find $$) AS (find agtype);")
+        end
+      end
+
+      context 'single string where condition on a node attitibute' do
+        subject { described_class.where("find.last_name = 'Rubble'") }
+
+        it 'returns all edges with the given employee_role' do
+          expect(subject.all.count).to eq(2)
+          expect(subject.all.map(&:id)).to match_array([betty.id, barney.id])
+          expect(subject.to_sql)
+            .to eq("SELECT * FROM cypher('age_schema', $$ " \
+                    "MATCH (find:Nodes__Person) " \
+                    "WHERE find.last_name = 'Rubble' " \
+                    "RETURN find $$) AS (find agtype);")
+        end
+      end
+
+      context 'with a single where condition on a node id' do
+        subject { described_class.where(id: betty.id)}
+
+        it 'returns all edges with the given employee_role' do
+          expect(subject.all.count).to eq(1)
+
+          ids = subject.all.map(&:id)
+          expect(ids).to include(betty.id)
+          expect(subject.to_sql)
+            .to eq("SELECT * FROM cypher('age_schema', $$ " \
+                   "MATCH (find:Nodes__Person) " \
+                   "WHERE id(find) = #{betty.id} " \
+                   "RETURN find $$) AS (find agtype);")
+        end
+      end
+
+      context 'with a single where condition on a node id as a sting' do
+        subject { described_class.where("id(find) = #{betty.id}") }
+
+        it 'returns all edges with the given employee_role' do
+          expect(subject.all.count).to eq(1)
+
+          ids = subject.all.map(&:id)
+          expect(ids).to include(betty.id)
+          expect(subject.to_sql)
+            .to eq("SELECT * FROM cypher('age_schema', $$ " \
+                   "MATCH (find:Nodes__Person) " \
+                   "WHERE id(find) = #{betty.id} " \
+                   "RETURN find $$) AS (find agtype);")
+        end
+      end
+
+      context 'with 2 where condition on a node attributes' do
+        subject { described_class.where(last_name: 'Rubble').where(first_name: 'Barney') }
+
+        it 'returns all edges with the given employee_role' do
+          expect(subject.all.count).to eq(1)
+
+          ids = subject.all.map(&:id)
+          expect(ids).to include(barney.id)
+          expect(subject.to_sql)
+            .to eq("SELECT * FROM cypher('age_schema', $$ " \
+                   "MATCH (find:Nodes__Person) " \
+                   "WHERE find.last_name = '#{barney.last_name}' AND find.first_name = '#{barney.first_name}' " \
+                   "RETURN find $$) AS (find agtype);")
+        end
+      end
+
+      context 'with 2 where condition on a node attributes' do
+        subject { described_class.where("last_name = 'Rubble'").where("first_name = 'Barney'") }
+
+        it 'returns all edges with the given employee_role' do
+          expect(subject.all.count).to eq(1)
+
+          ids = subject.all.map(&:id)
+          expect(ids).to include(barney.id)
+          expect(subject.to_sql)
+            .to eq("SELECT * FROM cypher('age_schema', $$ " \
+                   "MATCH (find:Nodes__Person) " \
+                   "WHERE find.last_name = '#{barney.last_name}' AND find.first_name = '#{barney.first_name}' " \
+                   "RETURN find $$) AS (find agtype);")
+        end
+      end
+    end
+
+    describe '.order' do
+      context 'single order condition on edge property' do
+        subject { described_class.where(last_name: 'Rubble').order(:first_name) }
+
+        it 'returns all edges with the given employee_role' do
+          expect(subject.all.count).to eq(2)
+
+          ids = subject.all.map(&:id)
+          expect(subject.all.map(&:id).first).to eq(barney.id)
+          expect(subject.all.map(&:id).last).to eq(betty.id)
+          expect(subject.to_sql)
+            .to eq("SELECT * FROM cypher('age_schema', $$ " \
+                   "MATCH (find:Nodes__Person) " \
+                   "WHERE find.last_name = 'Rubble' " \
+                   "RETURN find " \
+                   "ORDER BY find.first_name $$) AS (find agtype);")
+        end
+      end
+
+      context 'single order condition with direction' do
+        subject { described_class.where(last_name: 'Rubble').order(first_name: :desc) }
+
+        it 'returns all edges with the given employee_role' do
+          expect(subject.all.count).to eq(2)
+
+          ids = subject.all.map(&:id)
+          expect(subject.all.map(&:id).first).to eq(betty.id)
+          expect(subject.all.map(&:id).last).to eq(barney.id)
+          expect(subject.to_sql)
+            .to eq("SELECT * FROM cypher('age_schema', $$ " \
+                    "MATCH (find:Nodes__Person) " \
+                    "WHERE find.last_name = 'Rubble' " \
+                    "RETURN find " \
+                    "ORDER BY find.first_name desc $$) AS (find agtype);")
+        end
+      end
+    end
+
+    describe '.limit' do
+      context 'simple limit' do
+        subject { described_class.where(last_name: 'Rubble').order(first_name: :asc).limit(1) }
+
+        it 'returns all edges with the given employee_role' do
+          expect(subject.all.count).to eq(1)
+          expect(subject.all.map(&:id)).to eq([barney.id])
+          expect(subject.to_sql)
+            .to eq("SELECT * FROM cypher('age_schema', $$ " \
+                   "MATCH (find:Nodes__Person) " \
+                   "WHERE find.last_name = 'Rubble' " \
+                   "RETURN find " \
+                   "ORDER BY find.first_name asc " \
+                   "LIMIT 1 $$) AS (find agtype);")
+        end
+      end
+    end
+  end
 end
