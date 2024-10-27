@@ -41,31 +41,115 @@ module ApacheAge
         self
       end
 
-      # TODO: need to handle string inputs too: instead of: \
-      # "id(find) = #{id}" & "find.name = #{name}"
-      # we can have: "id(find) = ?", id & "find.name = ?", name
-      # ActiveRecord::Base.sanitize_sql([query_string, v])
-      def where(attributes)
-        return self if attributes.blank?
+      # # TODO: need to handle string inputs too: instead of: \
+      # # "id(find) = #{id}" & "find.name = #{name}"
+      # # we can have: "id(find) = ?", id & "find.name = ?", name
+      # # ActiveRecord::Base.sanitize_sql([query_string, v])
+      def where(*args)
+        return self if args.blank?
 
         @where_clauses <<
-          if attributes.is_a?(String)
-            if attributes.include?('id(') || attributes.include?('find.')
-              attributes
+          # not able to sanitize the query string in this case
+          # ["first_name = 'Barney'"]
+          if args.length == 1 && args.first.is_a?(String)
+            string_query = args.first
+            if string_query.include?('id = ?')
+              "id(find) = ?"
+            elsif string_query.include?('id(') || string_query.include?('find.')
+              string_query
             else
-              "find.#{attributes}"
+              "find.#{string_query}"
             end
-          else
+
+          # Handling & sanitizing parameterized string queries
+          elsif args.length > 1 && args.first.is_a?(String)
+            raw_query_string = args.first
+            query_string =
+              if raw_query_string.include?('id = ?')
+                "id(find) = ?"
+              elsif raw_query_string.include?('id(') || raw_query_string.include?('find.')
+                raw_query_string
+              else
+                "find.#{raw_query_string}"
+              end
+            values = args[1..-1]
+            ActiveRecord::Base.sanitize_sql_array([query_string, *values])
+
+          # Hashes are sanitized in the model class
+          # [{:first_name=>"Barney", :last_name=>"Rubble", :gender=>"male"}]
+          elsif args.first.is_a?(Hash)
+            attributes = args.first
             edge_keys = [:start_id, :start_node, :end_id, :end_node]
             if edge_keys.any? { |key| attributes.include?(key) }
-              model_class.send(:where_edge_clause, attributes)
+              model_class.send(:where_edge_clause, **attributes)
             else
-              model_class.send(:where_node_clause, attributes)
+              model_class.send(:where_node_clause, **attributes)
             end
+
+          else
+            raise ArgumentError, "Invalid arguments for `where` method"
           end
 
         self
       end
+
+      # # where is sanitized in the model class with hash values
+      # def where(attributes)
+      #   return self if attributes.blank?
+
+      #   @where_clauses <<
+      #     if attributes.is_a?(String)
+      #       puts "HANDLE PURE STRING QUERIES"
+      #       if attributes.include?('id(') || attributes.include?('find.')
+      #         attributes
+      #       else
+      #         "find.#{attributes}"
+      #       end
+      #     else
+      #       puts "HANDLE HASHES"
+      #       pp attributes
+      #       edge_keys = [:start_id, :start_node, :end_id, :end_node]
+      #       if edge_keys.any? { |key| attributes.include?(key) }
+      #         puts "HANDLE EDGE CLAUSES"
+      #         model_class.send(:where_edge_clause, attributes)
+      #       else
+      #         puts "HANDLE NODE CLAUSES"
+      #         model_class.send(:where_node_clause, attributes)
+      #       end
+      #     end
+
+      #   self
+      # end
+
+      # # Pre-sanitize where statements
+      # # def where(*args)
+      # #   return self if args.blank?
+
+      # #   # Handling parameterized query strings with values
+      # #   if args.length == 1 && args.first.is_a?(Hash)
+      # #     # If a hash of attributes is provided, use the existing logic
+      # #     attributes = args.first
+      # #     edge_keys = [:start_id, :start_node, :end_id, :end_node]
+      # #     if edge_keys.any? { |key| attributes.include?(key) }
+      # #       @where_clauses << model_class.send(:where_edge_clause, attributes)
+      # #     else
+      # #       @where_clauses << model_class.send(:where_node_clause, attributes)
+      # #     end
+      # #   elsif args.length > 1 && args.first.is_a?(String)
+      # #     # If a query string with placeholders and values is provided
+      # #     query_string = args.first
+      # #     values = args[1..-1]
+      # #     sanitized_query = ActiveRecord::Base.send(:sanitize_sql_array, [query_string, *values])
+      # #     @where_clauses << sanitized_query
+      # #   elsif args.length == 1 && args.first.is_a?(String)
+      # #     # If a single string is provided, use it directly (assuming it is already sanitized or trusted)
+      # #     @where_clauses << args.first
+      # #   else
+      # #     raise ArgumentError, "Invalid arguments for `where` method"
+      # #   end
+
+      # #   self
+      # # end
 
       # New return method
       def return(*variables)

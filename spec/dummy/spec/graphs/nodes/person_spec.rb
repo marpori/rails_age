@@ -319,6 +319,54 @@ RSpec.describe Nodes::Person do
                    "RETURN find $$) AS (find agtype);")
         end
       end
+
+      context 'with with a string ID query cypher formatted' do
+        subject { described_class.where("id(find) = ?", betty.id)}
+
+        it 'returns all edges with the given employee_role' do
+          expect(subject.all.count).to eq(1)
+
+          ids = subject.all.map(&:id)
+          expect(ids).to include(betty.id)
+          expect(subject.to_sql)
+            .to eq("SELECT * FROM cypher('age_schema', $$ " \
+                   "MATCH (find:Nodes__Person) " \
+                   "WHERE id(find) = #{betty.id} " \
+                   "RETURN find $$) AS (find agtype);")
+        end
+      end
+
+      context 'with with a string ID query sql formatted' do
+        subject { described_class.where("id = ?", betty.id)}
+
+        it 'returns all edges with the given employee_role' do
+          expect(subject.to_sql)
+            .to eq("SELECT * FROM cypher('age_schema', $$ " \
+                   "MATCH (find:Nodes__Person) " \
+                   "WHERE id(find) = #{betty.id} " \
+                   "RETURN find $$) AS (find agtype);")
+
+          expect(subject.all.count).to eq(1)
+          ids = subject.all.map(&:id)
+          expect(ids).to include(betty.id)
+        end
+      end
+
+      context 'with 2 where condition using strings with parameters' do
+        subject { described_class.where("last_name = ?", 'Rubble').where("first_name = ?", 'Barney') }
+
+        it 'returns all edges with the given employee_role' do
+          expect(subject.all.count).to eq(1)
+
+          ids = subject.all.map(&:id)
+          expect(ids).to include(barney.id)
+          expect(subject.to_sql)
+            .to eq("SELECT * FROM cypher('age_schema', $$ " \
+                  "MATCH (find:Nodes__Person) " \
+                  "WHERE find.last_name = '#{barney.last_name}' AND find.first_name = '#{barney.first_name}' " \
+                  "RETURN find $$) AS (find agtype);")
+        end
+      end
     end
 
     describe '.order' do

@@ -8,9 +8,9 @@ module ApacheAge
         instance
       end
 
-      def where(attributes)
+      def where(*attributes)
         query_builder = QueryBuilder.new(self)
-        query_builder.where(attributes)
+        query_builder.where(*attributes)
       end
 
       def all = QueryBuilder.new(self).all
