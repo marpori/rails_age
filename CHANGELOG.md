@@ -38,7 +38,7 @@ breaking change?: namespaces (by default) will use their own schema? (add to dat
 ## VERSION 0.6.5 - 2024-xx-xx
 
 - **Query Sanitize**:
-  * allow cypher keywords to be case
+  * allow cypher keywords to be case insensitive
 
 ## VERSION 0.6.4 - 2024-10-30
 
