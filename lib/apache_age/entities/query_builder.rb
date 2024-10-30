@@ -29,6 +29,7 @@ module ApacheAge
         @graph_name = graph_name || model_class.age_graph
       end
 
+      # TODO: allow for multiple graphs
       # def cypher(graph_name = 'age_schema')
       #   return self if graph_name.blank?
 
@@ -41,38 +42,22 @@ module ApacheAge
         self
       end
 
-      # # TODO: need to handle string inputs too: instead of: \
-      # # "id(find) = #{id}" & "find.name = #{name}"
-      # # we can have: "id(find) = ?", id & "find.name = ?", name
-      # # ActiveRecord::Base.sanitize_sql([query_string, v])
       def where(*args)
         return self if args.blank?
 
         @where_clauses <<
-          # not able to sanitize the query string in this case
-          # ["first_name = 'Barney'"]
+          # not able to sanitize the query string in this case: `["first_name = 'Barney'"]`
           if args.length == 1 && args.first.is_a?(String)
-            string_query = args.first
-            if string_query.include?('id = ?')
-              "id(find) = ?"
-            elsif string_query.include?('id(') || string_query.include?('find.')
-              string_query
-            else
-              "find.#{string_query}"
-            end
+            raw_query_string = args.first
+            transform_cypher_sql(raw_query_string)
 
           # Handling & sanitizing parameterized string queries
           elsif args.length > 1 && args.first.is_a?(String)
             raw_query_string = args.first
-            query_string =
-              if raw_query_string.include?('id = ?')
-                "id(find) = ?"
-              elsif raw_query_string.include?('id(') || raw_query_string.include?('find.')
-                raw_query_string
-              else
-                "find.#{raw_query_string}"
-              end
+            # Replace `id = ?` with `id(find) = ?` and `first_name = ?` with `find.first_name = ?`
+            query_string = transform_cypher_sql(raw_query_string)
             values = args[1..-1]
+            # sanitize sql input values
             ActiveRecord::Base.sanitize_sql_array([query_string, *values])
 
           # Hashes are sanitized in the model class
@@ -93,71 +78,11 @@ module ApacheAge
         self
       end
 
-      # # where is sanitized in the model class with hash values
-      # def where(attributes)
-      #   return self if attributes.blank?
-
-      #   @where_clauses <<
-      #     if attributes.is_a?(String)
-      #       puts "HANDLE PURE STRING QUERIES"
-      #       if attributes.include?('id(') || attributes.include?('find.')
-      #         attributes
-      #       else
-      #         "find.#{attributes}"
-      #       end
-      #     else
-      #       puts "HANDLE HASHES"
-      #       pp attributes
-      #       edge_keys = [:start_id, :start_node, :end_id, :end_node]
-      #       if edge_keys.any? { |key| attributes.include?(key) }
-      #         puts "HANDLE EDGE CLAUSES"
-      #         model_class.send(:where_edge_clause, attributes)
-      #       else
-      #         puts "HANDLE NODE CLAUSES"
-      #         model_class.send(:where_node_clause, attributes)
-      #       end
-      #     end
-
-      #   self
-      # end
-
-      # # Pre-sanitize where statements
-      # # def where(*args)
-      # #   return self if args.blank?
-
-      # #   # Handling parameterized query strings with values
-      # #   if args.length == 1 && args.first.is_a?(Hash)
-      # #     # If a hash of attributes is provided, use the existing logic
-      # #     attributes = args.first
-      # #     edge_keys = [:start_id, :start_node, :end_id, :end_node]
-      # #     if edge_keys.any? { |key| attributes.include?(key) }
-      # #       @where_clauses << model_class.send(:where_edge_clause, attributes)
-      # #     else
-      # #       @where_clauses << model_class.send(:where_node_clause, attributes)
-      # #     end
-      # #   elsif args.length > 1 && args.first.is_a?(String)
-      # #     # If a query string with placeholders and values is provided
-      # #     query_string = args.first
-      # #     values = args[1..-1]
-      # #     sanitized_query = ActiveRecord::Base.send(:sanitize_sql_array, [query_string, *values])
-      # #     @where_clauses << sanitized_query
-      # #   elsif args.length == 1 && args.first.is_a?(String)
-      # #     # If a single string is provided, use it directly (assuming it is already sanitized or trusted)
-      # #     @where_clauses << args.first
-      # #   else
-      # #     raise ArgumentError, "Invalid arguments for `where` method"
-      # #   end
-
-      # #   self
-      # # end
-
       # New return method
       def return(*variables)
         return self if variables.blank?
 
         @return_variables = variables
-        # @return_names = variables.empty? ? ['find'] : variables
-        # @return_clause = variables.empty? ? 'find' : "find.#{variables.join(', find.')}"
         self
       end
 
@@ -243,22 +168,47 @@ module ApacheAge
           $$) AS (#{return_names.join(' agtype, ')} agtype);
         SQL
       end
-      # def build_query(_extra_clause = nil)
-      #   sanitized_where_sql = where_clauses.any? ? "WHERE #{where_clauses.map { |clause| ActiveRecord::Base.sanitize_sql_like(clause) }.join(' AND ')}" : ''
-      #   sanitized_order_by = order_clause.present? ? ActiveRecord::Base.sanitize_sql_like(order_clause) : ''
-      #   sanitized_limit_clause = limit_clause.present? ? ActiveRecord::Base.sanitize_sql_like(limit_clause) : ''
 
-      #   <<-SQL.squish
-      #     SELECT *
-      #     FROM cypher('#{graph_name}', $$
-      #         MATCH #{ActiveRecord::Base.sanitize_sql_like(match_clause)}
-      #         #{sanitized_where_sql}
-      #         RETURN #{ActiveRecord::Base.sanitize_sql_like(return_clause)}
-      #         #{sanitized_order_by}
-      #         #{sanitized_limit_clause}
-      #     $$) AS (#{return_names.map { |name| "#{ActiveRecord::Base.sanitize_sql_like(name)} agtype" }.join(', ')});
-      #   SQL
-      # end
+      def transform_cypher_sql(raw_sql_string)
+        # Define the logical operators and order multi-word operators first to avoid partial splits
+        operators = ['=', '>', '<', '<>', '>=', '<=', '=~', 'ENDS WITH', 'CONTAINS', 'STARTS WITH', 'IN', 'IS NULL', 'IS NOT NULL']
+        separators = ["AND NOT", "OR NOT", "AND", "OR", "NOT"]
+
+        # Combine the operators and separators into a regex pattern
+        pattern = /(#{(operators + separators).map { |s| Regexp.escape(s) }.join('|')})/
+
+        # Split the raw_sql_string string based on the pattern for operators and separators
+        parts = raw_sql_string.split(pattern)
+
+        # Process each part to identify and transform the attributes
+        transformed_parts = parts.map do |part|
+          # Skip transformation if part is one of the logical operators or separators
+          next part if operators.include?(part.strip) || separators.include?(part.strip)
+
+          if part.include?(".")
+            part # Keep parts with prefixes as they are
+          elsif part =~ /\s*(\w+)\s*$/
+            attribute = $1
+            if attribute == 'end_id'
+              "id(end_node)"
+            elsif attribute == 'start_id'
+              "id(start_node)"
+            elsif attribute == 'id'
+              "id(find)"
+            # attributes must start with a letter
+            elsif attribute =~ /^[a-z]\w*$/
+              "find.#{attribute}"
+            else
+              attribute
+            end
+          else
+            part
+          end
+        end
+
+        # Reassemble the string with the transformed parts
+        transformed_parts.join(" ").gsub(/\s+/, ' ').strip
+      end
     end
   end
 end

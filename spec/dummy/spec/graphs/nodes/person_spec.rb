@@ -218,13 +218,13 @@ RSpec.describe Nodes::Person do
         subject { described_class.where(last_name: 'Rubble') }
 
         it 'returns all edges with the given employee_role' do
-          expect(subject.all.count).to eq(2)
-          expect(subject.all.map(&:id)).to match_array([betty.id, barney.id])
           expect(subject.to_sql)
             .to eq("SELECT * FROM cypher('age_schema', $$ " \
                    "MATCH (find:Nodes__Person) " \
                    "WHERE find.last_name = 'Rubble' " \
                    "RETURN find $$) AS (find agtype);")
+          expect(subject.all.count).to eq(2)
+          expect(subject.all.map(&:id)).to match_array([betty.id, barney.id])
         end
       end
 
@@ -232,13 +232,13 @@ RSpec.describe Nodes::Person do
         subject { described_class.where("last_name = 'Rubble'") }
 
         it 'returns all edges with the given employee_role' do
-          expect(subject.all.count).to eq(2)
-          expect(subject.all.map(&:id)).to match_array([betty.id, barney.id])
           expect(subject.to_sql)
             .to eq("SELECT * FROM cypher('age_schema', $$ " \
                     "MATCH (find:Nodes__Person) " \
                     "WHERE find.last_name = 'Rubble' " \
                     "RETURN find $$) AS (find agtype);")
+          expect(subject.all.count).to eq(2)
+          expect(subject.all.map(&:id)).to match_array([betty.id, barney.id])
         end
       end
 
@@ -246,13 +246,13 @@ RSpec.describe Nodes::Person do
         subject { described_class.where("find.last_name = 'Rubble'") }
 
         it 'returns all edges with the given employee_role' do
-          expect(subject.all.count).to eq(2)
-          expect(subject.all.map(&:id)).to match_array([betty.id, barney.id])
           expect(subject.to_sql)
             .to eq("SELECT * FROM cypher('age_schema', $$ " \
                     "MATCH (find:Nodes__Person) " \
                     "WHERE find.last_name = 'Rubble' " \
                     "RETURN find $$) AS (find agtype);")
+          expect(subject.all.count).to eq(2)
+          expect(subject.all.map(&:id)).to match_array([betty.id, barney.id])
         end
       end
 
@@ -260,15 +260,14 @@ RSpec.describe Nodes::Person do
         subject { described_class.where(id: betty.id)}
 
         it 'returns all edges with the given employee_role' do
-          expect(subject.all.count).to eq(1)
-
-          ids = subject.all.map(&:id)
-          expect(ids).to include(betty.id)
           expect(subject.to_sql)
             .to eq("SELECT * FROM cypher('age_schema', $$ " \
                    "MATCH (find:Nodes__Person) " \
                    "WHERE id(find) = #{betty.id} " \
                    "RETURN find $$) AS (find agtype);")
+          expect(subject.all.count).to eq(1)
+          ids = subject.all.map(&:id)
+          expect(ids).to include(betty.id)
         end
       end
 
@@ -276,15 +275,14 @@ RSpec.describe Nodes::Person do
         subject { described_class.where("id(find) = #{betty.id}") }
 
         it 'returns all edges with the given employee_role' do
-          expect(subject.all.count).to eq(1)
-
-          ids = subject.all.map(&:id)
-          expect(ids).to include(betty.id)
           expect(subject.to_sql)
             .to eq("SELECT * FROM cypher('age_schema', $$ " \
                    "MATCH (find:Nodes__Person) " \
                    "WHERE id(find) = #{betty.id} " \
                    "RETURN find $$) AS (find agtype);")
+          expect(subject.all.count).to eq(1)
+          ids = subject.all.map(&:id)
+          expect(ids).to include(betty.id)
         end
       end
 
@@ -292,15 +290,14 @@ RSpec.describe Nodes::Person do
         subject { described_class.where(last_name: 'Rubble').where(first_name: 'Barney') }
 
         it 'returns all edges with the given employee_role' do
-          expect(subject.all.count).to eq(1)
-
-          ids = subject.all.map(&:id)
-          expect(ids).to include(barney.id)
           expect(subject.to_sql)
             .to eq("SELECT * FROM cypher('age_schema', $$ " \
                    "MATCH (find:Nodes__Person) " \
                    "WHERE find.last_name = '#{barney.last_name}' AND find.first_name = '#{barney.first_name}' " \
                    "RETURN find $$) AS (find agtype);")
+          expect(subject.all.count).to eq(1)
+          ids = subject.all.map(&:id)
+          expect(ids).to include(barney.id)
         end
       end
 
@@ -308,15 +305,46 @@ RSpec.describe Nodes::Person do
         subject { described_class.where("last_name = 'Rubble'").where("first_name = 'Barney'") }
 
         it 'returns all edges with the given employee_role' do
-          expect(subject.all.count).to eq(1)
-
-          ids = subject.all.map(&:id)
-          expect(ids).to include(barney.id)
           expect(subject.to_sql)
             .to eq("SELECT * FROM cypher('age_schema', $$ " \
                    "MATCH (find:Nodes__Person) " \
                    "WHERE find.last_name = '#{barney.last_name}' AND find.first_name = '#{barney.first_name}' " \
                    "RETURN find $$) AS (find agtype);")
+          expect(subject.all.count).to eq(1)
+          ids = subject.all.map(&:id)
+          expect(ids).to include(barney.id)
+        end
+      end
+
+      context 'with 2 condition on a node attributes' do
+        subject { described_class.where("last_name = 'Rubble' AND find.first_name = 'Barney'") }
+
+        it 'returns all edges with the given employee_role' do
+          expect(subject.to_sql)
+            .to eq("SELECT * FROM cypher('age_schema', $$ " \
+                   "MATCH (find:Nodes__Person) " \
+                   "WHERE find.last_name = '#{barney.last_name}' AND find.first_name = '#{barney.first_name}' " \
+                   "RETURN find $$) AS (find agtype);")
+
+          expect(subject.all.count).to eq(1)
+          ids = subject.all.map(&:id)
+          expect(ids).to include(barney.id)
+        end
+      end
+
+      context 'with 2 inserts in string formatted' do
+        subject { described_class.where("last_name = ? AND find.first_name = ?", 'Rubble', 'Barney') }
+
+        it 'returns all edges with the given employee_role' do
+          expect(subject.to_sql)
+            .to eq("SELECT * FROM cypher('age_schema', $$ " \
+                   "MATCH (find:Nodes__Person) " \
+                   "WHERE find.last_name = '#{barney.last_name}' AND find.first_name = '#{barney.first_name}' " \
+                   "RETURN find $$) AS (find agtype);")
+
+          expect(subject.all.count).to eq(1)
+          ids = subject.all.map(&:id)
+          expect(ids).to include(barney.id)
         end
       end
 
@@ -324,15 +352,14 @@ RSpec.describe Nodes::Person do
         subject { described_class.where("id(find) = ?", betty.id)}
 
         it 'returns all edges with the given employee_role' do
-          expect(subject.all.count).to eq(1)
-
-          ids = subject.all.map(&:id)
-          expect(ids).to include(betty.id)
           expect(subject.to_sql)
             .to eq("SELECT * FROM cypher('age_schema', $$ " \
                    "MATCH (find:Nodes__Person) " \
                    "WHERE id(find) = #{betty.id} " \
                    "RETURN find $$) AS (find agtype);")
+          expect(subject.all.count).to eq(1)
+          ids = subject.all.map(&:id)
+          expect(ids).to include(betty.id)
         end
       end
 
@@ -356,15 +383,15 @@ RSpec.describe Nodes::Person do
         subject { described_class.where("last_name = ?", 'Rubble').where("first_name = ?", 'Barney') }
 
         it 'returns all edges with the given employee_role' do
-          expect(subject.all.count).to eq(1)
-
-          ids = subject.all.map(&:id)
-          expect(ids).to include(barney.id)
           expect(subject.to_sql)
             .to eq("SELECT * FROM cypher('age_schema', $$ " \
                   "MATCH (find:Nodes__Person) " \
                   "WHERE find.last_name = '#{barney.last_name}' AND find.first_name = '#{barney.first_name}' " \
                   "RETURN find $$) AS (find agtype);")
+
+          expect(subject.all.count).to eq(1)
+          ids = subject.all.map(&:id)
+          expect(ids).to include(barney.id)
         end
       end
     end

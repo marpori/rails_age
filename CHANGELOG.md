@@ -35,10 +35,14 @@ breaking change?: namespaces (by default) will use their own schema? (add to dat
 - **Age Path** - nodes and edges combined
   * add `rails generate apache_age:path_scaffold HasJob employee_role start_node:person end_node:company`
 
-## VERSION 0.6.4 - 2024-xx-xx
+## VERSION 0.6.5 - 2024-xx-xx
 
 - **Query Sanitize**:
-  * reject attributes not defined in model (throw error?)
+  * allow cypher keywords to be case
+
+## VERSION 0.6.4 - 2024-10-30
+
+- **Query Sanitize**:
   * allow and sanitize query strings with multiple attributes, ie: `Person.where("find.first_name = ? AND find.last_name = ?", 'John', 'Doe')`
 
 ## VERSION 0.6.3 - 2024-10-27

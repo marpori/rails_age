@@ -168,11 +168,67 @@ RSpec.describe Edges::HasJob do
         subject { described_class.where(employee_role: 'Quarry Worker') }
 
         it 'returns all edges with the given employee_role' do
-          expect(subject.all.count).to eq(2)
-          expect(subject.all.map(&:id)).to match_array([fred_quarry.id, barney_quarry.id])
           expect(subject.to_sql)
            .to eq("SELECT * FROM cypher('age_schema', $$ MATCH (start_node)-[find:Edges__HasJob]->(end_node) " \
                   "WHERE find.employee_role = 'Quarry Worker' RETURN find $$) AS (find agtype);")
+          expect(subject.all.count).to eq(2)
+          expect(subject.all.map(&:id)).to match_array([fred_quarry.id, barney_quarry.id])
+        end
+      end
+
+      context 'double where (hash) condition on an edge property with start_id' do
+        subject { described_class.where(employee_role: 'Quarry Worker').where(start_id: fred.id) }
+
+        it 'returns all edges with the given employee_role' do
+          expect(subject.to_sql)
+            .to eq("SELECT * FROM cypher('age_schema', $$ MATCH (start_node)-[find:Edges__HasJob]->(end_node) " \
+              "WHERE find.employee_role = 'Quarry Worker' AND id(start_node) = #{fred.id} " \
+              "RETURN find $$) AS (find agtype);")
+          expect(subject.all.count).to eq(1)
+          expect(subject.all.map(&:id)).to match_array([fred_quarry.id])
+        end
+      end
+
+      context 'double where (string) condition on an edge property with start_id' do
+        subject { described_class.where("employee_role = ? AND start_id = ?", 'Quarry Worker', fred.id) }
+
+        it 'returns all edges with the given employee_role' do
+          expect(subject.to_sql)
+            .to eq("SELECT * FROM cypher('age_schema', $$ MATCH (start_node)-[find:Edges__HasJob]->(end_node) " \
+              "WHERE find.employee_role = 'Quarry Worker' AND id(start_node) = #{fred.id} " \
+              "RETURN find $$) AS (find agtype);")
+          expect(subject.all.count).to eq(1)
+          expect(subject.all.map(&:id)).to match_array([fred_quarry.id])
+        end
+      end
+
+      context 'double where (hash) condition on an edge property with start_id' do
+        subject { described_class.where(employee_role: 'Quarry Worker').where(start_node: {first_name: fred.first_name}) }
+
+        it 'returns all edges with the given employee_role' do
+          expect(subject.to_sql)
+            .to eq("SELECT * FROM cypher('age_schema', $$ MATCH (start_node)-[find:Edges__HasJob]->(end_node) " \
+              "WHERE find.employee_role = 'Quarry Worker' AND start_node.first_name = '#{fred.first_name}' " \
+              "RETURN find $$) AS (find agtype);")
+          expect(subject.all.count).to eq(1)
+          expect(subject.all.map(&:id)).to match_array([fred_quarry.id])
+        end
+      end
+
+      context 'double where (string) condition on an edge property with start_id' do
+        subject {
+          described_class.where(
+            "employee_role = ? AND start_node.first_name = ?", 'Quarry Worker', fred.first_name
+          )
+        }
+
+        it 'returns all edges with the given employee_role' do
+          expect(subject.to_sql)
+            .to eq("SELECT * FROM cypher('age_schema', $$ MATCH (start_node)-[find:Edges__HasJob]->(end_node) " \
+              "WHERE find.employee_role = 'Quarry Worker' AND start_node.first_name = '#{fred.first_name}' " \
+              "RETURN find $$) AS (find agtype);")
+          expect(subject.all.count).to eq(1)
+          expect(subject.all.map(&:id)).to match_array([fred_quarry.id])
         end
       end
 
@@ -180,11 +236,11 @@ RSpec.describe Edges::HasJob do
         subject { described_class.where(end_node: quarry) }
 
         it 'returns all edges with the given employee_role' do
-          expect(subject.all.count).to eq(3)
-          expect(subject.all.map(&:id)).to match_array([fred_quarry.id, barney_quarry.id, mr_slate_quarry.id])
           expect(subject.to_sql)
             .to eq("SELECT * FROM cypher('age_schema', $$ MATCH (start_node)-[find:Edges__HasJob]->(end_node) " \
                    "WHERE id(end_node) = #{quarry.id} RETURN find $$) AS (find agtype);")
+          expect(subject.all.count).to eq(3)
+          expect(subject.all.map(&:id)).to match_array([fred_quarry.id, barney_quarry.id, mr_slate_quarry.id])
         end
       end
 
@@ -192,16 +248,15 @@ RSpec.describe Edges::HasJob do
         subject { described_class.where(start_node: { last_name: 'Rubble' })}
 
         it 'returns all edges with the given employee_role' do
-          expect(subject.all.count).to eq(2)
-
-          ids = subject.all.map(&:id)
-          expect(ids).to include(barney_quarry.id)
-          expect(ids).to include(betty_news.id)
           expect(subject.to_sql)
             .to eq("SELECT * FROM cypher('age_schema', $$ " \
                    "MATCH (start_node)-[find:Edges__HasJob]->(end_node) " \
                    "WHERE start_node.last_name = 'Rubble' " \
                    "RETURN find $$) AS (find agtype);")
+          expect(subject.all.count).to eq(2)
+          ids = subject.all.map(&:id)
+          expect(ids).to include(barney_quarry.id)
+          expect(ids).to include(betty_news.id)
         end
       end
 
@@ -209,15 +264,14 @@ RSpec.describe Edges::HasJob do
         subject { described_class.where(start_node: { last_name: 'Rubble' }).where(employee_role: 'Quarry Worker')}
 
         it 'returns all edges with the given employee_role' do
-          expect(subject.all.count).to eq(1)
-
-          ids = subject.all.map(&:id)
-          expect(ids).to include(barney_quarry.id)
           expect(subject.to_sql)
             .to eq("SELECT * FROM cypher('age_schema', $$ " \
                    "MATCH (start_node)-[find:Edges__HasJob]->(end_node) " \
                    "WHERE start_node.last_name = 'Rubble' AND find.employee_role = 'Quarry Worker' " \
                    "RETURN find $$) AS (find agtype);")
+          expect(subject.all.count).to eq(1)
+          ids = subject.all.map(&:id)
+          expect(ids).to include(barney_quarry.id)
         end
       end
 
