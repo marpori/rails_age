@@ -25,10 +25,6 @@ module ApacheAge
       # RETURN company
       # $$) as (Company agtype);
       def create_sql
-        # can't use sanitiye without a solution for '_' in the alias name & label
-        # alias_name = ActiveRecord::Base.sanitize_sql_like(age_alias || age_label.downcase)
-        # label_name = ActiveRecord::Base.sanitize_sql_like(age_label)
-
         alias_name = age_alias || age_label.downcase
         sanitized_properties =
           self
@@ -69,7 +65,6 @@ module ApacheAge
           $$) as (#{age_label} agtype);
         SQL
       end
-
     end
   end
 end

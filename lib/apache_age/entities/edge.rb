@@ -47,26 +47,6 @@ module ApacheAge
         errors.add(:end_node, 'invalid') if end_node && !end_node.valid?
       end
 
-      # Discover attribute class
-      # name_type = model.class.attribute_types['name']
-      # age_type = model.class.attribute_types['age']
-      # company_type = model.class.attribute_types['company']
-      # # Determine the class from the attribute type (for custom types)
-      # name_class = name_type.class # This will generally be ActiveModel::Type::String
-      # age_class = age_type.class   # This will generally be ActiveModel::Type::Integer
-      # # For custom types, you may need to look deeper
-      # company_class = company_type.cast_type.class
-
-      # AgeSchema::Edges::HasJob.create(
-      #   start_node: fred, end_node: quarry, employee_role: 'Crane Operator'
-      # )
-      # SELECT *
-      # FROM cypher('age_schema', $$
-      #     MATCH (start_vertex:Person), (end_vertex:Company)
-      #     WHERE id(start_vertex) = 1125899906842634 and id(end_vertex) = 844424930131976
-      #     CREATE (start_vertex)-[edge:HasJob {employee_role: 'Crane Operator'}]->(end_vertex)
-      #     RETURN edge
-      # $$) as (edge agtype);
       def create_sql
         self.start_node = start_node.save unless start_node.persisted?
         self.end_node = end_node.save unless end_node.persisted?

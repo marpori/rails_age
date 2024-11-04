@@ -32,18 +32,23 @@ breaking change?: namespaces (by default) will use their own schema? (add to dat
 
 ## VERSION 0.7.0 - 2024-xx-xx
 
-- **Age Path** - nodes and edges combined
-  * add `rails generate apache_age:path_scaffold HasJob employee_role start_node:person end_node:company`
-
-## VERSION 0.6.5 - 2024-xx-xx
-
-- **Query Sanitize**:
-  * allow cypher keywords to be case insensitive
+- *Age Path** - nodes and edges combined
+  * query paths (control path length/depth)
+  `SELECT * FROM cypher('age_schema', $$ MATCH path = (start_node)-[find:Edges__HasJob]->(end_node) RETURN path $$) AS (path agtype);`
+  `SELECT * FROM cypher('age_schema', $$ MATCH path = (start_node)-[find:Edges__HasJob*1]->(end_node) RETURN path $$) AS (path agtype);`
+  * parse path into nodes and edges
+  * add `rails generate apache_age:path_scaffold HasJobPath`
+  * add `rails generate apache_age:path_scaffold HasJobPath start_node:person end_node:company`
 
 ## VERSION 0.6.4 - 2024-10-30
 
 - **Query Sanitize**:
   * allow and sanitize query strings with multiple attributes, ie: `Person.where("find.first_name = ? AND find.last_name = ?", 'John', 'Doe')`
+  NOTE: for now the following keyords MuST be in caps!
+  ```
+  operators = ['=', '>', '<', '<>', '>=', '<=', '=~', 'ENDS WITH', 'CONTAINS', 'STARTS WITH', 'IN', 'IS NULL', 'IS NOT NULL']
+  separators = ["AND NOT", "OR NOT", "AND", "OR", "NOT"]
+  ```
 
 ## VERSION 0.6.3 - 2024-10-27
 

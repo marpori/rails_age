@@ -1,6 +1,6 @@
 # query =
-#   Person.
-#     cypher('age_schema')
+#   Person
+#     .cypher('age_schema')
 #     .match("(a:Person), (b:Person)")
 #     .where("a.name = 'Node A'", "b.name = 'Node B'")
 #     .return("a.name", "b.name")
@@ -15,27 +15,26 @@ module ApacheAge
   module Entities
     class QueryBuilder
       attr_accessor :where_clauses, :order_clause, :limit_clause, :model_class, :match_clause,
-                    :graph_name, :return_clause, :return_names, :return_variables
+                    :graph_name, :return_clause, :return_names, :return_variables,
+                    :path_edge_name, :path_length, :path_properties
 
-      def initialize(model_class, graph_name: nil)
+      def initialize(
+        model_class, return_clause: nil, match_clause: nil, graph_name: nil
+        # model_class, path_edge: nil, path_length: nil, path_properties: nil, return_clause: nil, match_clause: nil, graph_name: nil
+      )
+        # @path_edge = path_length
+        # @path_length = path_length
+        # @path_properties = path_properties
         @model_class = model_class
         @where_clauses = []
-        @return_names = ['find']
-        @return_clause = 'find'
+        @return_clause = return_clause ? return_clause : 'find'
+        @return_names = [@return_clause]
         @return_variables = []
         @order_clause = nil
         @limit_clause = nil
-        @match_clause = model_class.match_clause
+        @match_clause = match_clause ? match_clause : model_class.match_clause
         @graph_name = graph_name || model_class.age_graph
       end
-
-      # TODO: allow for multiple graphs
-      # def cypher(graph_name = 'age_schema')
-      #   return self if graph_name.blank?
-
-      #   @graph_name = graph_name
-      #   self
-      # end
 
       def match(match_string)
         @match_clause = match_string
@@ -185,7 +184,8 @@ module ApacheAge
           # Skip transformation if part is one of the logical operators or separators
           next part if operators.include?(part.strip) || separators.include?(part.strip)
 
-          if part.include?(".")
+          # if string contains a dot or is an integer (plus or minus), skip transformation
+          if part.include?(".") || !!(part.strip =~ /\A-?\d+\z/)
             part # Keep parts with prefixes as they are
           elsif part =~ /\s*(\w+)\s*$/
             attribute = $1
