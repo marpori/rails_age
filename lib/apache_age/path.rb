@@ -1,3 +1,84 @@
+# Query Paths
+# DSL - When all edges are of the same type
+# - Path.cypher(path_edge: HasChild, path_length: "1..5")
+#     .where(start_node: {first_name: 'Zeke'})
+#     .where('end_node.last_name CONTAINS ?', 'Flintstone')
+#     .limit(3)
+# with full control of the matching paths
+# JUST FATHER LINEAGE (where can't handle edge path properties - not one element and get error:
+# `ERROR:  array index must resolve to an integer value`
+# so instead match as an edge property instead as shown below
+# - Path.cypher(path_edge: HasChild, path_length: "1..5", path_properties: {guardian_role: 'father'})
+#     .where(start_node: {first_name: 'Zeke'})
+#     .where('end_node.last_name =~ ?', 'Flintstone')
+#     .limit(3)
+# - Path
+#     .match('(start_node)-[HasChild*1..5 {guardian_role: 'father'}]->(end_node)')
+#     .where(start_node: {first_name: 'Zeke'})
+#     .where('end_node.last_name =~ ?', 'Flintstone')
+#     .limit(3)
+#
+# # DSL RESULTS:
+# [
+#   [
+#     Person.find(844424930131969), # Zeke Flintstone
+#     Edge.find(1407374883553281),  # HasChild(mother)
+#     Person.find(844424930131971)  # Rockbottom Flintstone
+#   ],
+#   [
+#     Person.find(844424930131969), # Zeke Flintstone
+#     Edge.find(1407374883553281),  # HasChild(mother)
+#     Person.find(844424930131971), # Rockbottom Flintstone
+#     Edge.find(1407374883553284),  # HasChild(falther)
+#     Person.find(844424930131975)  # Giggles Flintstone
+#   ],
+#   [
+#     Person.find(844424930131969), # Zeke Flintstone
+#     Edge.find(1407374883553281),  # HasChild(mother)
+#     Person.find(844424930131971), # Rockbottom Flintstone
+#     Edge.find(1407374883553283),  # HasChild(father)
+#     Person.find(844424930131974)  # Ed Flintstone
+#   ]
+# ]
+# SQL:
+# - SELECT *
+#   FROM cypher('age_schema', $$
+#   MATCH path = (start_node)-[HasChild*1..5]->(end_node)
+#   WHERE start_node.first_name = 'Zeke' AND end_node.last_name CONTAINS 'Flintstone'
+#   RETURN path
+#   LIMIT 3
+#   $$) AS (path agtype);
+#
+# SQL:
+# SELECT *
+#   FROM cypher('age_schema', $$
+#   MATCH path = (start_node)-[HasChild*1..5 {guardian_role: 'father'}]->(end_node)
+#   WHERE start_node.first_name = "Jed" AND end_node.last_name =~ 'Flintstone'
+#   RETURN path
+#   LIMIT 3
+#   $$) AS (path agtype);
+#
+# SQL RESULTS:
+# [
+#   {"id": 844424930131969, "label": "Person", "properties": {"gender": "female", "last_name": "Flintstone", "first_name": "Zeke"}}::vertex,
+#   {"id": 1407374883553281, "label": "HasChild", "end_id": 844424930131971, "start_id": 844424930131969, "properties": {"guardian_role": "mother"}}::edge,
+#   {"id": 844424930131971, "label": "Person", "properties": {"gender": "male", "last_name": "Flintstone", "first_name": "Rockbottom"}}::vertex
+# ]::path
+# [
+#   {"id": 844424930131969, "label": "Person", "properties": {"gender": "female", "last_name": "Flintstone", "first_name": "Zeke"}}::vertex,
+#   {"id": 1407374883553281, "label": "HasChild", "end_id": 844424930131971, "start_id": 844424930131969, "properties": {"guardian_role": "mother"}}::edge,
+#   {"id": 844424930131971, "label": "Person", "properties": {"gender": "male", "last_name": "Flintstone", "first_name": "Rockbottom"}}::vertex,
+#   {"id": 1407374883553284, "label": "HasChild", "end_id": 844424930131975, "start_id": 844424930131971, "properties": {"guardian_role": "father"}}::edge,
+#   {"id": 844424930131975, "label": "Person", "properties": {"gender": "male", "last_name": "Flintstone", "first_name": "Giggles"}}::vertex
+# ]::path
+# [
+#   {"id": 844424930131969, "label": "Person", "properties": {"gender": "female", "last_name": "Flintstone", "first_name": "Zeke"}}::vertex,
+#   {"id": 1407374883553281, "label": "HasChild", "end_id": 844424930131971, "start_id": 844424930131969, "properties": {"guardian_role": "mother"}}::edge,
+#   {"id": 844424930131971, "label": "Person", "properties": {"gender": "male", "last_name": "Flintstone", "first_name": "Rockbottom"}}::vertex, {"id": 1407374883553283, "label": "HasChild", "end_id": 844424930131974, "start_id": 844424930131971, "properties": {"guardian_role": "father"}}::edge,
+#   {"id": 844424930131974, "label": "Person", "properties": {"gender": "male", "last_name": "Flintstone", "first_name": "Ed"}}::vertex
+# ]::path
+# (3 rows)
+
 module ApacheAge
   class Path
     include ApacheAge::Entities::Path

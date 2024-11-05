@@ -37,6 +37,7 @@ bin/rails db:migrate
 bin/rails generate apache_age:scaffold_node Company company_name industry
 bin/rails generate apache_age:scaffold_node Person first_name last_name gender
 bin/rails generate apache_age:scaffold_node Pet name gender species
+# adjust the validations in the nodes files
 
 # create edges (relationships)
 bin/rails generate apache_age:scaffold_edge HasChild guardian_role:string
@@ -44,103 +45,32 @@ bin/rails generate apache_age:scaffold_edge HasSibling relation:string
 bin/rails generate apache_age:scaffold_edge HasSpouse spousal_role:string
 bin/rails generate apache_age:scaffold_edge HasJob employee_role:string
 
-# Query Paths
-# DSL - When all edges are of the same type
-# - Path.new(HasChild, path_length: "1..5")
-#     .where(start_node: {first_name: 'Zeke'})
-#     .where('end_node.last_name CONTAINS ?', 'Flintstone')
-#     .limit(3)
-# SQL:
-# - SELECT *
-#   FROM cypher('age_schema', $$
-#   MATCH path = (start_node)-[HasChild*1..5]->(end_node)
-#   WHERE start_node.first_name = 'Zeke' AND end_node.last_name CONTAINS 'Flintstone'
-#   RETURN path
-#   LIMIT 3
-#   $$) AS (path agtype);
+# adjust the edge validations and start_node and end_node types: ie: thefore
+# `HasChild` edge should add the model type following start_node and end_node
+# in this case: `:person`
+# app/edges/has_child.rb
+class HasChild
+  include ApacheAge::Entities::Edge
 
-# with full control of the matching paths
-# - Path
-#     .path_length(1..5)
-#     .path_edge(HasChild)
-#     .path_properties(guardian_role: 'father')
-#     .where(start_node: {first_name: 'Zeke'})
-#     .where('end_node.last_name =~ ?', 'Flintstone')
-#     .limit(3)
-# - Path
-#     .match('(start_node)-[HasChild*1..5 {guardian_role: 'father'}]->(end_node)')
-#     .where(start_node: {first_name: 'Zeke'})
-#     .where('end_node.last_name =~ ?', 'Flintstone')
-#     .limit(3)
-# SQL:
-# SELECT *
-#   FROM cypher('age_schema', $$
-#   MATCH path = (start_node)-[HasChild*1..5 {guardian_role: 'father'}]->(end_node)
-#   WHERE start_node.first_name = "Jed" AND end_node.last_name =~ 'Flintstone'
-#   RETURN path
-#   LIMIT 3
-#   $$) AS (path agtype);
+  attribute :guardian_role, :string
+  attribute :start_node, :person
+  attribute :end_node, :person
+end
 
-# DSL RESULTS:
-[
-  [
-    Person.find(844424930131969), # Zeke Flintstone
-    Edge.find(1407374883553281),  # HasChild(mother)
-    Person.find(844424930131971)  # Rockbottom Flintstone
-  ],
-  [
-    Person.find(844424930131969), # Zeke Flintstone
-    Edge.find(1407374883553281),  # HasChild(mother)
-    Person.find(844424930131971), # Rockbottom Flintstone
-    Edge.find(1407374883553284),  # HasChild(falther)
-    Person.find(844424930131975)  # Giggles Flintstone
-  ],
-  [
-    Person.find(844424930131969), # Zeke Flintstone
-    Edge.find(1407374883553281),  # HasChild(mother)
-    Person.find(844424930131971), # Rockbottom Flintstone
-    Edge.find(1407374883553283),  # HasChild(father)
-    Person.find(844424930131974)  # Ed Flintstone
-  ]
-]
-
-# JUST FATHER LINEAGE (where can't handle edge path properties - not one element and get error:
-# `ERROR:  array index must resolve to an integer value`)
-
-# SQL RESULTS:
-[
-  {"id": 844424930131969, "label": "Person", "properties": {"gender": "female", "last_name": "Flintstone", "first_name": "Zeke"}}::vertex,
-  {"id": 1407374883553281, "label": "HasChild", "end_id": 844424930131971, "start_id": 844424930131969, "properties": {"guardian_role": "mother"}}::edge,
-  {"id": 844424930131971, "label": "Person", "properties": {"gender": "male", "last_name": "Flintstone", "first_name": "Rockbottom"}}::vertex
-]::path
-[
-  {"id": 844424930131969, "label": "Person", "properties": {"gender": "female", "last_name": "Flintstone", "first_name": "Zeke"}}::vertex,
-  {"id": 1407374883553281, "label": "HasChild", "end_id": 844424930131971, "start_id": 844424930131969, "properties": {"guardian_role": "mother"}}::edge,
-  {"id": 844424930131971, "label": "Person", "properties": {"gender": "male", "last_name": "Flintstone", "first_name": "Rockbottom"}}::vertex,
-  {"id": 1407374883553284, "label": "HasChild", "end_id": 844424930131975, "start_id": 844424930131971, "properties": {"guardian_role": "father"}}::edge,
-  {"id": 844424930131975, "label": "Person", "properties": {"gender": "male", "last_name": "Flintstone", "first_name": "Giggles"}}::vertex
-]::path
-[
-  {"id": 844424930131969, "label": "Person", "properties": {"gender": "female", "last_name": "Flintstone", "first_name": "Zeke"}}::vertex,
-  {"id": 1407374883553281, "label": "HasChild", "end_id": 844424930131971, "start_id": 844424930131969, "properties": {"guardian_role": "mother"}}::edge,
-  {"id": 844424930131971, "label": "Person", "properties": {"gender": "male", "last_name": "Flintstone", "first_name": "Rockbottom"}}::vertex, {"id": 1407374883553283, "label": "HasChild", "end_id": 844424930131974, "start_id": 844424930131971, "properties": {"guardian_role": "father"}}::edge,
-  {"id": 844424930131974, "label": "Person", "properties": {"gender": "male", "last_name": "Flintstone", "first_name": "Ed"}}::vertex
-]::path
-(3 rows)
-
-# seed file: [db/seed.rb](SEED.md)
+# seed file: [db/seed.rb](SEED.md) - seed provides NO pets
 bin/rails db:seed
 
 # list noutes
 bin/rails routes
 
-# start server
-# bin/rails s
+# start server `bin/rails s`
+# or more likely when using JS:
 bin/start
+
 # visit the routes in your browser
 ```
 
-# Advanced Console Usage (seed doesn't provide any pets)
+## Console Usage
 ```ruby
 dino = Pet.create(name: 'Dino', gender: 'male', species: 'dinosaur')
 dino.to_h
@@ -191,6 +121,35 @@ puts parental_relations.map(&:to_h)
 > {:id=>1407374883553310, :end_id=>844424930131996, :start_id=>844424930131986, :role=>"father", :end_node=>{:id=>844424930131996, :last_name=>"Flintstone", :first_name=>"Pebbles", :gender=>"female"}, :start_node=>{:id=>844424930131986, :last_name=>"Flintstone", :first_name=>"Fred", :gender=>"male"}}
 > {:id=>1407374883553309, :end_id=>844424930131996, :start_id=>844424930131987, :role=>"mother", :end_node=>{:id=>844424930131996, :last_name=>"Flintstone", :first_name=>"Pebbles", :gender=>"female"}, :start_node=>{:id=>844424930131987, :last_name=>"Flintstone", :first_name=>"Wilma", :gender=>"female"}}
 
+# Path Queries - returns all elements that match a given path
+Path.cypher(path_edge: HasChild, path_length: "1..5", path_properties: {guardian_role: 'father'})
+    .where(start_node: {first_name: 'Zeke'})
+    .where('end_node.last_name =~ ?', 'Flintstone')
+    .limit(3)
+    .map { |p| p.map(&:to_h) }
+>[[{:id=>844424930131969, :first_name=>"Zeke", :last_name=>"Flintstone", :gender=>"female"},
+  {:id=>1407374883553281,
+   :end_id=>844424930131971,
+   :start_id=>844424930131969,
+   :guardian_role=>"mother",
+   :end_node=>{:id=>844424930131971, :first_name=>"Rockbottom", :last_name=>"Flintstone", :gender=>"male"},
+   :start_node=>{:id=>844424930131969, :first_name=>"Zeke", :last_name=>"Flintstone", :gender=>"female"}},
+  {:id=>844424930131971, :first_name=>"Rockbottom", :last_name=>"Flintstone", :gender=>"male"}],
+ [{:id=>844424930131969, :first_name=>"Zeke", :last_name=>"Flintstone", :gender=>"female"},
+  {:id=>1407374883553281,
+   :end_id=>844424930131971,
+   :start_id=>844424930131969,
+   :guardian_role=>"mother",
+   :end_node=>{:id=>844424930131971, :first_name=>"Rockbottom", :last_name=>"Flintstone", :gender=>"male"},
+   :start_node=>{:id=>844424930131969, :first_name=>"Zeke", :last_name=>"Flintstone", :gender=>"female"}},
+  {:id=>844424930131971, :first_name=>"Rockbottom", :last_name=>"Flintstone", :gender=>"male"},
+  {:id=>1407374883553284,
+   :end_id=>844424930131975,
+   :start_id=>844424930131971,
+   :guardian_role=>"father",
+   :end_node=>{:id=>844424930131975, :first_name=>"Giggles", :last_name=>"Flintstone", :gender=>"male"},
+   :start_node=>{:id=>844424930131971, :first_name=>"Rockbottom", :last_name=>"Flintstone", :gender=>"male"}},
+  {:id=>844424930131975, :first_name=>"Giggles", :last_name=>"Flintstone", :gender=>"male"}]]
 
 raw_pg_results = Person.where(last_name: 'Flintstone').order(:first_name).limit(4).execute
 => #<PG::Result:0x000000012255f348 status=PGRES_TUPLES_OK ntuples=4 nfields=1 cmd_tuples=4>
@@ -200,7 +159,6 @@ raw_pg_results.values
 >  ["{\"id\": 844424930131986, \"label\": \"Person\", \"properties\": {\"gender\": \"male\", \"last_name\": \"Flintstone\", \"first_name\": \"Fred\"}}::vertex"],
 >  ["{\"id\": 844424930131975, \"label\": \"Person\", \"properties\": {\"gender\": \"male\", \"last_name\": \"Flintstone\", \"first_name\": \"Giggles\"}}::vertex"]]
 ```
-
 
 ## Generators
 
