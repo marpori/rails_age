@@ -24,10 +24,15 @@ rails db:create
 
 # add the rails_age gem to your Gemfile
 bundle add rails_age
+
 # download the rails_age gem
 bundle install
+
 # configure the Apache AGE gem (ignore the OID warnings)
 bin/rails apache_age:install
+# if you get the error: `PG::FeatureNotSupported: ERROR:  extension "age" is not available`
+# then you have not installed the AGE code (in PostgreSQL) follow this instrcutions at:
+# https://github.com/apache/age?tab=readme-ov-file#installation
 
 # optional: prevents `bin/rails db:migrate` from modifying the schema file,
 bin/rails apache_age:override_db_migrate
