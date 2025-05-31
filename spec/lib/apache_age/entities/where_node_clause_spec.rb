@@ -50,5 +50,23 @@ RSpec.describe "where_node_clause special handling" do
       expect(results).not_to be_empty
       expect(results.first.start_node.name).to eq('John')
     end
+
+    it 'can combine start_node properties with other edge properties' do
+      # This test combines start_node property with an edge property
+      query = HasFriend.where(start_node: { name: 'John' }, since_year: 2020)
+
+      # Test the generated SQL
+      sql = query.to_sql
+      expect(sql).to include('start_node.name')
+      expect(sql).to include("'John'")
+      expect(sql).to include('find.since_year')
+      expect(sql).to include('2020')
+
+      # Test actual results if special handling works
+      results = query.all
+      expect(results).not_to be_empty
+      expect(results.first.start_node.name).to eq('John')
+      expect(results.first.since_year).to eq(2020)
+    end
   end
 end

@@ -27,7 +27,22 @@ Paths are how you build the `network` of nodes and edges.
 
 ### Generators - simplify usage and rails integration
 
-we have an installers and generators - which handle namespacing as needed
+we have an installers and generators (we handle namespacing fully)
+
+RailsAge generators (and generally support standard Rails datatypes) - not all AGE datatypes are supported (yet)
+
+This includes:
+  * string
+  * integer
+  * decimal
+  * date
+  * datetime
+  * boolean
+
+AGE supports (but not RailsAge):
+  * array
+  * hash
+  * json
 
 **Installers**
 
@@ -37,8 +52,6 @@ rails generate apache_age:install
 # optional, but handy, it prevents `bin/rails db:migrate` from breaking the schema file,
 rails generate apache_age:override_db_migrate
 ```
-
-Generators supports default Rails datatypes - not all AGE datatypes are supported (yet?)
 
 **NODES**
 

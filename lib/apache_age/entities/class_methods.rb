@@ -66,16 +66,16 @@ module ApacheAge
       private
 
       def where_node_clause(attributes)
-        # Make sure we're not treating a simple node attribute query as a start_node hash
-        # This fixes the issue with where(first_name: 'Barney') getting treated as a path query
-        if attributes.key?(:start_node) && attributes[:start_node].is_a?(Hash)
-          # Handle the special case where start_node contains properties
-          start_node_attrs = attributes[:start_node].map do |k, v|
-            query_string = k == :id ? "id(find) = ?" : "find.#{k} = ?"
-            ActiveRecord::Base.sanitize_sql([query_string, v])
-          end.join(' AND ')
-          return start_node_attrs
-        end
+        # # Make sure we're not treating a simple node attribute query as a start_node hash
+        # # This fixes the issue with where(first_name: 'Barney') getting treated as a path query
+        # if attributes.key?(:start_node) && attributes[:start_node].is_a?(Hash)
+        #   # Handle the special case where start_node contains properties
+        #   start_node_attrs = attributes[:start_node].map do |k, v|
+        #     query_string = k == :id ? "id(find) = ?" : "find.#{k} = ?"
+        #     ActiveRecord::Base.sanitize_sql([query_string, v])
+        #   end.join(' AND ')
+        #   return start_node_attrs
+        # end
 
         # Normal case - regular node attributes
         build_core_where_clause(attributes)
@@ -121,10 +121,47 @@ module ApacheAge
         attributes
           .compact
           .map do |k, v|
-            query_string = k == :id ? "id(find) = #{v}" : "find.#{k} = '#{v}'"
-            ActiveRecord::Base.sanitize_sql([query_string, v])
+            if k == :id
+              "id(find) = #{v}"
+            else
+              # Format the value appropriately based on its type
+              formatted_value = format_for_cypher(k, v)
+              "find.#{k} = #{formatted_value}"
+            end
           end
           .join(' AND ')
+      end
+
+      # Formats a value appropriately for use in a Cypher query based on its type
+      def format_for_cypher(attribute_name, value)
+        return 'null' if value.nil?
+
+        # Find the attribute type if possible
+        attribute_type = attribute_types[attribute_name.to_s] if respond_to?(:attribute_types)
+
+        # Format based on Ruby class if no attribute type info is available
+        case
+        when attribute_type.is_a?(ActiveModel::Type::Boolean) || value == true || value == false
+          value.to_s # No quotes for booleans
+        when attribute_type.is_a?(ActiveModel::Type::Integer) || value.is_a?(Integer)
+          value.to_s # No quotes for integers
+        when attribute_type.is_a?(ActiveModel::Type::Float) || attribute_type.is_a?(ActiveModel::Type::Decimal) || value.is_a?(Float) || value.is_a?(BigDecimal)
+          value.to_s # No quotes for floats/decimals
+        when (attribute_type.is_a?(ActiveModel::Type::Date) && (attribute_type.class != ActiveModel::Type::DateTime)) || value.class == Date
+          "'#{value.strftime('%Y-%m-%d')}'" # Format dates as 'YYYY-MM-DD'
+        when (attribute_type.is_a?(ActiveModel::Type::DateTime) && (attribute_type.class != ActiveModel::Type::Date)) || value.is_a?(Time) || value.is_a?(DateTime)
+          utc_time = value.respond_to?(:utc) ? value.utc : value
+          "'#{utc_time.strftime('%Y-%m-%d %H:%M:%S.%6N')}'" # Format datetime (not natively supported in AGE, so formatting is a workaround)
+        # when value.is_a?(Array) || value.is_a?(Hash) || value.is_a?(Json)
+        #   # For JSON data, serialize to JSON string and ensure it's properly quoted
+        #   "'#{value.to_json.gsub("\'", "\\'")}'"
+        # when value.is_a?(ActiveModel::Type::Array) ||value.is_a?(ActiveModel::Type::Hash) || value.is_a?(ActiveModel::Type::Json)
+        #   # For JSON data, serialize to JSON string and ensure it's properly quoted
+        #   "'#{value.to_json.gsub("\'", "\\'")}'"
+        else
+          # Default to string treatment with proper escaping
+          "'#{value.to_s.gsub("\'", "\\'")}'"
+        end
       end
     end
   end

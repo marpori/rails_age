@@ -12,12 +12,26 @@
 
 - added to_rich_h method to nodes, edges and paths (displays additional context information for readability and represents data closer to the original age data)
 
-
 **Generic Queries**
 
 - ApacheAge::Node and ApacheAge::Edge can be used as the base for a query and return results instantiating the correct class (node, edge or path)
 
 **Read Me** largely updated
+
+**Query Values**
+
+- data casting within query code (so that matches are accurate)
+  * string
+  * integer
+  * decimal
+  * date
+  * datetime
+  * boolean
+
+Not implemented (on the rails side)
+  * array
+  * hash
+  * json
 
 
 ## VERSION 0.6.4 - 2024-10-30
