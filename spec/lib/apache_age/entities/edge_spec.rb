@@ -79,12 +79,73 @@ RSpec.describe ApacheAge::Entities::Edge do
       it { expect(subject.age_type).to eq('edge') }
       it { expect(subject.role).to eq('husband') }
       it { expect(subject.since_year).to eq(1963) }
-      it { expect(subject.id).to be_present }
+
+      # Check if edge is persisted with ID
+      it { expect(subject.id).not_to be_nil }
       it { expect(subject).to be_persisted }
-      it { expect(subject.end_node.id).to eq(pebbles.id) }
-      it { expect(subject.start_node.id).to eq(bamm.id) }
-      it { expect(subject.end_class).to eq(Nodes::CavePerson) }
-      it { expect(subject.start_class).to eq(Nodes::CavePerson) }
+    end
+
+    context 'persistence and retrieval' do
+      let(:bamm) { Nodes::CavePerson.create(name: 'Bamm-Bamm Rubble') }
+      let(:pebbles) { Nodes::CavePerson.create(name: 'Pebbles Flintstone') }
+
+      before do
+        # Create an edge to test retrieval
+        @edge = Edges::MarriedTo.create(
+          start_node: bamm,
+          end_node: pebbles,
+          since_year: 1963,
+          role: 'husband'
+        )
+      end
+
+      it 'returns the edge when finding by id' do
+        found = Edges::MarriedTo.find(@edge.id)
+        expect(found).not_to be_nil
+        expect(found.id).to eq(@edge.id)
+        expect(found.role).to eq('husband')
+      end
+
+      it 'returns the edge when using find_by' do
+        found = Edges::MarriedTo.find_by(role: 'husband')
+        expect(found).not_to be_nil
+        expect(found.id).to eq(@edge.id)
+      end
+
+      it 'returns the edge when using all' do
+        all_edges = Edges::MarriedTo.all
+        expect(all_edges).to include(an_object_having_attributes(id: @edge.id))
+      end
+
+      it 'returns the edge when querying by start node' do
+        found = Edges::MarriedTo.find_by(start_node: bamm)
+        expect(found).not_to be_nil
+        expect(found.id).to eq(@edge.id)
+      end
+
+      it 'has a valid id' do
+        expect(@edge.id).to be_present
+      end
+
+      it 'is persisted' do
+        expect(@edge).to be_persisted
+      end
+
+      it 'has the correct end node' do
+        expect(@edge.end_node.id).to eq(pebbles.id)
+      end
+
+      it 'has the correct start node' do
+        expect(@edge.start_node.id).to eq(bamm.id)
+      end
+
+      it 'has the correct end class' do
+        expect(@edge.end_class).to eq(Nodes::CavePerson)
+      end
+
+      it 'has the correct start class' do
+        expect(@edge.start_class).to eq(Nodes::CavePerson)
+      end
     end
 
     context '.new' do

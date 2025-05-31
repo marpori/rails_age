@@ -6,14 +6,101 @@ Inspired by: https://github.com/apache/age/issues/370
 
 ## Quick Start - Essentials
 
-**NOTE:** you must be using Postgres as your database! Apache Age requires it.
+### Overview
+
+This Gem uses 3 Major Concepts:
+
+1. **Nodes** (Vertices) - usually nouns
+2. **Edges** (Relationships) - usually verbs (or relational adjectives)
+3. **Paths** (connections between nodes - heavy dependend on the `match` feature in cypher)
+
+In this mini example we have the Flintstone Family Tree.
+- Person (Node) - has attributes: first_name, last_name, gender
+- Pet (Node) - has attributes: name, gender, species
+- HasChild (Edge) - has attributes: guardian_role
+- HasSibling (Edge) - has attributes: relation
+- HasSpouse (Edge) - has attributes: spousal_role
+- HasJob (Edge) - has attributes: employee_role
+
+Paths are how you build the `network` of nodes and edges.
+
+
+### Generators - simplify usage and rails integration
+
+we have an installers and generators - which handle namespacing as needed
+
+**Installers**
 
 ```bash
+rails generate apache_age:install
+
+# optional, but handy, it prevents `bin/rails db:migrate` from breaking the schema file,
+rails generate apache_age:override_db_migrate
+```
+
+Generators supports default Rails datatypes - not all AGE datatypes are supported (yet?)
+
+**NODES**
+
+```bash
+rails generate apache_age:scaffold_node Company company_name
+rails generate apache_age:scaffold_node Person first_name last_name
+```
+
+**EDGES**
+
+```bash
+rails generate apache_age:scaffold_edge HasChild guardian_role
+rails generate apache_age:scaffold_edge HasJob employee_role start_date:date
+rails generate apache_age:scaffold_edge HasSibling start_relation
+rails generate apache_age:scaffold_edge HasSpouse spousal_role
+```
+
+
+### INSTALL APACHE AGE
+
+[Install Apache Age](https://age.apache.org/getstarted/quickstart)
+
+**Quick Docker Install**
+
+```bash
+# pull the docker image
+docker pull apache/age
+
+# Create AGE docker container
+docker run \
+  --name age  \
+  -p 5455:5432 \
+  -e POSTGRES_USER=postgresUser \
+  -e POSTGRES_PASSWORD=postgresPW \
+  -e POSTGRES_DB=postgresDB \
+  -d \
+  apache/age
+
+# enter the container and connect to the database (and test it)
+docker exec -it age psql -d postgresDB -U postgresUser
+
+# For every connection of AGE you start, you will need to load the AGE extension.
+CREATE EXTENSION age;
+LOAD 'age';
+SET search_path = ag_catalog, "$user", public;
+```
+
+
+### RAILS PROJECT (Flintstone Family)
+
+**NOTE:** you must be using Postgres as your database!
+
+Apache Age requires using Postgres (`-d postgresql`)!
+
+```bash
+# SETUP A RAILS PROJECT (Flintstone Family Tree)
 rails new stone_age -T -d postgresql
 cd stone_age
 git commit -m "initail commit"
 
-# if using the default dockerized AGE PostgreSQL server then add the following to your `config/database.yml`:
+# if using the default dockerized AGE PostgreSQL server then add the following to your `config/database.yml`
+# BE SURE TO MATCH THE USERNAME AND PASSWORD TO WHAT YOU SET IN THE DOCKER RUN COMMAND!
 host: localhost
 port: 5455
 username: postgresUser
@@ -62,7 +149,7 @@ class HasChild
   attribute :end_node, :person
 end
 
-# seed file: [db/seed.rb](SEED.md) - seed provides NO pets
+# seed file uses `db/seed.rb` (seed provides NO pets)
 bin/rails db:seed
 
 # list noutes
@@ -72,20 +159,136 @@ bin/rails routes
 # or more likely when using JS:
 bin/start
 
-# visit the routes in your browser
+# visit the routes in your browser - you should have a basic but working AGE app - that can do both AGE (Graph) and normal Rails activities
+```
+
+
+
+## Queries
+
+Mostly mimic **ActiveRecord** queries - if the class is an AGE based object (ie: a node or edge) then the queries are rewritten into AGE queries before being executed.  Age queries also automatically unwrap the results turning them into the appropriate Ruby class (node or edge).
+
+1. `.all`
+2. `.first`
+2. `.save`
+2. `.update`
+2. `.destroy`
+2. `.destroy_all` (not implemented)
+2. `.update_attributes`
+2. `.find(id)`
+2. `.exists?` (not implemented)
+3. `.find_by(first_name: 'Zeke', last_name: 'Flintstone')`
+3. `.where(first_name: 'Zeke', last_name: 'Flintstone')`
+4. `.order(last_name: :desc, first_name: :asc)`
+5. `.limit(3)` (returns the first 3 records)
+6. `.to_sql` (returns the SQL query)
+7. `.cypher` (primarily for path queries - _builds a specialized cypher query for efficetly doing path queries - building efficient `match` statements_)
+
+### Node Queries
+
+```ruby
+Dog.all
+Dog.where(name: 'Pema')
+
+Person.all
+Person.where(first_name: 'Zeke', last_name: 'Flintstone')
+
+ApacheAge::Node.all
+# untested applying a where on nodes of different types, but should work
+ApacheAge::Node.where(first_name: 'Zeke', last_name: 'Flintstone')
+```
+
+### Edge Queries
+
+```ruby
+HasChild.all
+HasChild.where(guardian_role: 'father')
+
+HasJob.all
+HasJob.where(employee_role: 'doctor')
+
+ApacheAge::Edge.all
+# untested applying a where on edges of different types, but should work
+ApacheAge::Edge.where(employee_role: 'doctor')
+```
+
+### Path Queries
+
+the connections between nodes and edges - this is important for advanced queries and relies heavily on the `match` feature in cypher (using match is faster for large datasets than using where to filter the data!)
+
+A Path Query must have the `cypher` method called on the `Path` class.  
+```ruby
+Path.cypher(path_edge: HasChild, path_length: "1..5", path_properties: {guardian_role: 'father'}, start_node_filter: {first_name: 'Zeke'}, end_node_filter: {last_name: 'Flintstone'})
+    .order(start_node: :last_name)
+    .limit(3)
+```
+**NOTE**: you can order on the start_node and end_node attributes, BUT NOT ON THE EDGE ATTRIBUTES (age limitation), even though you can filter on the edge attributes!
+
+A path query returns an array of paths (each path is an array of nodes and edges)
+```ruby
+[
+  [betty (node), bettys_son (edge), bamm_bamm (node)],
+  [betty (node), bettys_son (edge), bamm_bamm (node), bamm_bamms_son (edge), chip (node)]
+]
+```
+
+To make a path more readable for debugging you can use the `to_rich_h` method
+
+```ruby
+# hash metadata (rich hash) and is data is in properties (closer to the DB format)
+path_query.all.first.to_rich_h
+path_query.all.map(&:to_rich_h)
+# default to_h works on paths too with (flat data hash of record):
+path_query.all.first.map(&:to_h)
+path_query.all.map { |p| p.map(&:to_h) }
+```
+
+SQL Comparison with `match` and with `where` (in small datasets you won't see efficiency differences, but for large datasets `match` is much more efficient)
+```ruby
+# EFFICIENT - the data is filtered in one step during the data traversal
+Path.cypher(path_edge: HasChild, path_length: "1..5", path_properties: {guardian_role: 'father'}, start_node_filter: {first_name: 'Zeke'}, end_node_filter: {last_name: 'Flintstone'})
+    .order(start_node: {last_name: :asc}, length: :desc)
+    .limit(3).to_sql
+# SELECT *
+# FROM cypher('age_schema', $$
+#   MATCH path = (start_node {first_name: 'Zeke'})-[HasChild*1..5 {guardian_role: 'father'}]->(end_node {last_name: 'Flintstone'})
+#   RETURN path
+#   ORDER BY start_node.last_name ASC, length(path) DESC
+#   LIMIT 3
+# $$) AS (path agtype);
+
+
+# INEFFICIENT - because where is done after the match traversal (two steps through the data)
+Path.cypher(path_edge: HasChild, path_length: "1..5", path_properties: {guardian_role: 'father'})
+    .where(start_node: {first_name: 'Zeke'})
+    .where('end_node.last_name =~ ?', 'Flintstone')
+    .order(start_node: {last_name: :asc}, length: :desc)
+    .limit(3).to_sql
+# SELECT *
+# FROM cypher('age_schema', $$
+#   MATCH path = (start_node)-[HasChild*1..5 {guardian_role: 'father'}]->(end_node)
+#   WHERE start_node.first_name = 'Zeke' AND end_node.last_name =~ 'Flintstone'
+#   RETURN path
+#   ORDER BY start_node.last_name ASC, length(path) DESC
+#   LIMIT 3
+# $$) AS (path agtype);
 ```
 
 ## Console Usage
+
+**NOTE**
+using rails attributes complicates the default output of the model, thus it is strong recommended to use the `to_rich_h` method to display the results with meta_data so the class is known (or `to_h` - just the essential data).
+
 ```ruby
 dino = Pet.create(name: 'Dino', gender: 'male', species: 'dinosaur')
-dino.to_h
+dino.to_rich_h
 
 # find a person
 fred = Person.find_by(first_name: 'Fred', last_name: 'Flintstone')
-fred.to_h
+fred.to_rich_h
 
 pebbles = Person.find_by(first_name: 'Pebbles')
-pebbles.to_h
+pebbles.to_rich_h
 
 # find an edge
 father_relationship = HasChild.find_by(start_node: fred, end_node: pebbles)
@@ -126,12 +329,13 @@ puts parental_relations.map(&:to_h)
 > {:id=>1407374883553310, :end_id=>844424930131996, :start_id=>844424930131986, :role=>"father", :end_node=>{:id=>844424930131996, :last_name=>"Flintstone", :first_name=>"Pebbles", :gender=>"female"}, :start_node=>{:id=>844424930131986, :last_name=>"Flintstone", :first_name=>"Fred", :gender=>"male"}}
 > {:id=>1407374883553309, :end_id=>844424930131996, :start_id=>844424930131987, :role=>"mother", :end_node=>{:id=>844424930131996, :last_name=>"Flintstone", :first_name=>"Pebbles", :gender=>"female"}, :start_node=>{:id=>844424930131987, :last_name=>"Flintstone", :first_name=>"Wilma", :gender=>"female"}}
 
-# Path Queries - returns all elements that match a given path
-Path.cypher(path_edge: HasChild, path_length: "1..5", path_properties: {guardian_role: 'father'})
-    .where(start_node: {first_name: 'Zeke'})
-    .where('end_node.last_name =~ ?', 'Flintstone')
+# Path Queries - returns all elements that match a given path to find specific sets of relationships
+path = Path.cypher(path_edge: HasChild, path_length: "1..5", path_properties: {guardian_role: 'father'}, start_node_filter: {first_name: 'Zeke'}, end_node_filter: {last_name: 'Flintstone'})
+    .order(start_node: {last_name: :asc}, length: :desc)
     .limit(3)
-    .map { |p| p.map(&:to_h) }
+
+# should redo the example using: path.all.map(&:to_rich_h) to make more readable
+path.all.map { |p| p.map(&:to_h) }
 >[[{:id=>844424930131969, :first_name=>"Zeke", :last_name=>"Flintstone", :gender=>"female"},
   {:id=>1407374883553281,
    :end_id=>844424930131971,
@@ -165,23 +369,6 @@ raw_pg_results.values
 >  ["{\"id\": 844424930131975, \"label\": \"Person\", \"properties\": {\"gender\": \"male\", \"last_name\": \"Flintstone\", \"first_name\": \"Giggles\"}}::vertex"]]
 ```
 
-## Generators
-
-**NODES**
-
-```bash
-rails generate apache_age:scaffold_node Company company_name
-rails generate apache_age:scaffold_node Person first_name last_name
-```
-
-**EDGES**
-
-```bash
-rails generate apache_age:scaffold_edge HasChild guardian_role
-rails generate apache_age:scaffold_edge HasJob employee_role start_date:date
-rails generate apache_age:scaffold_edge HasSibling start_relation
-rails generate apache_age:scaffold_edge HasSpouse spousal_role
-```
 
 Ideally, edit the HasJob class so that `start_node` would use a type `:person` and the `end_node` uses at type `:company` - this is not yet supported by the generator, but easy to do manually as shown below.  (The problem is that I havent been able to figure out how load all the rails types in the testing environment).
 
@@ -227,6 +414,56 @@ $ psql -h localhost -p 5455 -U docker_username
 > SET search_path = ag_catalog, "$user", public;
 > SELECT create_graph('age_schema');
 > \q
+```
+
+### Experiment directly with AGE
+
+Play with AGE/cypher directly (if desired) - see: https://age.apache.org/getstarted/quickstart
+
+To create a graph, use the create_graph function located in the ag_catalog namespace.
+
+enter postgres via:
+- `psql -h localhost -p 5455 -U docker_username`
+or
+- `docker exec -it age psql -d postgresDB -U postgresUser`
+
+then in psql:
+```sql
+-- For every connection of AGE you start, you will need to load the AGE extension.
+CREATE EXTENSION age;
+LOAD 'age';
+SET search_path = ag_catalog, "$user", public;
+
+SELECT create_graph('graph_name');
+
+# To create a single vertex with label and properties, use the CREATE clause.
+SELECT *
+FROM cypher('graph_name', $$
+    CREATE (:label {property:"Node A"})
+$$) as (v agtype);
+
+# create a second vertex (node)
+SELECT *
+FROM cypher('graph_name', $$
+    CREATE (:label {property:"Node B"})
+$$) as (v agtype);
+
+# To create an edge between the nodes and set its properties:
+SELECT *
+FROM cypher('graph_name', $$
+    MATCH (a:label), (b:label)
+    WHERE a.property = 'Node A' AND b.property = 'Node B'
+    CREATE (a)-[e:RELTYPE {property:a.property + '<->' + b.property}]->(b)
+    RETURN e
+$$) as (e agtype);
+
+# Query the connected nodes:
+SELECT * from cypher('graph_name', $$
+        MATCH (V)-[R]-(V2)
+        RETURN V,R,V2
+$$) as (V agtype, R agtype, V2 agtype);
+
+\q
 ```
 
 ### Install and Configure Rails (if not done already)

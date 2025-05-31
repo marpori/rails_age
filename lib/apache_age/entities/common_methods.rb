@@ -24,6 +24,32 @@ module ApacheAge
         base_h.symbolize_keys
       end
 
+      # Enhanced hash representation with display information
+      # This provides more context without modifying the core attributes
+      def to_rich_h
+        # Start with the basic id and add the info string
+        result = { _meta: "#{age_label} (#{age_type})", id: id }
+
+        # Group all other attributes under properties
+        properties_hash = {}
+        attributes.to_hash.except('id').each do |key, value|
+          # Skip node objects (we'll handle them specially below)
+          next if %w[start_node end_node].include?(key)
+
+          properties_hash[key.to_sym] = value
+        end
+
+        result[:properties] = properties_hash
+
+        # Handle nested objects for edges
+        if age_type == 'edge'
+          result[:start_node] = start_node.to_rich_h if start_node&.respond_to?(:to_rich_h)
+          result[:end_node] = end_node.to_rich_h if end_node&.respond_to?(:to_rich_h)
+        end
+
+        result
+      end
+
       def update_attributes(attribs)
         attribs.except(id:).each do |key, value|
           send("#{key}=", value) if respond_to?("#{key}=")

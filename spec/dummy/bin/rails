@@ -1,4 +1,15 @@
 #!/usr/bin/env ruby
+rails_cmd = ARGV.first # must be first (otherwise consumed by rails:commands)
+
 APP_PATH = File.expand_path("../config/application", __dir__)
 require_relative "../config/boot"
 require "rails/commands"
+
+# ensure db:migrate is followed with: `Rake::Task["apache_age:config_schema"].invoke`
+# to the schema.rb file after the migration mangles it
+if rails_cmd == 'db:migrate'
+  require 'rake'
+  Rails.application.load_tasks
+  Rake::Task['db:migrate'].invoke
+  Rake::Task["apache_age:config_schema"].invoke
+end

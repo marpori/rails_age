@@ -18,7 +18,7 @@ module ApacheAge
       def find(id) = where(id: id).first
 
       def find_by(attributes)
-        return nil if attributes.reject { |k, v| v.blank? }.empty?
+        return nil if attributes.reject { |_k, v| v.blank? }.empty?
 
         where(attributes).limit(1).first
       end
@@ -32,9 +32,11 @@ module ApacheAge
       def match_clause
         case age_type
         when 'vertex'
-          "(find:#{age_label})"
+          # this allows us to Query for all nodes or a specific class of nodes
+          self == ApacheAge::Node ? '(find)' : "(find:#{age_label})"
         when 'edge'
-          "(start_node)-[find:#{age_label}]->(end_node)"
+          # this allows us to Query for all edges or a specific class of edges
+          self == ApacheAge::Edge ? '(start_node)-[find]->(end_node)' : "(start_node)-[find:#{age_label}]->(end_node)"
         when 'path'
           "(start_node)-[edge:#{@path_edge.gsub('::', '__')}*#{@path_length} #{path_properties}]->(end_node)"
         end
@@ -51,15 +53,31 @@ module ApacheAge
         age_results.values.map do |value|
           json_data = value.first.split('::').first
           hash = JSON.parse(json_data)
+          # once we have the record we use the label to find the class
+          klass = hash['label'].gsub('__', '::').constantize
           attribs = hash.except('label', 'properties').merge(hash['properties']).symbolize_keys
 
-          new(**attribs)
+          # knowing the class and attributes we can create a new instance (wether all results are of the same class or not)
+          # This allows us to return results for, ApacheAge::Node, ApacheAge::Edge, or any specific type of node or edge
+          klass.new(**attribs)
         end
       end
 
       private
 
       def where_node_clause(attributes)
+        # Make sure we're not treating a simple node attribute query as a start_node hash
+        # This fixes the issue with where(first_name: 'Barney') getting treated as a path query
+        if attributes.key?(:start_node) && attributes[:start_node].is_a?(Hash)
+          # Handle the special case where start_node contains properties
+          start_node_attrs = attributes[:start_node].map do |k, v|
+            query_string = k == :id ? "id(find) = ?" : "find.#{k} = ?"
+            ActiveRecord::Base.sanitize_sql([query_string, v])
+          end.join(' AND ')
+          return start_node_attrs
+        end
+
+        # Normal case - regular node attributes
         build_core_where_clause(attributes)
       end
 

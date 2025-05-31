@@ -7,6 +7,8 @@ require_relative "#{Rails.root}/../../lib/generators/apache_age/scaffold_edge/sc
 # before the test in: `spec/dummy` run:
 # `bin/rails g apache_age:scaffold_node Dog name`
 # `bin/rails g apache_age:scaffold_node Animals/Cat name`
+# `bin/rails g apache_age:scaffold_edge HasDog role`
+# `bin/rails g apache_age:scaffold_edge People/HasCat role`
 # couldn't get the generator to work within the test runtime.
 # let(:node_name) { "Pet" }
 # let(:args) { [node_name, "name"] }

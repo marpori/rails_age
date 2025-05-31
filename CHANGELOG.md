@@ -1,44 +1,24 @@
 # Change Log
 
-## VERSION 0.9.1 - xxxx-xx-xx
+## VERSION 0.7.0 - 2025-06-01
 
-- **Edge Generator**
-  * add start-/end-nodes types to edge generator (would make scaffold easier), ie:
-    `rails generate apache_age:edge HasPet owner_role start_node:person end_node:pet`
-    with property and specified start-/end-nodes (person and pet nodes must have already been created)
+**Age Path** - nodes and edges combined
 
-- **Edge Scaffold** with node types?
-  * add `rails generate apache_age:edge_scaffold HasJob employee_role start_node:person end_node:company`
+- query paths (control path, length/depth and filtering using `match`)
+  - code: `Path.cypher(path_edge: HasChild, path_length: "1..5", path_properties: {guardian_role: 'father'}, start_node_filter: {first_name: 'Zeke'}, end_node_filter: {last_name: 'Flintstone'})`
+  - code.to_sql: `SELECT * FROM cypher('age_schema', $$ MATCH path = (start_node {first_name: 'Zeke'})-[HasChild*1..5 {guardian_role: 'father'}]->(end_node {last_name: 'Flintstone'}) RETURN path $$) AS (path agtype);`
 
-## VERSION 0.9.0 - 2024-xx-xx
-- **AGE visual paths graph**
-  * add `rails generate apache_age:visualize`
+**to_rich_h**
 
-## VERSION 0.8.0 - 2024-xx-xx
+- added to_rich_h method to nodes, edges and paths (displays additional context information for readability and represents data closer to the original age data)
 
-- **cypher queries** (like active record queries)
-  * schema override
-  * query support
-  * paths support
-  * select attributes support
 
-## VERSION 0.8.0 - 2024-xx-xx
+**Generic Queries**
 
-breaking change?: namespaces (by default) will use their own schema? (add to database.yml & schema.rb ?)
+- ApacheAge::Node and ApacheAge::Edge can be used as the base for a query and return results instantiating the correct class (node, edge or path)
 
-- **AGE Schema override**
+**Read Me** largely updated
 
-- **Multiple AGE Schema**
-
-## VERSION 0.7.0 - 2024-xx-xx
-
-- *Age Path** - nodes and edges combined
-  * query paths (control path length/depth)
-  `SELECT * FROM cypher('age_schema', $$ MATCH path = (start_node)-[find:Edges__HasJob]->(end_node) RETURN path $$) AS (path agtype);`
-  `SELECT * FROM cypher('age_schema', $$ MATCH path = (start_node)-[find:Edges__HasJob*1]->(end_node) RETURN path $$) AS (path agtype);`
-  * parse path into nodes and edges
-  * add `rails generate apache_age:path_scaffold HasJobPath`
-  * add `rails generate apache_age:path_scaffold HasJobPath start_node:person end_node:company`
 
 ## VERSION 0.6.4 - 2024-10-30
 

@@ -123,31 +123,36 @@ module ApacheAge
 
       private
 
-      # TODO: ensure ordering keys are present in the model
+      # Handle ordering criteria for paths
       def parse_ordering(ordering)
         if ordering.is_a?(Hash)
-          ordering =
-            ordering
-              .map { |k, v| "find.#{k} #{ActiveRecord::Base.sanitize_sql_like(v.to_s)}" }
-              .join(', ')
-        elsif ordering.is_a?(Symbol)
-          ordering = "find.#{ordering}"
-        elsif ordering.is_a?(String)
-          ordering
-        elsif ordering.is_a?(Array)
-          ordering = ordering.map do |order|
-            if order.is_a?(Hash)
-              order
-                .map { |k, v| "find.#{k} #{ActiveRecord::Base.sanitize_sql_like(v.to_s)}" }
-                .join(', ')
-            elsif order.is_a?(Symbol)
-              "find.#{order}"
-            elsif order.is_a?(String)
-              order
+          ordering.map do |key, value|
+            if key == :length
+              # Special case for path length
+              "length(path) #{value.to_s.upcase}"
+            elsif key == :start_node || key == :end_node
+              # Node property ordering
+              if value.is_a?(Hash)
+                property = value.keys.first
+                direction = value.values.first.to_s.upcase
+                "#{key}.#{property} #{direction}"
+              else
+                "#{key} #{value.to_s.upcase}"
+              end
             else
-              raise ArgumentError, 'Array elements must be a string, symbol, or hash'
+              # Default case
+              "find.#{key} #{ActiveRecord::Base.sanitize_sql_like(value.to_s)}"
             end
           end.join(', ')
+        elsif ordering.is_a?(Symbol)
+          # Default for symbol
+          "find.#{ordering}"
+        elsif ordering.is_a?(String)
+          # Pass strings through as-is
+          ordering
+        elsif ordering.is_a?(Array)
+          # Process arrays recursively
+          ordering.map { |order| parse_ordering(order) }.join(', ')
         else
           raise ArgumentError, 'Ordering must be a string, symbol, hash, or array'
         end
